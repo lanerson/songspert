@@ -1,0 +1,1 @@
+Criei o aplicativo (core) e o projeto Django (songspert)
