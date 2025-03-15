@@ -1,0 +1,13 @@
+.bar-container {
+    width: 30px;
+    height: 27px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.bar {
+    background-color: var(--color-five);
+    width: 30px;
+    height: 5px;
+}
