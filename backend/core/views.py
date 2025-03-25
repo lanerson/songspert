@@ -52,37 +52,6 @@ def get_genre_map(request):
         "genres": list(GENRE_MAP.keys())
     })
 
-def get_genre(request):
-	genre_name = request.GET.get("name", "").lower().strip()
-	if not genre_name:
-		return JsonResponse({"error": "Missing query parameter 'name'"}, status=400)
-
-	if not GENRE_MAP:
-		fetch_genres()
-
-	genre_id = GENRE_MAP.get(genre_name)
-	if not genre_id:
-		return JsonResponse({"error": f'Genre: "{genre_name}" not found'}, status=404)
-	
-	url = f"{settings.DEEZER_API_URL}/chart/{genre_id}/tracks"
-	response = requests.get(url)
-	chart_data = response.json()
-	tracks = chart_data.get("data", [])
-
-	if not tracks:
-		return JsonResponse({"error": f'No tracks found for genre "{genre_name}"'}, status=404)
-
-	track = random.choice(tracks)
-	return JsonResponse({
-		"data": [
-			{
-				"title": track["title"],
-				"artist": track["artist"]["name"],
-				"preview": track["preview"]
-			}
-    	]	
-	})
-
 def get_tracks_by_genre(request):
     genre_name = request.GET.get("name", "").lower().strip()
     count = request.GET.get("n", "1")
