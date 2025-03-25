@@ -1,10 +1,13 @@
 from django.shortcuts import render
+import random
 
 # Create your views here.
 
 def index(request):
 	return render(request, 'index.html')
 
+def genre_template(request):
+    return render(request, 'genre.html')
 
 import requests
 from django.http import JsonResponse
@@ -45,8 +48,8 @@ fetch_genres()
 	
 
 def get_genre(request):
-	genre_nsame = request.GET.get("name", "").lower()
-	if not query:
+	genre_name = request.GET.get("name", "").lower().strip()
+	if not genre_name:
 		return JsonResponse({"error": "Missing query parameter 'name'"}, status=400)
 
 	if not GENRE_MAP:
@@ -56,17 +59,21 @@ def get_genre(request):
 	if not genre_id:
 		return JsonResponse({"error": f'Genre: "{genre_name}" not found'}, status=404)
 	
-	url = f"{settings.DEEZER_API_URL}/chart/{genre_name}/tracks"
-	response = request.get(url)
+	url = f"{settings.DEEZER_API_URL}/chart/{genre_id}/tracks"
+	response = requests.get(url)
 	chart_data = response.json()
-	tracks = cahrt_data.get("data", [])
+	tracks = chart_data.get("data", [])
 
 	if not tracks:
 		return JsonResponse({"error": f'No tracks found for genre "{genre_name}"'}, status=404)
 
 	track = random.choice(tracks)
 	return JsonResponse({
-		"title": track["title"],
-		"artist": track["artist"]["name"],
-		"preview": track["preview"]
+		"data": [
+			{
+				"title": track["title"],
+				"artist": track["artist"]["name"],
+				"preview": track["preview"]
+			}
+    	]	
 	})
