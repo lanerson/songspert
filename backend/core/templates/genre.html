@@ -7,10 +7,11 @@
     <script>
         async function searchMusic() {
         let genre_name = document.getElementById("genreSelect").value;
+        let trackCount = document.getElementById("trackCount").value;
         if (!genre_name) return;
 
 
-        let response = await fetch(`/genre/?name=${genre_name}`);
+        let response = await fetch(`/genre/list/?name=${genre_name}&n=${trackCount}`);
         let data = await response.json();
 
         let resultsDiv = document.getElementById("results");
@@ -32,27 +33,57 @@
         }
 
         function playTrack(previewUrl) {
-        let audioPlayer = document.getElementById("audioPlayer");
-        audioPlayer.src = previewUrl;
-        audioPlayer.play();
+            let audioPlayer = document.getElementById("audioPlayer");
+            audioPlayer.src = previewUrl;
+            audioPlayer.play();
+        }
+
+        window.onload = async function () {
+            const genreSelect = document.getElementById("genreSelect");
+            try {
+                const response = await fetch("/genre/map");
+                const data = await response.json();
+                const genres = data.genres;
+
+                genreSelect.innerHTML = '<option value="">Select a genre</option>';
+                for (const genre of genres) {
+                genreSelect.innerHTML += `<option value="${genre}">${capitalize(genre)}</option>`;
+                }
+            } catch (err) {
+                genreSelect.innerHTML = '<option value="">Failed to load genres</option>';
+            }
+        };
+
+        function capitalize(str) {
+            return str.charAt(0).toUpperCase() + str.slice(1);
         }
     </script>
     </head>
+
     <body>
     <h1>Search by Genre</h1>
+
+    <label for="genreSelect">Genre:</label>
     <select id="genreSelect">
-        <option value="">Select a genre</option>
-        <option value="pop">Pop</option>
-        <option value="rock">Rock</option>
-        <option value="jazz">Jazz</option>
-        <option value="electro">Electro</option>
-        <option value="rap/hip hop">Rap/Hip Hop</option>
-        <option value="classical">Classical</option>
-        <option value="soundtrack">Soundtrack</option>
-        <!-- Add more as needed -->
+        <option value="">Loading genres...</option>
+      </select>
+
+    <label for="trackCount">Number of tracks:</label>
+    <select id="trackCount">
+        <option value="">Select count</option>
+        <option value="1">1</option>
+        <option value="3">3</option>
+        <option value="5">5</option>
+        <option value="10">10</option>
+        <option value="15">15</option>
+        <option value="20">20</option>
     </select>
+
     <button onclick="searchMusic()">Search</button>
+
     <div id="results"></div>
+
     <audio id="audioPlayer" controls style="margin-top: 20px; display: block;"></audio>
+
     </body>
     </html>

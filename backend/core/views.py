@@ -45,7 +45,12 @@ def fetch_genres():
 
 # Fetch genres when server starts
 fetch_genres()
-	
+
+
+def get_genre_map(request):
+    return JsonResponse({
+        "genres": list(GENRE_MAP.keys())
+    })
 
 def get_genre(request):
 	genre_name = request.GET.get("name", "").lower().strip()
@@ -77,3 +82,42 @@ def get_genre(request):
 			}
     	]	
 	})
+
+def get_tracks_by_genre(request):
+    genre_name = request.GET.get("name", "").lower().strip()
+    count = request.GET.get("n", "1")
+
+    try:
+        n = min(max(int(count), 1), 20)  # clamp between 1 and 20
+    except ValueError:
+        return JsonResponse({"error": "Invalid 'n' parameter"}, status=400)
+
+    if not genre_name:
+        return JsonResponse({"error": "Missing genre name"}, status=400)
+
+    genre_id = GENRE_MAP.get(genre_name)
+    if not genre_id:
+        return JsonResponse({"error": f"Genre '{genre_name}' not found"}, status=404)
+
+    url = f"{settings.DEEZER_API_URL}/chart/{genre_id}/tracks"
+    response = requests.get(url)
+    chart_data = response.json()
+    tracks = chart_data.get("data", [])
+
+    if not tracks:
+        return JsonResponse({"error": f"No tracks found for genre '{genre_name}'"}, status=404)
+
+    print("Requested:", n, "Available:", len(tracks))
+
+    selected_tracks = random.sample(tracks, min(n, len(tracks)))
+
+
+    return JsonResponse({
+        "data": [
+            {
+                "title": track["title"],
+                "artist": track["artist"]["name"],
+                "preview": track["preview"]
+            } for track in selected_tracks
+        ]
+    })
