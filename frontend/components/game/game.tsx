@@ -1,7 +1,7 @@
 'use client'
 import { useRef, useState } from 'react'
 import '../../styles/game.css'
-import Response from '../responses/response'
+import { useRouter } from 'next/navigation'
 
 type song = {
     src: string,
@@ -10,29 +10,108 @@ type song = {
 }
 
 const songs: song[] = [
-    { src: '/again.mp3', answers: ['resp cor', 'resp2', 'resp3', 'resp4'], correctAnswer: 'resp cor' },
-    { src: '/goldentime.mp3', answers: ['resp1', 'resp cor', 'resp3', 'resp4'], correctAnswer: 'resp cor' }
+    { src: '/music/again.mp3', answers: ['AGAIN', 'HOLOGRAM', 'GOLDEN TIME', 'RAIN'], correctAnswer: 'AGAIN' },
+    { src: '/music/hologram.mp3', answers: ['GOLDEN TIME', 'AGAIN', 'HOLOGRAM', 'RAIN'], correctAnswer: 'HOLOGRAM' },
+    { src: '/music/goldentime.mp3', answers: ['REWRITE', 'HOLOGRAM', 'GOLDEN TIME', 'RAIN'], correctAnswer: 'GOLDEN TIME' },
+    { src: '/music/rewrite.mp3', answers: ['REWRITE', 'AGAIN', 'GOLDEN TIME', 'RAIN'], correctAnswer: 'REWRITE' },
+    { src: '/music/rain.mp3', answers: ['REWRITE', 'AGAIN', 'RAIN', 'GOLDEN TIME'], correctAnswer: 'RAIN' }
 ]
 
 export default function Game() {
-    const audioRef = useRef<HTMLAudioElement | null>(null);
-    const [isPlaying, setIsPlaying] = useState(false);
+    const [toggleStart, setToggleStart] = useState(false);
+    const [isCounting, setIsCounting] = useState(false);
+    const [song, setSong] = useState<song | null>(null);
+    const [songIndex, setsongIndex] = useState(0);
 
-    const songs: string[] = ['/again.mp3', '/goldentime.mp3']
+    const router = useRouter();
+
+    const audioRef = useRef<HTMLAudioElement | null>(null);
+    // const [isPlaying, setIsPlaying] = useState(false);
+    const [content, setContent] = useState('PRONTO?');
+
+    const initialTransition: string[] = ['3', '2', '1', 'START'];
+
+    const answersContainer = (song: song | null) => {
+        if (song == null) {
+            return <div></div>
+        }
+        else {
+
+            return (
+                song.answers.map((answer) => <div className="respostas" onClick={handleOptions}>{answer}</div>)
+
+            )
+        }
+
+    }
+
+    const changeSong = () => {
+        setsongIndex(songIndex + 1)
+        audioRef.current.pause()
+        if (songIndex >= songs.length) {
+            setContent('PRONTO?')
+            setIsCounting(false)
+            setToggleStart(false)
+            setsongIndex(0)
+            alert("acabou")
+            window.location.reload()
+        }
+        else {
+            setContent(`song ${songIndex + 1}`)
+            setSong(songs[songIndex])
+            audioRef.current.src = songs[songIndex].src
+            audioRef.current.play()
+        }
+    }
+
+    const handleStart = (words: string[]) => {
+        if (isCounting) return;
+        setToggleStart(true)
+        setSong(songs[0])
+        let index: number = 0;
+        audioRef.current.src = songs[songIndex].src
+        const interval = setInterval(() => {
+            setContent(words[index]);
+            index++;
+
+            if (index === words.length) {
+                clearInterval(interval);
+                setTimeout(() => {
+                    setContent(null);
+                    setIsCounting(false);
+                    handleFinish();
+                }, 1000);
+            }
+        }, 1000);
+    }
+    const handleFinish = () => {
+        setIsCounting(true);
+        audioRef.current.play()
+        setContent("song 1")
+    }
+
+    const handleOptions = () => {
+        changeSong()
+    }
 
     return (
         <div className="game-container">
 
             <div className='game-screen'>
-                <div className='screen-content'></div>
+                <div className='screen-content'>{content}</div>
             </div>
+            <audio ref={audioRef} />
+            <div className="play-button" onClick={() => handleStart(initialTransition)} style={{ display: toggleStart ? 'none' : 'auto' }}></div>
+            <div className="respostas-container" style={{ display: isCounting ? 'grid' : 'none' }}>
+                {/* <div className="respostas" onClick={handleOptions}>Opção 1</div>
+                <div className="respostas" onClick={handleOptions}>Opção 2</div>
+                <div className="respostas" onClick={handleOptions}>Opção 3</div>
+                <div className="respostas" onClick={handleOptions}>Opção 4</div> */}
 
+                {
+                    answersContainer(song)
+                }
 
-            <div className="respostas-container">
-                <div className="respostas">Opção 1</div>
-                <div className="respostas">Opção 2</div>
-                <div className="respostas">Opção 3</div>
-                <div className="respostas">Opção 4</div>
             </div>
         </div>
     )
