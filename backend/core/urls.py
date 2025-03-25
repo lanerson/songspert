@@ -5,4 +5,5 @@ urlpatterns = [
 	path('', index),
     path("search/", search_track, name="search_track"),
     path("track/<int:track_id>/", track_details, name="track_details"),
+    path("genre/", genre_request, name="genre_request"),
 ]
