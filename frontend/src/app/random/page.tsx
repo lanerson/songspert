@@ -1,6 +1,6 @@
 import Header from "../../../components/header";
 
-export default function Ranking() {
+export default function Random() {
     return (
         <div>
         </div>

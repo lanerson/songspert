@@ -1,4 +1,5 @@
 .bar-container {
+    cursor: pointer;
     width: 30px;
     height: 27px;
     display: flex;
@@ -10,4 +11,14 @@
     background-color: var(--color-five);
     width: 30px;
     height: 5px;
+}
+
+.bar-container:hover {
+    width: 40px;
+    height: 30px;
+
+    .bar {
+        width: 36px;
+        height: 6px;
+    }
 }

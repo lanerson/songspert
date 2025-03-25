@@ -13,6 +13,7 @@ header {
     font-weight: bold;
     font-size: larger;
     color: var(--color-white);
+    padding: 10px;
 }
 
 .homeOptions:hover {
