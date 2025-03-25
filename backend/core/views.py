@@ -32,3 +32,41 @@ def track_details(request, track_id):
 	if response.status_code == 200:
 		return JsonResponse(response.json())
 	return JsonResponse({"error": "Failed to fetch track details"}, status=response.status_code)
+
+def fetch_genres():
+    global GENRE_MAP
+    response = requests.get(f"{settings.DEEZER_API_URL}/genre")
+    data = response.json()
+    genre_list = data.get("data", [])
+    GENRE_MAP = {genre["name"].lower(): genre["id"] for genre in genre_list}
+
+# Fetch genres when server starts
+fetch_genres()
+	
+
+def get_genre(request):
+	genre_nsame = request.GET.get("name", "").lower()
+	if not query:
+		return JsonResponse({"error": "Missing query parameter 'name'"}, status=400)
+
+	if not GENRE_MAP:
+		fetch_genres()
+
+	genre_id = GENRE_MAP.get(genre_name)
+	if not genre_id:
+		return JsonResponse({"error": f'Genre: "{genre_name}" not found'}, status=404)
+	
+	url = f"{settings.DEEZER_API_URL}/chart/{genre_name}/tracks"
+	response = request.get(url)
+	chart_data = response.json()
+	tracks = cahrt_data.get("data", [])
+
+	if not tracks:
+		return JsonResponse({"error": f'No tracks found for genre "{genre_name}"'}, status=404)
+
+	track = random.choice(tracks)
+	return JsonResponse({
+		"title": track["title"],
+		"artist": track["artist"]["name"],
+		"preview": track["preview"]
+	})
