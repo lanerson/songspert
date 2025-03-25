@@ -1,0 +1,7 @@
+.game-container {
+    width: 80vw;
+    max-width: 1200px;
+    height: 80vh;
+    background-color: red;
+    border-radius: 15px;
+}

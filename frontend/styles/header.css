@@ -1,0 +1,21 @@
+header {
+    background-color: var(--color-two);
+    height: 10vh;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-around;
+
+}
+
+.homeOptions {
+    text-decoration: none;
+    font-weight: bold;
+    font-size: larger;
+    color: var(--color-white);
+    padding: 10px;
+}
+
+.homeOptions:hover {
+    font-size: x-large;
+}
