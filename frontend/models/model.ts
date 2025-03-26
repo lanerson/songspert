@@ -1,3 +1,5 @@
+import { setConfig } from "next/config"
+
 enum categoriesEnum {
     Rock,
     Pop,
@@ -19,4 +21,5 @@ type song = {
 }
 
 
-export { categoriesEnum, challengeInterface, song }
+export type { challengeInterface, song }
+export { categoriesEnum }

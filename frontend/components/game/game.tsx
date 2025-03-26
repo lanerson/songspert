@@ -87,7 +87,7 @@ export default function Game() {
             </div>
             <audio ref={audioRef} />
             <div className="play-button" onClick={() => handleStart(initialTransition)} style={{ display: toggleStart ? 'none' : 'auto' }}></div>
-            <Fase song={song} handleOptions={handleOptions} />
+            <Fase song={song} handleOptions={handleOptions} isCounting={isCounting} />
         </div>
     )
 }
