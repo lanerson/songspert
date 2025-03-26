@@ -1,3 +1,5 @@
+import { setConfig } from "next/config"
+
 enum categoriesEnum {
     Rock,
     Pop,
@@ -10,3 +12,14 @@ interface challengeInterface {
     categories: categoriesEnum[],
     songs: string[]
 }
+
+
+type song = {
+    src: string,
+    answers: string[],
+    correctAnswer: string
+}
+
+
+export type { challengeInterface, song }
+export { categoriesEnum }
