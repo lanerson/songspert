@@ -2,12 +2,9 @@
 import { useRef, useState } from 'react'
 import '../../styles/game.css'
 import { useRouter } from 'next/navigation'
+import { song } from '../../models/model'
+import Fase from './fase'
 
-type song = {
-    src: string,
-    answers: string[],
-    correctAnswer: string
-}
 
 const songs: song[] = [
     { src: '/music/again.mp3', answers: ['AGAIN', 'HOLOGRAM', 'GOLDEN TIME', 'RAIN'], correctAnswer: 'AGAIN' },
@@ -31,19 +28,7 @@ export default function Game() {
 
     const initialTransition: string[] = ['3', '2', '1', 'START'];
 
-    const answersContainer = (song: song | null) => {
-        if (song == null) {
-            return <div></div>
-        }
-        else {
 
-            return (
-                song.answers.map((answer) => <div className="respostas" onClick={handleOptions}>{answer}</div>)
-
-            )
-        }
-
-    }
 
     const changeSong = () => {
         setsongIndex(songIndex + 1)
@@ -102,17 +87,7 @@ export default function Game() {
             </div>
             <audio ref={audioRef} />
             <div className="play-button" onClick={() => handleStart(initialTransition)} style={{ display: toggleStart ? 'none' : 'auto' }}></div>
-            <div className="respostas-container" style={{ display: isCounting ? 'grid' : 'none' }}>
-                {/* <div className="respostas" onClick={handleOptions}>Opção 1</div>
-                <div className="respostas" onClick={handleOptions}>Opção 2</div>
-                <div className="respostas" onClick={handleOptions}>Opção 3</div>
-                <div className="respostas" onClick={handleOptions}>Opção 4</div> */}
-
-                {
-                    answersContainer(song)
-                }
-
-            </div>
+            <Fase song={song} handleOptions={handleOptions} />
         </div>
     )
 }

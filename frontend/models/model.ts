@@ -10,3 +10,13 @@ interface challengeInterface {
     categories: categoriesEnum[],
     songs: string[]
 }
+
+
+type song = {
+    src: string,
+    answers: string[],
+    correctAnswer: string
+}
+
+
+export { categoriesEnum, challengeInterface, song }
