@@ -24,8 +24,6 @@
 
 .screen-content {
     background-color: white;
-    color: black;
-    font-size: xx-large;
     position: absolute;
     top: 34.7%;
     left: 11.6%;
@@ -33,8 +31,14 @@
     aspect-ratio: 2 / 1.25;
 
     place-content: center;
+}
+
+.screen-text {
+    color: black;
+    font-size: xx-large;
     text-align: center;
 }
+
 
 .play-button {
     background-image: url("../public/images/play-button.png");

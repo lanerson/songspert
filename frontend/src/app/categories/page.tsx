@@ -1,28 +1,23 @@
+'use client'
+import { useEffect, useState } from 'react'
 import './categories.css'
-
-enum categories {
-
-}
-
-interface challengeInterface {
-    id: number,
-    name: string,
-    categories: string[]
-}
 
 export default function Categories() {
 
-    const userModel =
-        <div>
-            <div className="perfil"></div>
-            <div></div>
-        </div>
+    const [content, setContent] = useState<string>('oi')
+    const textos: string[] = ['3', '2', '1', '0']
+    useEffect(() => {
+        for (let index = 0; index < textos.length; index++) {
+            clearInterval
+            setTimeout(() => setContent(textos[index]), 2000)
+        }
+    })
 
     return (
-        <div>
+        <div className='container'>
             <div className="ranking-container">
                 <div className='buttons-container'>
-                    <div className="buttons"></div>
+                    <div className="buttons">{content}</div>
                     <div className="buttons"></div>
                     <div className="buttons"></div>
                     <div className="buttons"></div>

@@ -1,11 +1,11 @@
 'use client'
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import '../../styles/game.css'
-import { useRouter } from 'next/navigation'
 import { song } from '../../models/model'
 import Fase from './fase'
+import useAudio from './audioController'
 
-
+// Constante para teste de frontend, serão mudadas para requisições backend
 const songs: song[] = [
     { src: '/music/again.mp3', answers: ['AGAIN', 'HOLOGRAM', 'GOLDEN TIME', 'RAIN'], correctAnswer: 'AGAIN' },
     { src: '/music/hologram.mp3', answers: ['GOLDEN TIME', 'AGAIN', 'HOLOGRAM', 'RAIN'], correctAnswer: 'HOLOGRAM' },
@@ -14,47 +14,25 @@ const songs: song[] = [
     { src: '/music/rain.mp3', answers: ['REWRITE', 'AGAIN', 'RAIN', 'GOLDEN TIME'], correctAnswer: 'RAIN' }
 ]
 
+const time: number = 200
+const initialTransition: string[] = ['3', '2', '1', 'START'];
+
+
 export default function Game() {
-    const [toggleStart, setToggleStart] = useState(false);
-    const [isCounting, setIsCounting] = useState(false);
+    const [toggleStart, setToggleStart] = useState<boolean>(true);
+    const [toggleOptions, setToggleOptions] = useState<boolean>(false);
+    const [isCounting, setIsCounting] = useState<boolean>(false); // Só pra controlar a animação e a visibilidade dos componentes
     const [song, setSong] = useState<song | null>(null);
-    const [songIndex, setsongIndex] = useState(0);
+    const [songIndex, setsongIndex] = useState<number>(0);
 
-    const router = useRouter();
-
-    const audioRef = useRef<HTMLAudioElement | null>(null);
-    // const [isPlaying, setIsPlaying] = useState(false);
+    const { audioRef, tocar } = useAudio(song, time);
     const [content, setContent] = useState('PRONTO?');
 
-    const initialTransition: string[] = ['3', '2', '1', 'START'];
-
-
-
-    const changeSong = () => {
-        setsongIndex(songIndex + 1)
-        audioRef.current.pause()
-        if (songIndex >= songs.length) {
-            setContent('PRONTO?')
-            setIsCounting(false)
-            setToggleStart(false)
-            setsongIndex(0)
-            alert("acabou")
-            window.location.reload()
-        }
-        else {
-            setContent(`song ${songIndex + 1}`)
-            setSong(songs[songIndex])
-            audioRef.current.src = songs[songIndex].src
-            audioRef.current.play()
-        }
-    }
-
-    const handleStart = (words: string[]) => {
+    // Animação inicial Para iniciar o desafio
+    const handleAnimation = (words: string[]) => {
         if (isCounting) return;
-        setToggleStart(true)
-        setSong(songs[0])
         let index: number = 0;
-        audioRef.current.src = songs[songIndex].src
+        setToggleStart(!toggleStart)
         const interval = setInterval(() => {
             setContent(words[index]);
             index++;
@@ -62,32 +40,58 @@ export default function Game() {
             if (index === words.length) {
                 clearInterval(interval);
                 setTimeout(() => {
-                    setContent(null);
-                    setIsCounting(false);
-                    handleFinish();
+                    handleStart();
                 }, 1000);
             }
         }, 1000);
     }
-    const handleFinish = () => {
+
+    const changeSong = () => {
+        setSong(songs[songIndex])
+        setsongIndex(songIndex + 1)
+        tocar()
+        setContent(`song ${songIndex + 1}`)
+    }
+
+
+
+    const handleStart = () => {
+        setToggleOptions(!toggleOptions)
         setIsCounting(true);
-        audioRef.current.play()
-        setContent("song 1")
+        setSong(songs[songIndex])
+        setsongIndex(songIndex + 1)
+        setContent(`song ${songIndex + 1}`)
+        tocar()
     }
 
     const handleOptions = () => {
-        changeSong()
+        if (songIndex < songs.length) {
+            changeSong()
+        }
+        else {
+            handleFinish()
+        }
+    }
+
+    const handleFinish = () => {
+        alert("terminou")
+        window.location.reload()
     }
 
     return (
         <div className="game-container">
 
             <div className='game-screen'>
-                <div className='screen-content'>{content}</div>
+                <div className='screen-content'>
+                    <div className="screen-text">{content}</div>
+                </div>
             </div>
             <audio ref={audioRef} />
-            <div className="play-button" onClick={() => handleStart(initialTransition)} style={{ display: toggleStart ? 'none' : 'auto' }}></div>
-            <Fase song={song} handleOptions={handleOptions} isCounting={isCounting} />
+            {
+                toggleStart ? <div className="play-button" onClick={() => handleAnimation(initialTransition)} style={{ display: 'auto' }}></div> :
+                    toggleOptions ?
+                        <Fase song={song} handleOptions={handleOptions} /> : <div></div>
+            }
         </div>
     )
 }

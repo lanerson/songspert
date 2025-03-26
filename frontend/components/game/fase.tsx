@@ -1,33 +1,31 @@
+'use client'
+import '../../styles/game.css'
 import { song } from '../../models/model'
-
 
 type FaseType = {
     song: song,
     handleOptions: () => void,
-    isCounting: boolean
 }
 
 
-export default function Fase({ song, handleOptions, isCounting }: FaseType) {
-    const answersContainer = (song: song | null) => {
-        if (song == null) {
-            return <div></div>
-        }
-        else {
-
-            return (
-                song.answers.map((answer) => <div className="respostas" onClick={handleOptions}>{answer}</div>)
-
-            )
+export default function Fase({ song, handleOptions }: FaseType) {
+    const AnswersContainer: React.FC<{ song: song | null }> = ({ song }) => {
+        if (!song) {
+            return <div></div>;
         }
 
-    }
+        return (
+            <div className="respostas-container" style={{ display: 'grid' }}>
+                {song.answers.map((answer, index) => (
+                    <div key={index} className="respostas" onClick={handleOptions}>
+                        {answer}
+                    </div>
+                ))}
+            </div>
+        );
+    };
+
     return (
-        <div className="respostas-container" style={{ display: isCounting ? 'grid' : 'none' }}>
-            {
-                answersContainer(song)
-            }
-
-        </div>
+        <AnswersContainer song={song} />
     )
 }
