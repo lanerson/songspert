@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'core',
     'rest_framework',
     'corsheaders',
+    'django_extensions',
 ]
 
 AUTH_USER_MODEL = 'core.User'
