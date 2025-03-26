@@ -36,24 +36,24 @@ class Attempt(models.Model):
 
     def __str__(self):
         return f"{self.user} -> {self.Challenge} = {self.is_correct}"
-    class GameRoom(models.Model):
-        code = models.CharField(max_length=10, unique=True)
-        host = models.ForeignKey(
-            settings.AUTH_USER_MODEL,
-            on_delete=models.CASCADE,
-            related_name='hosted_rooms'
-        )
-        players = models.ManyToManyField(
-            settings.AUTH_USER_MODEL,
-            related_name='joined_rooms'
-        )
-        challenge_set = models.ForeignKey(
-            ChallegeSet,
-            on_delete=models.SET_NULL,
-            null=True,
-            blank=True
-        )
-        created_at = models.DateTimeField(auto_now_add=True)
+class GameRoom(models.Model):
+    code = models.CharField(max_length=10, unique=True)
+    host = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='hosted_rooms'
+    )
+    players = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        related_name='joined_rooms'
+    )
+    challenge_set = models.ForeignKey(
+        ChallegeSet,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
 
-        def __str__(self):
-            return f"Room {self.code} ({self.status})"
+    def __str__(self):
+        return f"Room {self.code} ({self.status})"
