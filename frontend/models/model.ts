@@ -14,12 +14,12 @@ interface challengeInterface {
 }
 
 
-type song = {
+type songType = {
     src: string,
     answers: string[],
     correctAnswer: string
 }
 
 
-export type { challengeInterface, song }
+export type { challengeInterface, songType }
 export { categoriesEnum }

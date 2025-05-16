@@ -1,12 +1,13 @@
 'use client'
-import { useRef, useState } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import '../../styles/game.css'
 import { useRouter } from 'next/navigation'
-import { song } from '../../models/model'
+import { songType } from '../../models/model'
 import Fase from './fase'
+import { getSongById } from '../../scripts/data_fetch'
 
 
-const songs: song[] = [
+const challenge: songType[] = [
     { src: '/music/again.mp3', answers: ['AGAIN', 'HOLOGRAM', 'GOLDEN TIME', 'RAIN'], correctAnswer: 'AGAIN' },
     { src: '/music/hologram.mp3', answers: ['GOLDEN TIME', 'AGAIN', 'HOLOGRAM', 'RAIN'], correctAnswer: 'HOLOGRAM' },
     { src: '/music/goldentime.mp3', answers: ['REWRITE', 'HOLOGRAM', 'GOLDEN TIME', 'RAIN'], correctAnswer: 'GOLDEN TIME' },
@@ -17,7 +18,7 @@ const songs: song[] = [
 export default function Game() {
     const [toggleStart, setToggleStart] = useState(false);
     const [isCounting, setIsCounting] = useState(false);
-    const [song, setSong] = useState<song | null>(null);
+    const [song, setSong] = useState<songType | null>(null);
     const [songIndex, setsongIndex] = useState(0);
 
     const router = useRouter();
@@ -28,12 +29,21 @@ export default function Game() {
 
     const initialTransition: string[] = ['3', '2', '1', 'START'];
 
+    useEffect(() => {
+        const fetchData = async () => {
+            const data = await getSongById(761220);
+            console.log(data);
+        };
+
+        fetchData();
+    }, []);
 
 
     const changeSong = () => {
-        setsongIndex(songIndex + 1)
+        const newIndex = songIndex + 1;
+        setsongIndex(newIndex)
         audioRef.current.pause()
-        if (songIndex >= songs.length) {
+        if (newIndex >= challenge.length) {
             setContent('PRONTO?')
             setIsCounting(false)
             setToggleStart(false)
@@ -43,8 +53,8 @@ export default function Game() {
         }
         else {
             setContent(`song ${songIndex + 1}`)
-            setSong(songs[songIndex])
-            audioRef.current.src = songs[songIndex].src
+            setSong(challenge[newIndex])
+            audioRef.current.src = challenge[newIndex].src
             audioRef.current.play()
         }
     }
@@ -52,9 +62,9 @@ export default function Game() {
     const handleStart = (words: string[]) => {
         if (isCounting) return;
         setToggleStart(true)
-        setSong(songs[0])
+        setSong(challenge[0])
         let index: number = 0;
-        audioRef.current.src = songs[songIndex].src
+        audioRef.current.src = challenge[songIndex].src
         const interval = setInterval(() => {
             setContent(words[index]);
             index++;
