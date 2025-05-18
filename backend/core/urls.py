@@ -2,6 +2,7 @@ from django.urls import path, include
 from .views import index, search_track, track_details, genre_template, get_tracks_by_genre, get_genre_map, ChallengeSetViewSet, ChallengeViewSet, UserViewSet
 from rest_framework_nested import routers
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
 
 router = routers.DefaultRouter()
 router.register(r"challenge_sets", ChallengeSetViewSet, basename="challenge_set")
@@ -27,4 +28,10 @@ urlpatterns += [
     path("auth/token/", TokenObtainPairView.as_view(), name="token_obtain"),
     path("auth/refresh", TokenRefreshView.as_view(), name="token_refresh"),
     path("api-auth/", include("rest_framework.urls")),
+]
+
+urlpatterns += [
+    path("schema/",   SpectacularAPIView.as_view(),               name="schema"),
+    path("swagger/",  SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),
+    path("redoc/",    SpectacularRedocView.as_view(url_name="schema"),   name="redoc"),
 ]
