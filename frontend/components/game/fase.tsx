@@ -1,15 +1,15 @@
-import { song } from '../../models/model'
+import { songType } from '../../models/model'
 
 
 type FaseType = {
-    song: song,
+    song: songType,
     handleOptions: () => void,
     isCounting: boolean
 }
 
 
 export default function Fase({ song, handleOptions, isCounting }: FaseType) {
-    const answersContainer = (song: song | null) => {
+    const answersContainer = (song: songType | null) => {
         if (song == null) {
             return <div></div>
         }

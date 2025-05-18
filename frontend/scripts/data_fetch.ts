@@ -6,6 +6,7 @@ export async function getSongById(id) {
     const data = await fetch(base_url + `track/${id}`)
         .then(async (res) => await res.json())
         .then((data) => { return { title: data.title_short, song: data.preview, artist: data.artist.name } })
+    console.log(data)
     return data
 }
 
@@ -56,3 +57,14 @@ export async function getSongsByName(songName, qtdResults = 5) { // dá pra colo
     return data
 }
 
+export function getDailyChallenge() {
+    return { challengeID: 761220, title: "MOST PLAYED SONGS IN THE 2000S" }
+}
+
+export async function getChallengeById(idChallenge: number) {
+    const challenge = [975952742, 976056152, 976068472, 1100590662]
+    challenge.map(async (idSong) => await getSongById(idSong))
+    return challenge
+}
+
+// getSongById(761220)

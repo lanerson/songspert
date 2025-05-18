@@ -15,7 +15,7 @@ const challenge: songType[] = [
     { src: '/music/rain.mp3', answers: ['REWRITE', 'AGAIN', 'RAIN', 'GOLDEN TIME'], correctAnswer: 'RAIN' }
 ]
 
-export default function Game() {
+export default function Game(challengeID) {
     const [toggleStart, setToggleStart] = useState(false);
     const [isCounting, setIsCounting] = useState(false);
     const [song, setSong] = useState<songType | null>(null);
@@ -32,7 +32,7 @@ export default function Game() {
     useEffect(() => {
         const fetchData = async () => {
             const data = await getSongById(761220);
-            console.log(data);
+            audioRef.current.src = data.song
         };
 
         fetchData();
@@ -91,7 +91,6 @@ export default function Game() {
 
     return (
         <div className="game-container">
-
             <div className='game-screen'>
                 <div className='screen-content'>{content}</div>
             </div>
