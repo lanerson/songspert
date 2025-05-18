@@ -4,89 +4,75 @@ import '../../styles/game.css'
 import { useRouter } from 'next/navigation'
 import { songType } from '../../models/model'
 import Fase from './fase'
-import { getSongById } from '../../scripts/data_fetch'
+
 
 
 const challenge: songType[] = [
-    { src: '/music/again.mp3', answers: ['AGAIN', 'HOLOGRAM', 'GOLDEN TIME', 'RAIN'], correctAnswer: 'AGAIN' },
-    { src: '/music/hologram.mp3', answers: ['GOLDEN TIME', 'AGAIN', 'HOLOGRAM', 'RAIN'], correctAnswer: 'HOLOGRAM' },
-    { src: '/music/goldentime.mp3', answers: ['REWRITE', 'HOLOGRAM', 'GOLDEN TIME', 'RAIN'], correctAnswer: 'GOLDEN TIME' },
-    { src: '/music/rewrite.mp3', answers: ['REWRITE', 'AGAIN', 'GOLDEN TIME', 'RAIN'], correctAnswer: 'REWRITE' },
-    { src: '/music/rain.mp3', answers: ['REWRITE', 'AGAIN', 'RAIN', 'GOLDEN TIME'], correctAnswer: 'RAIN' }
+    { id: 1, src: '/music/again.mp3', answers: ['AGAIN', 'HOLOGRAM', 'GOLDEN TIME', 'RAIN'], correctAnswer: 'AGAIN' },
+    { id: 2, src: '/music/hologram.mp3', answers: ['GOLDEN TIME', 'AGAIN', 'HOLOGRAM', 'RAIN'], correctAnswer: 'HOLOGRAM' },
+    { id: 3, src: '/music/goldentime.mp3', answers: ['REWRITE', 'HOLOGRAM', 'GOLDEN TIME', 'RAIN'], correctAnswer: 'GOLDEN TIME' },
+    { id: 4, src: '/music/rewrite.mp3', answers: ['REWRITE', 'AGAIN', 'GOLDEN TIME', 'RAIN'], correctAnswer: 'REWRITE' },
+    { id: 5, src: '/music/rain.mp3', answers: ['REWRITE', 'AGAIN', 'RAIN', 'GOLDEN TIME'], correctAnswer: 'RAIN' }
 ]
 
-export default function Game(challengeID) {
-    const [toggleStart, setToggleStart] = useState(false);
-    const [isCounting, setIsCounting] = useState(false);
-    const [song, setSong] = useState<songType | null>(null);
-    const [songIndex, setsongIndex] = useState(0);
-
-    const router = useRouter();
-
+export default function Game(challengeId) {
+    const [toggleStart, setToggleStart] = useState<boolean>(false);
+    const [currentSong, setCurrentSong] = useState<songType | null>(null);
+    const [songIndex, setSongIndex] = useState<number>(0);
     const audioRef = useRef<HTMLAudioElement | null>(null);
-    // const [isPlaying, setIsPlaying] = useState(false);
-    const [content, setContent] = useState('PRONTO?');
+    const [content, setContent] = useState<string>('PRONTO?');
 
-    const initialTransition: string[] = ['3', '2', '1', 'START'];
-
-    useEffect(() => {
-        const fetchData = async () => {
-            const data = await getSongById(761220);
-            audioRef.current.src = data.song
-        };
-
-        fetchData();
-    }, []);
-
-
-    const changeSong = () => {
-        const newIndex = songIndex + 1;
-        setsongIndex(newIndex)
-        audioRef.current.pause()
-        if (newIndex >= challenge.length) {
-            setContent('PRONTO?')
-            setIsCounting(false)
-            setToggleStart(false)
-            setsongIndex(0)
-            alert("acabou")
-            window.location.reload()
-        }
-        else {
-            setContent(`song ${songIndex + 1}`)
-            setSong(challenge[newIndex])
-            audioRef.current.src = challenge[newIndex].src
-            audioRef.current.play()
+    const playSound = () => {
+        if (audioRef.current) {
+            audioRef.current.currentTime = 0; // volta ao início para tocar de novo
+            audioRef.current.play();
         }
     }
-
-    const handleStart = (words: string[]) => {
-        if (isCounting) return;
+    const setupAudio = (path: string) => {
+        if (audioRef.current) {
+            audioRef.current.src = path;
+        } else {
+            audioRef.current = new Audio(path);
+        }
+    };
+    // Transição Inicial
+    const startCountdown = () => {
+        setupAudio("/music/drum_stick.mp3")
         setToggleStart(true)
-        setSong(challenge[0])
-        let index: number = 0;
-        audioRef.current.src = challenge[songIndex].src
-        const interval = setInterval(() => {
-            setContent(words[index]);
-            index++;
+        const sequence: (number | string)[] = ["", 3, 2, 1];
+        let i = 0;
+        setContent(sequence[i].toString());
+        // playSound();
 
-            if (index === words.length) {
+        const interval = setInterval(() => {
+            i++;
+            if (i < sequence.length) {
+                setContent(sequence[i].toString());
+                playSound();
+            } else {
                 clearInterval(interval);
-                setTimeout(() => {
-                    setContent(null);
-                    setIsCounting(false);
-                    handleFinish();
+                setTimeout(() => { // Após terminar a transiçao
+                    console.log(songIndex)
+                    handleGame()
+
                 }, 1000);
             }
         }, 1000);
-    }
-    const handleFinish = () => {
-        setIsCounting(true);
-        audioRef.current.play()
-        setContent("song 1")
-    }
+    };
 
-    const handleOptions = () => {
-        changeSong()
+
+    const handleGame = () => {
+        if (songIndex === challenge.length) {
+            alert("terminou")
+        }
+        else {
+            setupAudio(challenge[songIndex].src)
+            setCurrentSong(challenge[songIndex])
+            playSound()
+            let newIndex = songIndex + 1
+            setSongIndex(newIndex)
+            setContent(`song ${newIndex}`)
+        }
     }
 
     return (
@@ -94,9 +80,11 @@ export default function Game(challengeID) {
             <div className='game-screen'>
                 <div className='screen-content'>{content}</div>
             </div>
-            <audio ref={audioRef} />
-            <div className="play-button" onClick={() => handleStart(initialTransition)} style={{ display: toggleStart ? 'none' : 'auto' }}></div>
-            <Fase song={song} handleOptions={handleOptions} isCounting={isCounting} />
+
+            <div className="play-button" onClick={startCountdown} style={{ display: toggleStart ? 'none' : 'auto' }}></div>
+            <Fase
+                song={currentSong}
+                handleGame={handleGame} />
         </div>
     )
 }

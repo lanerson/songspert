@@ -1,34 +1,38 @@
-import { useEffect } from 'react';
 import Game from '../../components/game/game';
 import '../../styles/home.css'
 import NewChallengeCard from '../../components/newChallengeCard';
+
 export default function Home() {
 
     return (
         <div className='container'>
             {/* <Game /> */}
-            <div className='homeContainer'>
-
-                <div>
-                    <div>
+            <div className='home-container'>
+                <NewChallengeCard />
+                <div className='card-container'>
+                    <div className=''>
                         WANT TO TRICK SOMEONE?
                     </div>
-                    <div>
-                        THEN MAKE YOUR OWN
-                    </div>
-                    <div>
-                        CHALLENGE
+                    <div className='card-with-button'>
+                        <div className=''>
+                            THEN MAKE YOUR OWN
+                        </div>
+                        <a href="#" className='card-button'>
+                            CHALLENGE
+                        </a>
                     </div>
                 </div>
-                <div>
-                    <div>
+                <div className='card-container'>
+                    <div className=''>
                         DON'T KNOW WHAT TO DO?
                     </div>
-                    <div>
-                        JUST PLAY A
-                    </div>
-                    <div>
-                        RANDOM GAME
+                    <div className='card-with-button'>
+                        <div className=''>
+                            JUST PLAY A
+                        </div>
+                        <a href="/random" className='card-button'>
+                            RANDOM GAME
+                        </a>
                     </div>
                 </div>
             </div>

@@ -15,6 +15,7 @@ interface challengeInterface {
 
 
 type songType = {
+    id: number,
     src: string,
     answers: string[],
     correctAnswer: string

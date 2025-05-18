@@ -1,4 +1,6 @@
+'use client'
 import { useEffect, useState } from "react"
+import "../styles/newChallengeCard.css"
 import Game from "./game/game"
 import { getDailyChallenge } from "../scripts/data_fetch"
 
@@ -27,8 +29,8 @@ export default function NewChallengeCard() {
 
 
     return (
-        <div className="card-container">
-            <div className="card-button" onClick={handleClick}>
+        <div className="daily-container">
+            <div className="card-button" onClick={handleClick} >
                 PLAY NOW
             </div>
             <div className="card-content">{title}</div>

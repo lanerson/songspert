@@ -1,0 +1,24 @@
+.daily-container {
+    background-color: var(--color-two);
+    background-color: var(--color-two);
+    border-radius: 10px;
+    width: 75%;
+    height: 30%;
+    padding: 10px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+
+}
+
+.daily-container div {
+    font-size: larger;
+}
+
+
+
+.card-content {
+    width: 40%;
+    text-align: right;
+}

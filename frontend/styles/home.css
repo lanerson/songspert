@@ -6,5 +6,52 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+.home-container {
+    width: 80%;
+    height: 90vh;
     padding: 20px;
+    background-color: var(--color-three);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 30px;
+}
+
+.card-container {
+    background-color: var(--color-two);
+    border-radius: 10px;
+    width: 75%;
+    height: 30%;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    gap: 20px;
+}
+
+.card-container div,
+a {
+    font-size: larger;
+}
+
+.card-button {
+    cursor: pointer;
+    padding: 20px;
+    /* width: 40%; */
+    background-color: white;
+    border-radius: 20px;
+    color: black;
+    text-align: center;
+}
+
+.card-with-button {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
 }

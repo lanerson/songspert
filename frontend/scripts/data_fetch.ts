@@ -12,7 +12,6 @@ export async function getSongById(id) {
 
 export function getGenres() { // Deixei estático pq o método sempre retorna a mesma coisa
     return [
-        "todos",
         "pop",
         "sertanejo",
         "mpb",
@@ -42,8 +41,13 @@ export function getGenres() { // Deixei estático pq o método sempre retorna a 
         "música asiática"
     ]
 }
+export async function getRandomSong() {
+    const genres = getGenres()
+    const choice = genres[Math.floor(Math.random() * genres.length)]
+    return getSongsByGenre(choice)
+}
 
-export async function getSongsByGenre(genre, qtdSongs) { // dá pra colocar um numero definido na interface, quando o cara for pesquisar
+export async function getSongsByGenre(genre, qtdSongs = 1) { // dá pra colocar um numero definido na interface, quando o cara for pesquisar
     const data = await fetch(base_url + `genre/list?name=${genre}&n=${qtdSongs}`)
         .then(async (res) => res.json())
         .then((data) => data.data.map((item) => { return { title: item.title, song: item.preview, artist: item.artist } }))
