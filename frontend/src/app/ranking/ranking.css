@@ -1,0 +1,56 @@
+.ranking-container {
+    width: 60vw;
+    height: 70vh;
+    background-color: var(--color-three);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+}
+
+.frequency-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+
+}
+
+.frequency-button {
+    font-size: 1.2rem;
+    background-color: var(--color-one);
+    padding: 12px 20px;
+    border-radius: 15px;
+    cursor: pointer;
+    border: solid 4px var(--color-one);
+}
+
+.frequency-button:hover {
+    background-color: var(--color-three);
+}
+
+.list-container {
+    background-color: var(--color-five);
+    height: 85%;
+    width: 100%;
+    list-style: none;
+    overflow-y: auto;
+    padding: 0px 15px;
+}
+
+
+.list-item {
+    height: 80px;
+    border-bottom: 1px solid black;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+}
+
+.user-image {
+    background-color: black;
+    height: 80%;
+    aspect-ratio: 1 / 1;
+    border-radius: 50%;
+}

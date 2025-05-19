@@ -12,8 +12,8 @@
 
 }
 
-.daily-container div {
-    font-size: larger;
+.daily-container * {
+    font-size: 2rem;
 }
 
 

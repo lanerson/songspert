@@ -22,6 +22,8 @@ export default function Game(challengeId) {
     const audioRef = useRef<HTMLAudioElement | null>(null);
     const [content, setContent] = useState<string>('PRONTO?');
 
+    const router = useRouter()
+
     const playSound = () => {
         if (audioRef.current) {
             audioRef.current.currentTime = 0; // volta ao início para tocar de novo
@@ -39,20 +41,19 @@ export default function Game(challengeId) {
     const startCountdown = () => {
         setupAudio("/music/drum_stick.mp3")
         setToggleStart(true)
-        const sequence: (number | string)[] = ["", 3, 2, 1];
+        const sequence: (number | string)[] = [3, 2, 1];
         let i = 0;
         setContent(sequence[i].toString());
-        // playSound();
+        new Audio("/music/drum_stick.mp3").play()
 
         const interval = setInterval(() => {
             i++;
             if (i < sequence.length) {
                 setContent(sequence[i].toString());
-                playSound();
+                new Audio("/music/drum_stick.mp3").play()
             } else {
                 clearInterval(interval);
-                setTimeout(() => { // Após terminar a transiçao
-                    console.log(songIndex)
+                setTimeout(() => { // Após terminar a transiçao                    
                     handleGame()
 
                 }, 1000);
@@ -64,6 +65,8 @@ export default function Game(challengeId) {
     const handleGame = () => {
         if (songIndex === challenge.length) {
             alert("terminou")
+            audioRef.current.pause()
+            router.refresh()
         }
         else {
             setupAudio(challenge[songIndex].src)

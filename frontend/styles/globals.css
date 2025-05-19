@@ -21,6 +21,14 @@
     color: var(--color-white);
 }
 
+.global-container {
+    height: 90vh;
+    background-color: var(--color-one);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 body {
     background-color: var(--background-one);
     color: var(--text-color);

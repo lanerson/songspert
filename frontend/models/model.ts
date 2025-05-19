@@ -21,6 +21,12 @@ type songType = {
     correctAnswer: string
 }
 
+type userType = {
+    username: string,
+    rank: number,
+    totalPoints: number
+}
 
-export type { challengeInterface, songType }
+
+export type { challengeInterface, songType, userType }
 export { categoriesEnum }

@@ -1,6 +1,6 @@
 .profile-container {
     background-color: var(--color-two);
-    width: 40vw;
+    width: 30vw;
     height: 90vh;
     display: flex;
     position: absolute;
@@ -16,8 +16,8 @@
 .perfil {
     border-radius: 50%;
     background-color: black;
-    width: 200px;
-    height: 200px;
+    height: 50%;
+    aspect-ratio: 1 / 1;
 }
 
 .logout {
@@ -25,7 +25,7 @@
     display: flex;
     height: 40px;
     width: 100px;
-    border-radius: 15%;
+    border-radius: 10px;
     justify-content: center;
     align-items: center;
     font-size: large;

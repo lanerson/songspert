@@ -71,4 +71,9 @@ export async function getChallengeById(idChallenge: number) {
     return challenge
 }
 
-// getSongById(761220)
+export async function getMyInfo() {
+    const data = await fetch(base_url + "/users/me/")
+        .then((res) => res.json())
+        .catch((error) => { console.log(error.message); return { username: "", first_name: "", last_name: "", email: "" } })
+    return data
+}

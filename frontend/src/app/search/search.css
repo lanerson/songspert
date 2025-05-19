@@ -1,0 +1,60 @@
+.search-container {
+    height: 90vh;
+    width: 80vw;
+    display: grid;
+    grid-template-rows: 10% 90%;
+    justify-items: center;
+}
+
+
+.genre-container {
+    background-color: var(--color-one);
+    width: 80vw;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-around;
+}
+
+.change-button {
+    background-image: url("../../../public/images/arrow.png");
+    background-size: contain;
+    height: 50px;
+    width: 50px;
+    cursor: pointer
+}
+
+.change-button:hover {
+    height: 55px;
+    width: 55px;
+}
+
+.left {
+    transform: scaleX(-1);
+}
+
+.buttons-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+
+}
+
+.buttons {
+    font-size: 1.5rem;
+    cursor: pointer;
+    margin: 20px;
+    background-color: var(--color-three);
+    place-self: center;
+    place-content: center;
+    text-align: center;
+    height: 100px;
+    width: 200px;
+    border-radius: 15px;
+    padding: 10px;
+    color: var(--color-white);
+    border: solid 4px var(--color-three);
+}
+
+.buttons:hover {
+    background-color: var(--color-two);
+}
