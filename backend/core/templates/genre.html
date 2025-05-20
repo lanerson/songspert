@@ -1,0 +1,89 @@
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Deezer Search by Genre</title>
+    <script>
+        async function searchMusic() {
+        let genre_name = document.getElementById("genreSelect").value;
+        let trackCount = document.getElementById("trackCount").value;
+        if (!genre_name) return;
+
+
+        let response = await fetch(`/genre/list/?name=${genre_name}&n=${trackCount}`);
+        let data = await response.json();
+
+        let resultsDiv = document.getElementById("results");
+        resultsDiv.innerHTML = "";
+
+        if (!data.data || data.data.length === 0) {
+            resultsDiv.innerHTML = "<p>No tracks found for this genre.</p>";
+            return;
+        }
+
+        data.data.forEach(track => {
+            let trackElement = document.createElement("div");
+            trackElement.innerHTML = `
+            <p><strong>${track.title}</strong> by ${track.artist}</p>
+            <button onclick="playTrack('${track.preview}')">Play</button>
+            `;
+            resultsDiv.appendChild(trackElement);
+        });
+        }
+
+        function playTrack(previewUrl) {
+            let audioPlayer = document.getElementById("audioPlayer");
+            audioPlayer.src = previewUrl;
+            audioPlayer.play();
+        }
+
+        window.onload = async function () {
+            const genreSelect = document.getElementById("genreSelect");
+            try {
+                const response = await fetch("/genre/map");
+                const data = await response.json();
+                const genres = data.genres;
+
+                genreSelect.innerHTML = '<option value="">Select a genre</option>';
+                for (const genre of genres) {
+                genreSelect.innerHTML += `<option value="${genre}">${capitalize(genre)}</option>`;
+                }
+            } catch (err) {
+                genreSelect.innerHTML = '<option value="">Failed to load genres</option>';
+            }
+        };
+
+        function capitalize(str) {
+            return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+    </script>
+    </head>
+
+    <body>
+    <h1>Search by Genre</h1>
+
+    <label for="genreSelect">Genre:</label>
+    <select id="genreSelect">
+        <option value="">Loading genres...</option>
+      </select>
+
+    <label for="trackCount">Number of tracks:</label>
+    <select id="trackCount">
+        <option value="">Select count</option>
+        <option value="1">1</option>
+        <option value="3">3</option>
+        <option value="5">5</option>
+        <option value="10">10</option>
+        <option value="15">15</option>
+        <option value="20">20</option>
+    </select>
+
+    <button onclick="searchMusic()">Search</button>
+
+    <div id="results"></div>
+
+    <audio id="audioPlayer" controls style="margin-top: 20px; display: block;"></audio>
+
+    </body>
+    </html>

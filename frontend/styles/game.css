@@ -2,6 +2,76 @@
     width: 80vw;
     max-width: 1200px;
     height: 80vh;
-    background-color: red;
+    background-color: var(--color-three);
     border-radius: 15px;
+    display: grid;
+    grid-template-rows: 35% 60%;
+    gap: 30px;
+    justify-content: center;
+}
+
+.game-screen {
+    /* background-color: white; */
+    background-image: url('../public/images/tv.png');
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    height: 300px;
+    aspect-ratio: 1 / 1;
+    justify-self: center;
+    position: relative;
+}
+
+.screen-content {
+    background-color: white;
+    color: black;
+    font-size: xx-large;
+    position: absolute;
+    top: 34.7%;
+    left: 11.6%;
+    height: 40.5%;
+    aspect-ratio: 2 / 1.25;
+
+    place-content: center;
+    text-align: center;
+}
+
+.play-button {
+    background-image: url("../public/images/play-button.png");
+    background-size: contain;
+    height: 130px;
+    aspect-ratio: 1 / 1;
+    justify-self: center;
+    align-self: center;
+}
+
+.play-button:hover {
+    cursor: pointer;
+    height: 150px;
+}
+
+
+.respostas-container {
+    display: grid;
+    grid-template-columns: 50% 50%;
+
+}
+
+.respostas {
+    cursor: pointer;
+    margin: 20px;
+    background-color: var(--color-one);
+    place-self: center;
+    place-content: center;
+    text-align: center;
+    height: 100px;
+    width: 200px;
+    border-radius: 15px;
+    color: var(--color-white);
+
+}
+
+.respostas:hover {
+    opacity: .8;
+    font-size: larger;
 }
