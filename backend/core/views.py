@@ -132,7 +132,7 @@ class ChallengeViewSet(viewsets.ModelViewSet):
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all().order_by("id")
-    #permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
     def get_serializer_class(self):
         if self.action in ("list", "retrieve", "me"):
