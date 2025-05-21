@@ -11,10 +11,10 @@
     display: flex;
     flex-direction: column;
     width: 350px;
-    height: 350px;
+    height: auto;
     background-color: var(--color-two);
     border-radius: 15px;
-    padding: 40px;
+    padding: 30px;
     font-size: 20px;
     font-weight: bold;
     color: white;
@@ -50,6 +50,7 @@ input {
 }
 
 .button {
+    border: none;
     cursor: pointer;
     background-color: var(--color-five);
     padding: 10px;

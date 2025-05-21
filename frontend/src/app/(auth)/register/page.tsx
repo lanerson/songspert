@@ -13,6 +13,10 @@ export default function register() {
                 <input></input>
                 <div>PASSWORD</div>
                 <input></input>
+                <div>FIRST NAME</div>
+                <input></input>
+                <div>LAST NAME</div>
+                <input></input>
                 <div className="button-container">
                     <div className="button" onClick={handleClick}>REGISTER</div>
                 </div>

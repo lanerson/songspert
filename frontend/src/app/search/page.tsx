@@ -17,7 +17,7 @@ export default function Search() {
     const [page, setPage] = useState(0);
     const genres = getGenres()
     console.log(genres.length)
-    const qtdCards = 9
+    const qtdCards = 12
 
 
 

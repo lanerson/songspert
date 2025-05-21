@@ -70,10 +70,3 @@ export async function getChallengeById(idChallenge: number) {
     challenge.map(async (idSong) => await getSongById(idSong))
     return challenge
 }
-
-export async function getMyInfo() {
-    const data = await fetch(base_url + "/users/me/")
-        .then((res) => res.json())
-        .catch((error) => { console.log(error.message); return { username: "", first_name: "", last_name: "", email: "" } })
-    return data
-}
