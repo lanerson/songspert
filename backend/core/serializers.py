@@ -39,10 +39,44 @@ class UserWriteSerializer(serializers.ModelSerializer):
         return instance
 
 class ChallengeSerializer(serializers.ModelSerializer):
+    type = serializers.ChoiceField(choices=['author', 'title'])
+    false_options = serializers.ListField(
+        child=serializers.CharField(),
+        min_length=3,
+        max_length=3,
+        write_only=True
+    )
+    correct_answer = serializers.SerializerMethodField(read_only=True)
     class Meta:
         model = Challenge
-        fields = ("id", "track", "genre")
-        read_only_fields = ("id",)
+        fields = ("id", "track", "genre", "type", "false_options", "correct_answer")
+        read_only_fields = ("id", "correct_answer")
+
+    def get_correct_answer(self, obj):
+        if obj.type == 'author':
+            return obj.track.artist
+        elif obj.type == 'title':
+            return obj.track.title
+        return None
+
+    def validate(self, data):
+        track = data.get("track")
+        type_ = data.get("type")
+        false_options = data.get("false_options", [])
+
+        if not track or not type_ or not false_options:
+            return data
+        
+        correct =  track.artist if type_ == "author" else track.title
+        if correct in false_options:
+            raise serializers.ValidationError("A resposta não pode estar entre as alternativas falsas.")
+
+        return data       
+    
+    def create(self, validated_data):
+        false_options = validated_data.pop("false_options")
+        validated_data["false_options"] = false_options
+        return super().create(validated_data)
 
 class ChallengeSetSerializer(serializers.ModelSerializer):
     challenges = ChallengeSerializer(many=True, required=False)

@@ -19,12 +19,27 @@ class ChallengeSet(models.Model):
         return self.name
 
 class Challenge(models.Model):
+    CHALLANGE_TYPE_CHOICES = [
+        ('author', 'Author'),
+        ('title', 'Title'),
+    ]
+
     challenge_set = models.ForeignKey(ChallengeSet, on_delete=models.CASCADE, null=True, blank=True, related_name='challenges')
     track = models.ForeignKey(Track, on_delete=models.CASCADE, null=True, blank=True)
     genre = models.CharField(max_length=100, blank=True)
+    type = models.CharField(max_length=10, choices=CHALLANGE_TYPE_CHOICES, default='title')
 
-    def __str__(self):
-        return f"{self.track.title}"
+    false_options = models.JSONField(default=list)
+
+    def correct_answer(self):
+        if self.type == 'author':
+            return self.track.artist
+        elif self.type == 'title':
+            return self.track.title
+        return None
+
+    def __str__(self):  
+        return f"{self.track.title} ({self.type})"
 
 class Attempt(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
