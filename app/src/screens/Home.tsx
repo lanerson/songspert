@@ -1,88 +1,138 @@
 import React, { useEffect, useState } from 'react';
 import {
+  SafeAreaView,
   View,
   Text,
-  Button,
+  TouchableOpacity,
   FlatList,
   ActivityIndicator,
   StyleSheet,
 } from 'react-native';
 import axios from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_BASE_URL } from '../config/api';
 
-type Song = {
-  id: string;
-  title: string;
-  artist?: string;
-};
+type ChallengeSet = { id: string; name: string;created_at: string; challenges: any[]; };
+// type Track = {id: string;
+// title: string;   
+// artist: string; //or whatever your view returns   
+// preview: string;     // Deezer preview URL 
+// };
 
 export default function HomeScreen({ navigation }: any) {
-  const [songs, setSongs]     = useState<Song[]>([]);
+  const [sets, setSets]       = useState<ChallengeSet[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // guard: redirect to Login if no token
-  useEffect(() => {
-    AsyncStorage.getItem('token').then(token => {
-      if (!token) navigation.replace('Login');
-    });
-    fetchSongs();
-  }, []);
+  useEffect(() => { fetchSongs(); }, []);
 
   const fetchSongs = async () => {
     try {
-      const res = await axios.get<Song[]>(
-        `${API_BASE_URL}/songs`
-      );
-      setSongs(res.data);
+    const res = await axios.get<ChallengeSet[]>(`${API_BASE_URL}/challenge_sets/`);
+    console.log("API response:", JSON.stringify(res.data, null, 2)); //teste
+    // const res = await axios.get<Track[]>(`${API_BASE_URL}/search/?q=pop`);
+      setSets(res.data);
     } catch (err) {
-      console.error('Failed to load songs:', err);
+      console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleLogout = async () => {
-    await AsyncStorage.removeItem('token');
-    navigation.replace('Login');
-  };
-
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>🎵 Welcome to Songspert</Text>
+    <SafeAreaView style={styles.container}>
 
+      {/* ——— Header + Auth Buttons ——— */}
+      <View style={styles.header}>
+        <Text style={styles.title}>Songspert</Text>
+        <View style={styles.authRow}>
+
+          <TouchableOpacity style={styles.authButton} onPress={() => navigation.navigate('Quiz')}>
+            <Text>Start Quiz</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.authButton}
+            onPress={() => navigation.navigate('Login')}
+          >
+            <Text style={styles.authText}>Log In</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.authButton}
+            onPress={() => navigation.navigate('Register')}
+          >
+            <Text style={styles.authText}>Sign Up</Text>
+          </TouchableOpacity>
+  
+        </View>
+      </View>
+
+      {/* ——— Content ——— */}
       {loading ? (
-        <ActivityIndicator size="large" />
+        <ActivityIndicator style={{ flex: 1 }} size="large" />
       ) : (
         <FlatList
-          data={songs}
-          keyExtractor={(item) => item.id}
+          data={sets}
+          keyExtractor={(item) => item.id.toString()}
+          contentContainerStyle={{ padding: 16 }}
           renderItem={({ item }) => (
-            <View style={styles.item}>
-              <Text style={styles.songTitle}>{item.title}</Text>
-              {item.artist && <Text style={styles.artist}>{item.artist}</Text>}
-            </View>
+            <TouchableOpacity
+              onPress={() =>
+                navigation.navigate('Game', {
+                  setId:   item.id,
+                  setName: item.name,
+                })
+              }
+            >
+              <View style={styles.card}>
+                <Text style={styles.songTitle}>{item.name}</Text>
+                <Text style={styles.artist}>
+                  Created at{' '}
+                  {new Date(item.created_at).toLocaleDateString()}
+                </Text>
+              </View>
+            </TouchableOpacity>
           )}
           ListEmptyComponent={
-            <Text style={styles.empty}>No songs found.</Text>
+            <Text style={styles.empty}>No challenge sets.</Text>
           }
         />
       )}
-
-      <View style={styles.footer}>
-        <Button title="Refresh" onPress={fetchSongs} />
-        <Button title="Logout" onPress={handleLogout} color="#d33" />
-      </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16, backgroundColor: '#fff' },
-  title:     { fontSize: 24, fontWeight: 'bold', marginBottom: 16 },
-  item:      { padding: 12, borderBottomWidth: 1, borderColor: '#eee' },
-  songTitle: { fontSize: 18 },
-  artist:    { fontSize: 14, color: '#666' },
-  empty:     { textAlign: 'center', marginTop: 32, color: '#999' },
-  footer:    { flexDirection: 'row', justifyContent: 'space-between', marginTop: 16 },
+  container: { flex: 1, backgroundColor: '#fafafa' },
+  header: {
+    padding: 16,
+    backgroundColor: '#282c34',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  title:      { color: '#fff', fontSize: 20, fontWeight: 'bold' },
+  authRow:    { flexDirection: 'row' },
+  authButton: {
+    marginLeft: 12,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 4,
+    backgroundColor: '#61dafb',
+  },
+  authText:   { color: '#282c34', fontWeight: '600' },
+
+  card:       {
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 12,
+    // shadow on iOS
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    // elevation on Android
+    elevation: 2,
+  },
+  songTitle:  { fontSize: 18, fontWeight: '500' },
+  artist:     { fontSize: 14, color: '#555', marginTop: 4 },
+  empty:      { textAlign: 'center', marginTop: 32, color: '#999' },
 });

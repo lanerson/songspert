@@ -14,20 +14,36 @@ export default function RegisterScreen({ navigation }: any) {
   const [name, setName]         = useState('');
   const [email, setEmail]       = useState('');
   const [password, setPassword] = useState('');
-
-  const handleRegister = async () => {
-    try {
-      await axios.post(`${API_BASE_URL}/auth/register`, {
-        name,
-        email,
-        password,
-      });
+  
+  // Essa funciona: (lanito)
+  // const handleRegister = async () => {
+  //   console.log("Registering")
+  //   try {
+  //     await axios.post(`${API_BASE_URL}/users/`, {
+  //       username:name,
+  //       email:email,
+  //       password:password,
+  //     }, {
+  //       headers: {
+  //         'Content-Type': 'application/json'
+  //       }
+  //     }
+  //   );
+    const handleRegister = async () => {
+      try {
+        await axios.post(`${API_BASE_URL}/users/`, {
+          username:name,
+          email,
+          password,
+        });
       Alert.alert('Success', 'Account created! Please log in.');
       navigation.replace('Login');
     } catch (err: any) {
       Alert.alert(
         'Registration failed',
-        err.response?.data?.message || err.message
+        err.response?.data?.email?.[0] ||
+        err.response?.data?.username?.[0] ||
+        err.message
       );
     }
   };

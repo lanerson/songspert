@@ -15,13 +15,28 @@ export default function LoginScreen({ navigation }: any) {
   const [email, setEmail]       = useState('');
   const [password, setPassword] = useState('');
 
-  const handleLogin = async () => {
+ //Essa funciona (lanito):
+//   const handleLogin = async () => {
+//     console.log("Logging in")
+//         try {
+//       const res = await axios.post(
+//       `${API_BASE_URL}/auth/token/`,
+//       { username:email, password:password },
+//       {
+//         headers: {
+//           'Content-Type': 'application/json'
+//         }
+//       }
+//     );
+
+    const handleLogin = async () => {
     try {
-      const res = await axios.post(`${API_BASE_URL}/auth/login`, {
-        email,
+      const res = await axios.post(`${API_BASE_URL}/auth/token/`, {
+        username:email,
         password,
       });
-      await AsyncStorage.setItem('token', res.data.token);
+    Alert.alert('Success', 'Logged in!');
+       await AsyncStorage.setItem('token', res.data.access);
       navigation.replace('Home');
     } catch (err: any) {
       Alert.alert(
