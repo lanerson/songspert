@@ -1,17 +1,5 @@
-from django.shortcuts import render, get_object_or_404
-from rest_framework import viewsets, permissions
-from rest_framework.exceptions import PermissionDenied
-from rest_framework.decorators import action
-from rest_framework.response import Response
-from django.contrib.auth import get_user_model
-from .models import Challenge, ChallengeSet
-from .serializers import ChallengeSerializer, ChallengeSetSerializer, UserReadSerializer, UserWriteSerializer
-import random, requests
-from django.http import JsonResponse
-from django.conf import settings
-
-
-User = get_user_model()
+from django.shortcuts import render
+import random
 
 # Create your views here.
 
@@ -21,6 +9,9 @@ def index(request):
 def genre_template(request):
     return render(request, 'genre.html')
 
+import requests
+from django.http import JsonResponse
+from django.conf import settings
 
 
 def search_track(request):
@@ -99,57 +90,3 @@ def get_tracks_by_genre(request):
             } for track in selected_tracks
         ]
     })
-
-class ChallengeSetViewSet(viewsets.ModelViewSet):
-    serializer_class = ChallengeSetSerializer
-    permission_classes = (permissions.IsAuthenticated,)
-
-    def get_queryset(self):
-          return ChallengeSet.objects.filter(created_by=self.request.user)
-    
-    def perform_destroy(self, instance):
-        if instance.created_by != self.request.user:
-            raise PermissionDenied("Not your set.")
-        super().perform_destroy(instance)
-    
-class ChallengeViewSet(viewsets.ModelViewSet):
-    serializer_class = ChallengeSerializer
-    permission_classes = (permissions.IsAuthenticated,)
-
-    def get_queryset(self):
-        return Challenge.objects.filter(
-            challenge_set__created_by=self.request.user,
-            challenge_set_id=self.kwargs["challenge_set_pk"]
-        )     
-    
-    def perform_create(self, serializer):
-        cs = get_object_or_404(
-            ChallengeSet,
-            pk=self.kwargs["challenge_set_pk"],
-            created_by=self.request.user
-        )
-        serializer.save(challenge_set=cs)
-
-class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all().order_by("id")
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
-
-    def get_serializer_class(self):
-        if self.action in ("list", "retrieve", "me"):
-               return UserReadSerializer
-        return UserWriteSerializer
-    
-    @action(detail=False, methods=["get", "patch"], url_path="me",  permission_classes=[permissions.IsAuthenticated])
-
-    def me(self, request):
-        if request.method == "GET":
-            serializer = UserReadSerializer(request.user)
-            return Response(serializer.data)
-        
-        serializer = UserWriteSerializer(
-             request.user, data=request.data, partial=True
-        )
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(UserReadSerializer(request.user).data)
-      
