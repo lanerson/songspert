@@ -3,7 +3,10 @@ from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 
 class User(AbstractUser):
-    pass
+    daily_points = models.IntegerField(default=0)
+    weekly_points = models.IntegerField(default=0)
+    monthly_points = models.IntegerField(default=0)
+    profile_picture = models.URLField(blank=True, null=True) 
 
 class Track(models.Model):
     title = models.CharField(max_length=255)

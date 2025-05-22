@@ -8,7 +8,7 @@ User = get_user_model()
 class UserReadSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ("id", "username", "first_name", "last_name", "email")
+        fields = ("id", "username", "first_name", "last_name", "email", "daily_points", "weekly_points", "monthly_points", "profile_picture")
 
 class UserWriteSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(
@@ -19,7 +19,7 @@ class UserWriteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ("id", "username", "email", "password", "first_name", "last_name")
+        fields = ("id", "username", "email", "password", "first_name", "last_name", "daily_points", "weekly_points", "monthly_points", "profile_picture")
         read_only_fields = ("id",)
 
     def create(self, validated_data):
