@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import "./random.css"
 import { getRandomSong } from "../../../scripts/data_fetch";
+import SearchBar from "../../../components/searchBar";
 
 export default function Countdown() {
     const [toggleStart, setToggleStart] = useState<boolean>(false);
@@ -9,7 +10,7 @@ export default function Countdown() {
     const [content, setContent] = useState<string>('PRONTO?');
     const [start, setStart] = useState(false)
 
-    
+
 
     const playSound = () => {
         if (audioRef.current) {
@@ -62,7 +63,7 @@ export default function Countdown() {
 
             <div className="play-button" onClick={startCountdown} style={{ display: toggleStart ? 'none' : 'auto' }}></div>
             {start && (
-                <div className="search-container"><input type="text" /><div className="search-button" onClick={handleRandomGame}></div></div>
+                <SearchBar onClick={handleRandomGame} />
             )}
         </div>
     )

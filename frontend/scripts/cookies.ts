@@ -1,25 +1,22 @@
-// "use server"
-// import { cookies } from "next/headers"
+"use server"
+import { cookies } from "next/headers"
 
-// export async function setCookies(refresh, access) {
-
-
-//     const cookieStore = await cookies()
-//     cookieStore.set("access", access)
-//     cookieStore.set("refresh", refresh)
-
-//     return new Response(JSON.stringify({ success: true }), { status: 200 })
-// }
-
-export function getLocalTokens() {
-    const token = localStorage.getItem("token")
-    return JSON.parse(token)
+export async function setCookies(refresh, access) {
+    const cookieStore = await cookies()
+    cookieStore.set("token", JSON.stringify({ refresh: refresh, access: access }))
 }
 
-export function setLocalTokens(refresh, access) {
-    localStorage.setItem("token", JSON.stringify({ refresh: refresh, access: access }))
+
+export async function getCookies() {
+    const cookieStore = await cookies()
+    if (cookieStore.has("token"))
+        return JSON.parse(cookieStore.get("token").value)
+
+    return null
 }
 
-export function deleteLocalTokens() {
-    localStorage.removeItem("token")
+export async function deleteCookies() {
+    const cookieStore = await cookies()
+    cookieStore.delete("access")
+    cookieStore.delete("refresh")
 }

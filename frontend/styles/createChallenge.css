@@ -1,0 +1,6 @@
+.create-container {
+    height: 90vh;
+    width: 100vw;
+    position: fixed;
+    bottom: 0;
+}

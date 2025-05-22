@@ -15,13 +15,34 @@
 
 .perfil {
     border-radius: 50%;
-    background-color: black;
-    width: 100%;
+    background-color: var(--color-black);
+    width: 80%;
     aspect-ratio: 1 / 1;
+    color: transparent;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+.perfil:hover {
+    opacity: .8;
+    color: white;
+
+}
+
+.info-item {
+    margin: 10px;
+    width: 100%;
+    overflow: auto;
+    max-width: 300px;
+    padding: 10px;
+    border: solid 1px var(--color-black);
+    border-radius: 15px;
 }
 
 .log-button {
-    align-self: flex-end;
+
     display: flex;
     height: 40px;
     width: 100px;
@@ -33,4 +54,13 @@
     color: var(--color-white);
     background-color: var(--color-one);
     cursor: pointer;
+}
+
+.login-container {
+    width: 30vw;
+    height: 90vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
 }

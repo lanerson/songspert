@@ -14,6 +14,9 @@
     flex-direction: row;
     align-items: center;
     justify-content: space-around;
+    /* display: grid;
+    grid-template-columns: 10% 80% 10%; */
+
 }
 
 .change-button {

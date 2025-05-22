@@ -1,7 +1,6 @@
 
 const base_url = "http://localhost:8000/"
 
-
 export async function getSongById(id) {
     const data = await fetch(base_url + `track/${id}`)
         .then(async (res) => await res.json())
@@ -30,12 +29,10 @@ export function getGenres() { // Deixei estático pq o método sempre retorna a 
         "reggae",
         "jazz",
         "clássica",
-        "filmes/games",
         "metal",
         "soul & funk",
         "blues",
         "cumbia",
-        "infantil",
         "música africana",
         "música indiana",
         "música asiática"
@@ -57,7 +54,7 @@ export async function getSongsByGenre(genre, qtdSongs = 1) { // dá pra colocar 
 export async function getSongsByName(songName, qtdResults = 5) { // dá pra colocar um numero definido na interface, quando o cara for pesquisar
     const data = await fetch(base_url + `search?q=${songName}`)
         .then(async (res) => res.json())
-        .then((data) => data.data.slice(0, qtdResults).map((item) => { return { title: item.title_short, song: item.preview, artist: item.artist.name } }))
+        .then((data) => data.data.slice(0, qtdResults).map((item) => { return { id: item.id, title: item.title_short, song: item.preview, artist: item.artist.name } }))
     return data
 }
 
@@ -69,4 +66,15 @@ export async function getChallengeById(idChallenge: number) {
     const challenge = [975952742, 976056152, 976068472, 1100590662]
     challenge.map(async (idSong) => await getSongById(idSong))
     return challenge
+}
+
+export async function getUsers() {
+    const data = await fetch(base_url + "users/")
+        .then(async res => res.json())
+    return data
+}
+
+
+export async function createChallenge(challenge_set) {
+
 }

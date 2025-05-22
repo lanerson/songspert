@@ -1,6 +1,7 @@
 import Game from '../../components/game/game';
 import '../../styles/home.css'
 import NewChallengeCard from '../../components/newChallengeCard';
+import Header from '../../components/header';
 
 export default function Home() {
 
@@ -15,7 +16,7 @@ export default function Home() {
                     <div className=''>
                         THEN MAKE YOUR OWN
                     </div>
-                    <a href="#" className='card-button'>
+                    <a href="/profile/create" className='card-button'>
                         CHALLENGE
                     </a>
                 </div>

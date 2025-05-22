@@ -11,7 +11,6 @@
 }
 
 .game-screen {
-    /* background-color: white; */
     background-image: url('../../../public/images/tv.png');
     background-size: contain;
     background-position: center;
@@ -23,8 +22,8 @@
 }
 
 .screen-content {
-    background-color: white;
-    color: black;
+    background-color: var(--color-white);
+    color: var(--color-black);
     font-size: xx-large;
     position: absolute;
     top: 34.7%;
@@ -54,6 +53,7 @@
 .search-container {
     place-self: center;
     height: 40px;
+    width: 200px;
     text-decoration: none;
     border-bottom: 3px solid var(--color-white);
     display: flex;
@@ -66,7 +66,6 @@ input {
     all: unset;
     height: 35px;
     width: 260px;
-    /* background-color: black; */
 }
 
 .search-button {

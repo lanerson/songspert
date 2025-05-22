@@ -2,8 +2,7 @@
 import { useEffect, useState } from 'react';
 import '../styles/profile.css'
 import { getMyInfo } from '../scripts/auth';
-import { deleteLocalTokens } from '../scripts/cookies';
-
+import { deleteCookies } from '../scripts/cookies';
 
 type ProfileProps = {
     visible: boolean;
@@ -38,8 +37,8 @@ export default function Profile({ visible }: ProfileProps) {
 
         getInfo()
     }, [visible])
-    const handleLogout = (e) => {
-        deleteLocalTokens()
+    const handleLogout = async (e) => {
+        await deleteCookies()
         setInfo({ username: "", first_name: "", last_name: "", email: "" })
         setIsAuth(false)
     }
@@ -49,7 +48,7 @@ export default function Profile({ visible }: ProfileProps) {
             style={{ display: visible ? "flex" : "none" }}>
             {isAuth ? (
                 <>
-                    <div className="perfil"></div>
+                    <a href="/profile" className="perfil">ACESSAR PERFIL</a>
                     <div className="info-container">
                         <div className="info-item">{info.username}</div>
                         <div className="info-item">{info.first_name}</div>

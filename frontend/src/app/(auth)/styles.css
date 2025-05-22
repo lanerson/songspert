@@ -17,7 +17,7 @@
     padding: 30px;
     font-size: 20px;
     font-weight: bold;
-    color: white;
+    color: var(--color-white);
 }
 
 .button-container {
@@ -34,14 +34,14 @@ input {
     border-radius: 5px;
     height: 40px;
     font-size: 20px;
-    color: white;
+    color: var(--color-white);
     padding: 5px 10px;
     margin-bottom: 15px;
 }
 
 .link-register {
     text-decoration: none;
-    color: white;
+    color: var(--color-white);
     margin-bottom: 15px;
 }
 
@@ -55,7 +55,7 @@ input {
     background-color: var(--color-five);
     padding: 10px;
     border-radius: 10px;
-    color: black;
+    color: var(--color-black);
     text-align: center;
     width: 120px;
 }

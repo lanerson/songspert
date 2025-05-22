@@ -11,7 +11,6 @@
 }
 
 .game-screen {
-    /* background-color: white; */
     background-image: url('../public/images/tv.png');
     background-size: contain;
     background-position: center;
@@ -23,8 +22,8 @@
 }
 
 .screen-content {
-    background-color: white;
-    color: black;
+    background-color: var(--color-white);
+    color: var(--color-black);
     font-size: xx-large;
     position: absolute;
     top: 34.7%;
