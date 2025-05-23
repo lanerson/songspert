@@ -1,0 +1,189 @@
+// ProfileScreen.tsx
+import React, { useState, useEffect } from 'react';
+import {
+  SafeAreaView,
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  StyleSheet,
+} from 'react-native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
+import { API_BASE_URL } from '../config/api';
+
+export default function ProfileScreen({ navigation }: any) {
+  // Placeholder user data state
+  const [profileUri, setProfileUri] = useState(
+    'https://placekitten.com/200/200'
+  );
+  const [userName, setUserName] = useState('Arthur Bragança');
+  const [userEmail, setUserEmail] = useState('arthur@example.com');
+  const [stats, setStats] = useState({ played: 42, highScore: 128 });
+
+  useEffect(() => {
+    // load real user data here
+    (async () => {
+      try {
+        const token = await AsyncStorage.getItem('token');
+        const res = await axios.get(`${API_BASE_URL}/users/me/`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setUserName(res.data.username);
+        setUserEmail(res.data.email);
+        setProfileUri(res.data.avatar_url || profileUri);
+        setStats({
+          played: res.data.games_played,
+          highScore: res.data.high_score,
+        });
+      } catch (e) {
+        console.log(e);
+      }
+    })();
+  }, []);
+
+  const handleLogout = async () => {
+    await AsyncStorage.removeItem('token');
+    navigation.replace('Login');
+  };
+
+  const onEditPhoto = () => {
+    // implement photo picker
+    console.log('Change photo');
+  };
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <View style={styles.content}>
+        <View style={styles.card}>
+          <TouchableOpacity style={styles.avatarWrapper} onPress={onEditPhoto}>
+            <Image source={{ uri: profileUri }} style={styles.avatar} />
+            <View style={styles.cameraOverlay}>
+              <Ionicons name="camera-outline" size={20} color="#fff" />
+            </View>
+          </TouchableOpacity>
+
+          <Text style={styles.cardTitle}>{userName}</Text>
+          <Text style={styles.email}>{userEmail}</Text>
+
+          <View style={styles.statsRow}>
+            <View style={styles.statBox}>
+              <Text style={styles.statValue}>{stats.played}</Text>
+              <Text style={styles.statLabel}>Played</Text>
+            </View>
+            <View style={styles.statBox}>
+              <Text style={styles.statValue}>{stats.highScore}</Text>
+              <Text style={styles.statLabel}>High Score</Text>
+            </View>
+          </View>
+
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => navigation.navigate('EditProfile')}
+          >
+            <Text style={styles.buttonText}>Edit Profile</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.linkContainer}
+            onPress={handleLogout}
+          >
+            <Text style={styles.linkText}>Log Out</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: '#4B73E5' },
+  content: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingHorizontal: 16,
+  },
+  card: {
+    backgroundColor: '#83A3F2',
+    borderRadius: 8,
+    padding: 20,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  avatarWrapper: {
+    position: 'relative',
+    marginBottom: 16,
+  },
+  avatar: {
+    width: 96,
+    height: 96,
+    borderRadius: 48,
+    borderWidth: 2,
+    borderColor: '#fff',
+  },
+  cameraOverlay: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    backgroundColor: '#4B73E5',
+    padding: 6,
+    borderRadius: 16,
+    borderWidth: 2,
+    borderColor: '#fff',
+  },
+  cardTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#fff',
+    textAlign: 'center',
+    marginBottom: 4,
+  },
+  email: {
+    fontSize: 14,
+    color: '#fff',
+    textAlign: 'center',
+    marginBottom: 16,
+  },
+  statsRow: {
+    flexDirection: 'row',
+    marginBottom: 20,
+  },
+  statBox: {
+    alignItems: 'center',
+    marginHorizontal: 16,
+  },
+  statValue: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#fff',
+  },
+  statLabel: {
+    fontSize: 12,
+    color: '#e0e0e0',
+  },
+  button: {
+    backgroundColor: '#9fbaf9',
+    borderRadius: 5,
+    paddingVertical: 12,
+    width: '100%',
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  buttonText: {
+    color: '#fff',
+    fontWeight: '600',
+    fontSize: 16,
+  },
+  linkContainer: {
+    marginTop: 12,
+  },
+  linkText: {
+    color: '#fff',
+    textDecorationLine: 'underline',
+    fontSize: 14,
+  },
+});
