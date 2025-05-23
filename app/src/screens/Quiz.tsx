@@ -1,174 +1,216 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
+  SafeAreaView,
   View,
   Text,
   TouchableOpacity,
+  Animated,
   StyleSheet,
-  Alert,
+  ActivityIndicator,
+  Pressable,
 } from 'react-native';
 import { Audio } from 'expo-av';
+import { LinearGradient } from 'expo-linear-gradient';
+import * as Progress from 'react-native-progress';
 
-// 1️⃣ Import your audio assets
+// 1️⃣ Audio assets
 import againMp3      from '../../assets/music/again.mp3';
 import hologramMp3   from '../../assets/music/hologram.mp3';
 import goldentimeMp3 from '../../assets/music/goldentime.mp3';
 import rewriteMp3    from '../../assets/music/rewrite.mp3';
 import rainMp3       from '../../assets/music/rain.mp3';
 
-type Question = {
-  src: any;             // the imported audio file
-  correct: string;      // the correct answer text
-  choices: string[];    // multiple-choice options
-};
-
-// 2️⃣ Build your question bank
+type Question = { src: any; correct: string; choices: string[]; };
 const quizData: Question[] = [
-  {
-    src: againMp3,
-    correct: 'AGAIN',
-    choices: ['AGAIN', 'HOLOGRAM', 'GOLDEN TIME', 'RAIN'],
-  },
-  {
-    src: hologramMp3,
-    correct: 'HOLOGRAM',
-    choices: ['GOLDEN TIME', 'AGAIN', 'HOLOGRAM', 'RAIN'],
-  },
-  {
-    src: goldentimeMp3,
-    correct: 'GOLDEN TIME',
-    choices: ['REWRITE', 'HOLOGRAM', 'GOLDEN TIME', 'RAIN'],
-  },
-  {
-    src: rewriteMp3,
-    correct: 'REWRITE',
-    choices: ['REWRITE', 'AGAIN', 'GOLDEN TIME', 'RAIN'],
-  },
-  {
-    src: rainMp3,
-    correct: 'RAIN',
-    choices: ['REWRITE', 'AGAIN', 'RAIN', 'GOLDEN TIME'],
-  },
+  { src: againMp3,      correct: 'AGAIN',       choices: ['AGAIN','HOLOGRAM','GOLDEN TIME','RAIN'] },
+  { src: hologramMp3,   correct: 'HOLOGRAM',    choices: ['GOLDEN TIME','AGAIN','HOLOGRAM','RAIN'] },
+  { src: goldentimeMp3, correct: 'GOLDEN TIME', choices: ['REWRITE','HOLOGRAM','GOLDEN TIME','RAIN'] },
+  { src: rewriteMp3,    correct: 'REWRITE',     choices: ['REWRITE','AGAIN','GOLDEN TIME','RAIN'] },
+  { src: rainMp3,       correct: 'RAIN',        choices: ['REWRITE','AGAIN','RAIN','GOLDEN TIME'] },
 ];
 
 export default function QuizScreen() {
-  const [index, setIndex]         = useState(0);
-  const [score, setScore]         = useState(0);
-  const [showChoices, setShow]    = useState(false);
-  const [feedback, setFeedback]   = useState<string | null>(null);
+  const [index, setIndex]       = useState(0);
+  const [score, setScore]       = useState(0);
+  const [showChoices, setShow]  = useState(false);
+  const [feedback, setFeedback] = useState<string | null>(null);
+  const [loading, setLoading]   = useState(false);
   const soundRef = useRef<Audio.Sound | null>(null);
-
   const question = quizData[index];
 
-  // clean up sound on unmount or question change
-  useEffect(() => {
-    return () => {
-      if (soundRef.current) {
-        soundRef.current.unloadAsync();
-      }
-    };
+  // play-button animation
+  const scale = useRef(new Animated.Value(1)).current;
+  const onPlayPress = () => {
+    Animated.sequence([
+      Animated.spring(scale, { toValue: 1.2, useNativeDriver: true }),
+      Animated.spring(scale, { toValue: 1,   useNativeDriver: true }),
+    ]).start();
+    playAudio();
+  };
+
+  useEffect(() => () => {
+    soundRef.current?.unloadAsync();
   }, [index]);
 
-  // 3️⃣ Play the current question’s audio
   const playAudio = async () => {
-    // reset feedback & hide choices until audio starts
     setFeedback(null);
     setShow(false);
-
-    // unload any previous sound
-    if (soundRef.current) {
-      await soundRef.current.unloadAsync();
-    }
-
+    if (soundRef.current) await soundRef.current.unloadAsync();
     try {
-      const { sound } = await Audio.Sound.createAsync(question.src, {
-        shouldPlay: true,
-      });
+      setLoading(true);
+      const { sound } = await Audio.Sound.createAsync(question.src, { shouldPlay: true });
       soundRef.current = sound;
-
-      // show choices after a short delay
-      setTimeout(() => setShow(true), 500);
-    } catch (err) {
-      Alert.alert('Playback Error', 'Could not play this track.');
-      console.warn(err);
+      setTimeout(() => {
+        setShow(true);
+        setLoading(false);
+      }, 500);
+    } catch {
+      setLoading(false);
     }
   };
 
-  // 4️⃣ Handle answer taps
   const handleAnswer = (choice: string) => {
     const correct = choice === question.correct;
-    if (correct) setScore((s) => s + 1);
-    setFeedback(correct ? '✅ Correct!' : '❌ Incorrect');
+    if (correct) setScore(s => s + 1);
+    setFeedback(correct ? '✅ CORRECT!' : '❌ TRY AGAIN');
     setShow(false);
-
-    // move to next question after a pause
     setTimeout(() => {
       setFeedback(null);
-      const next = index + 1 < quizData.length ? index + 1 : 0;
-      setIndex(next);
+      setIndex(i => (i + 1) % quizData.length);
     }, 1200);
   };
 
-  // 5️⃣ End-of-quiz summary
+  // final summary
   if (index === 0 && score === quizData.length) {
     return (
-      <View style={styles.center}>
-        <Text style={styles.header}>Quiz Complete!</Text>
-        <Text style={styles.score}>Your score: {score}/{quizData.length}</Text>
-      </View>
+      <SafeAreaView style={styles.container}>
+        <LinearGradient colors={['#678bec','#4B73E5']} style={styles.header}>
+          <Text style={styles.headerText}>Songspert</Text>
+        </LinearGradient>
+        <View style={[styles.content, styles.center]}>
+          <View style={styles.card}>
+            <Text style={styles.cardTitle}>Quiz Complete!</Text>
+            <Text style={styles.cardSubtitle}>
+              Your score: {score}/{quizData.length}
+            </Text>
+          </View>
+        </View>
+      </SafeAreaView>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.header}>Music Quiz</Text>
-      <Text style={styles.score}>Score: {score}</Text>
+    <SafeAreaView style={styles.container}>
 
-      <View style={styles.playContainer}>
-        <TouchableOpacity style={styles.playButton} onPress={playAudio}>
-          <Text style={styles.playText}>▶️ Play</Text>
-        </TouchableOpacity>
-      </View>
+      {/* centered body */}
+      <View style={[styles.content, styles.center]}>
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Music Quiz</Text>
+          <Text style={styles.cardSubtitle}>Score: {score}</Text>
 
-      {feedback && <Text style={styles.feedback}>{feedback}</Text>}
+          <Progress.Bar
+            progress={(index + 1) / quizData.length}
+            width={null}
+            height={8}
+            color="#9fbaf9"
+            unfilledColor="rgba(255,255,255,0.3)"
+            borderWidth={0}
+            style={{ marginBottom: 16, borderRadius: 4 }}
+          />
 
-      {showChoices && (
-        <View style={styles.choices}>
-          {question.choices.map((c) => (
-            <TouchableOpacity
-              key={c}
-              style={styles.choiceButton}
-              onPress={() => handleAnswer(c)}
-            >
-              <Text style={styles.choiceText}>{c}</Text>
+          <Animated.View style={{ transform: [{ scale }] }}>
+            <TouchableOpacity style={styles.playButton} onPress={onPlayPress}>
+              {loading
+                ? <ActivityIndicator color="#FFF"/>
+                : <Text style={styles.playText}>▶️ Play</Text>
+              }
             </TouchableOpacity>
-          ))}
+          </Animated.View>
+
+          {feedback && <Text style={styles.feedback}>{feedback}</Text>}
+
+          {showChoices && (
+            <View style={styles.grid}>
+              {question.choices.map(c => (
+                <Pressable
+                  key={c}
+                  style={({ pressed }) => [
+                    styles.choice,
+                    feedback && c === question.correct && styles.correctChoice,
+                    pressed && { opacity: 0.7 },
+                  ]}
+                  onPress={() => handleAnswer(c)}
+                >
+                  <Text
+                    style={[
+                      styles.choiceText,
+                      feedback && c === question.correct && styles.correctText,
+                    ]}
+                  >
+                    {c}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+          )}
         </View>
-      )}
-    </View>
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container:   { flex: 1, padding: 16, backgroundColor: '#fff' },
-  center:      { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  header:      { fontSize: 24, fontWeight: 'bold', marginBottom: 12 },
-  score:       { fontSize: 18, marginBottom: 20 },
-  playContainer: { alignItems: 'center', marginBottom: 20 },
-  playButton:  {
-    backgroundColor: '#4a90e2',
-    padding: 16,
-    borderRadius: 50,
+  container:  { flex: 1, backgroundColor: '#4B73E5' },
+  header:     { padding: 16, alignItems: 'center' },
+  headerText: { color: '#fff', fontSize: 20, fontWeight: 'bold' },
+
+  content:    {
+    flex:             1,
+    paddingHorizontal:16,
+    justifyContent:   'center',  // center vertically
   },
-  playText:    { fontSize: 24, color: '#fff' },
-  feedback:    { fontSize: 20, textAlign: 'center', marginVertical: 10 },
-  choices:     { flexWrap: 'wrap', flexDirection: 'row', justifyContent: 'space-between' },
-  choiceButton: {
-    width: '48%',
-    padding: 12,
-    marginVertical: 6,
-    backgroundColor: '#eee',
-    borderRadius: 6,
-    alignItems: 'center',
+  center:     { justifyContent: 'center' },
+
+  card:       {
+    backgroundColor: '#83A3F2',
+    borderRadius:    8,
+    padding:         20,
+    shadowColor:     '#000',
+    shadowOpacity:   0.1,
+    shadowRadius:    4,
+    elevation:       2,
+    alignItems:      'center',
   },
-  choiceText:  { fontSize: 16 },
+  cardTitle:  { fontSize: 18, fontWeight: '600', color: '#fff', marginBottom: 6 },
+  cardSubtitle:{ fontSize: 16, color: '#fff', marginBottom: 12 },
+
+  playButton: {
+    backgroundColor: '#9fbaf9',
+    paddingVertical: 12,
+    paddingHorizontal: 32,
+    borderRadius:    25,
+    alignItems:      'center',
+    marginBottom:    12,
+  },
+  playText:   { color: '#fff', fontSize: 18, fontWeight: '600' },
+
+  feedback:   { color: '#fff', fontSize: 16, marginBottom: 12 },
+
+  grid:       {
+    flexDirection:  'row',
+    flexWrap:      'wrap',
+    justifyContent:'space-between',
+  },
+  choice:     {
+    width:            '48%',
+    backgroundColor: '#9fbaf9',
+    paddingVertical: 16,
+    borderRadius:    25,
+    marginBottom:    12,
+    alignItems:      'center',
+  },
+  choiceText: { color: '#fff', fontSize: 16, fontWeight: '600' },
+
+  correctChoice: { backgroundColor: '#CFD8FE' },
+  correctText:   { color: '#5C79F2' },
 });

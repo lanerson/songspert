@@ -8,27 +8,22 @@ import {
   ActivityIndicator,
   StyleSheet,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import axios from 'axios';
 import { API_BASE_URL } from '../config/api';
 
-type ChallengeSet = { id: string; name: string;created_at: string; challenges: any[]; };
-// type Track = {id: string;
-// title: string;   
-// artist: string; //or whatever your view returns   
-// preview: string;     // Deezer preview URL 
-// };
+type ChallengeSet = { id: string; name: string; created_at: string; challenges: any[] };
 
 export default function HomeScreen({ navigation }: any) {
-  const [sets, setSets]       = useState<ChallengeSet[]>([]);
+  const [sets, setSets] = useState<ChallengeSet[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => { fetchSongs(); }, []);
+  useEffect(() => { fetchSets(); }, []);
 
-  const fetchSongs = async () => {
+  const fetchSets = async () => {
     try {
-    const res = await axios.get<ChallengeSet[]>(`${API_BASE_URL}/challenge_sets/`);
-    console.log("API response:", JSON.stringify(res.data, null, 2)); //teste
-    // const res = await axios.get<Track[]>(`${API_BASE_URL}/search/?q=pop`);
+      const res = await axios.get<ChallengeSet[]>(`${API_BASE_URL}/challenge_sets/`);
       setSets(res.data);
     } catch (err) {
       console.error(err);
@@ -39,100 +34,105 @@ export default function HomeScreen({ navigation }: any) {
 
   return (
     <SafeAreaView style={styles.container}>
+      {/* Gradient Header */}
+      <LinearGradient
+        colors={['#4B73E5', '#4B73E5']}
+        style={styles.header}
+      >
+        <Text style={styles.headerText}>Songspert</Text>
+      </LinearGradient>
 
-      {/* ——— Header + Auth Buttons ——— */}
-      <View style={styles.header}>
-        <Text style={styles.title}>Songspert</Text>
-        <View style={styles.authRow}>
-
-          <TouchableOpacity style={styles.authButton} onPress={() => navigation.navigate('Quiz')}>
-            <Text>Start Quiz</Text>
-          </TouchableOpacity>
-
+      {/* Content */}
+      <View style={styles.content}>
+        <View style={styles.card}>
+          {/* Initial Quiz */}
           <TouchableOpacity
-            style={styles.authButton}
-            onPress={() => navigation.navigate('Login')}
+            style={styles.pillButton}
+            onPress={() => navigation.navigate('Quiz')}
           >
-            <Text style={styles.authText}>Log In</Text>
+            <Text style={styles.pillText}>Initial Quiz</Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.authButton}
-            onPress={() => navigation.navigate('Register')}
-          >
-            <Text style={styles.authText}>Sign Up</Text>
-          </TouchableOpacity>
-  
+
+          {/* List or Loading */}
+          {loading ? (
+            <ActivityIndicator size="large" color="#4B73E5" style={{ flex: 1 }} />
+          ) : (
+            <FlatList
+              data={sets}
+              keyExtractor={(item) => item.id}
+              style={{ flex: 1 }}
+              contentContainerStyle={{ flexGrow: 1, paddingBottom: 16 }}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={styles.row}
+                  onPress={() =>
+                    navigation.navigate('Game', {
+                      setId: item.id,
+                      setName: item.name,
+                    })
+                  }
+                >
+                  <Text style={styles.itemName}>{item.name}</Text>
+                  <Ionicons
+                    name="chevron-forward-outline"
+                    size={24}
+                    color="#4B73E5"
+                  />
+                </TouchableOpacity>
+              )}
+              ItemSeparatorComponent={() => <View style={styles.separator} />}
+              ListEmptyComponent={
+                <Text style={styles.empty}>No challenge sets.</Text>
+              }
+            />
+          )}
         </View>
       </View>
-
-      {/* ——— Content ——— */}
-      {loading ? (
-        <ActivityIndicator style={{ flex: 1 }} size="large" />
-      ) : (
-        <FlatList
-          data={sets}
-          keyExtractor={(item) => item.id.toString()}
-          contentContainerStyle={{ padding: 16 }}
-          renderItem={({ item }) => (
-            <TouchableOpacity
-              onPress={() =>
-                navigation.navigate('Game', {
-                  setId:   item.id,
-                  setName: item.name,
-                })
-              }
-            >
-              <View style={styles.card}>
-                <Text style={styles.songTitle}>{item.name}</Text>
-                <Text style={styles.artist}>
-                  Created at{' '}
-                  {new Date(item.created_at).toLocaleDateString()}
-                </Text>
-              </View>
-            </TouchableOpacity>
-          )}
-          ListEmptyComponent={
-            <Text style={styles.empty}>No challenge sets.</Text>
-          }
-        />
-      )}
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fafafa' },
-  header: {
-    padding: 16,
-    backgroundColor: '#282c34',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  title:      { color: '#fff', fontSize: 20, fontWeight: 'bold' },
-  authRow:    { flexDirection: 'row' },
-  authButton: {
-    marginLeft: 12,
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 4,
-    backgroundColor: '#61dafb',
-  },
-  authText:   { color: '#282c34', fontWeight: '600' },
+  container: { flex: 1, backgroundColor: '#4B73E5' },
+  header: { padding: 16, alignItems: 'center' },
+  headerText: { color: '#fff', fontSize: 20, fontWeight: 'bold' },
 
-  card:       {
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 12,
-    // shadow on iOS
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    // elevation on Android
-    elevation: 2,
+  content: {
+    flex: 1,
+    paddingHorizontal: 16,
+    paddingTop: 15,
+    paddingBottom: 20,
   },
-  songTitle:  { fontSize: 18, fontWeight: '500' },
-  artist:     { fontSize: 14, color: '#555', marginTop: 4 },
-  empty:      { textAlign: 'center', marginTop: 32, color: '#999' },
+
+  card: {
+    flex: 1,
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 16,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 3,
+  },
+
+  pillButton: {
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#E8F0FE',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  pillText: { color: '#4B73E5', fontSize: 16, fontWeight: '600' },
+
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 12,
+  },
+  itemName: { fontSize: 16, fontWeight: '600', color: '#333' },
+  separator: { height: 1, backgroundColor: '#eee' },
+  empty: { textAlign: 'center', color: '#999', marginTop: 20 },
 });

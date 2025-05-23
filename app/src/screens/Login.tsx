@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import {
+  SafeAreaView,
   View,
   Text,
   TextInput,
-  Button,
-  StyleSheet,
+  TouchableOpacity,
   Alert,
+  StyleSheet,
 } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -15,73 +16,128 @@ export default function LoginScreen({ navigation }: any) {
   const [email, setEmail]       = useState('');
   const [password, setPassword] = useState('');
 
- //Essa funciona (lanito):
-//   const handleLogin = async () => {
-//     console.log("Logging in")
-//         try {
-//       const res = await axios.post(
-//       `${API_BASE_URL}/auth/token/`,
-//       { username:email, password:password },
-//       {
-//         headers: {
-//           'Content-Type': 'application/json'
-//         }
-//       }
-//     );
-
-    const handleLogin = async () => {
+  const handleLogin = async () => {
     try {
       const res = await axios.post(`${API_BASE_URL}/auth/token/`, {
-        username:email,
+        username: email,
         password,
       });
-    Alert.alert('Success', 'Logged in!');
-       await AsyncStorage.setItem('token', res.data.access);
+      await AsyncStorage.setItem('token', res.data.access);
       navigation.replace('Home');
     } catch (err: any) {
       Alert.alert(
         'Login failed',
-        err.response?.data?.message || err.message
+        err.response?.data?.detail || err.message
       );
     }
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Welcome to Songspert</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-        autoCapitalize="none"
-        keyboardType="email-address"
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-      />
-      <Button title="Log In" onPress={handleLogin} />
-      <View style={{ height: 10 }} />
-      <Button
-        title="Don't have an account? Sign Up"
-        onPress={() => navigation.navigate('Register')}
-      />
-    </View>
+    <SafeAreaView style={styles.container}>
+      
+      {/* Content */}
+      <View style={styles.content}>
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Welcome to Songspert</Text>
+
+          <TextInput
+            style={styles.input}
+            placeholder="Username"
+            placeholderTextColor="#666"
+            value={email}
+            onChangeText={setEmail}
+            autoCapitalize="none"
+            keyboardType="email-address"
+          />
+
+          <TextInput
+            style={styles.input}
+            placeholder="Password"
+            placeholderTextColor="#666"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+          />
+
+          <TouchableOpacity style={styles.button} onPress={handleLogin}>
+            <Text style={styles.buttonText}>Log In</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.linkContainer}
+            onPress={() => navigation.navigate('Register')}
+          >
+            <Text style={styles.linkText}>
+              Don’t have an account? Sign Up
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex:1, justifyContent:'center', padding:20 },
-  title:     { fontSize:24, marginBottom:20, textAlign:'center' },
-  input:     {
-    borderWidth:1,
-    borderColor:'#ccc',
-    padding:10,
-    marginBottom:15,
-    borderRadius:5,
+  container: { flex: 1, backgroundColor: '#4B73E5' },
+  header: {
+    padding: 16,
+    backgroundColor: '#678bec',
+    alignItems: 'center',
+  },
+  title: { color: '#fff', fontSize: 20, fontWeight: 'bold' },
+
+  content: {
+    flex: 1,
+    paddingHorizontal: 16,
+    justifyContent: 'center',
+  },
+
+  card: {
+    backgroundColor: '#83A3F2',
+    borderRadius: 8,
+    padding: 20,
+    // iOS shadow
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    // Android elevation
+    elevation: 2,
+  },
+  cardTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#fff',
+    textAlign: 'center',
+    marginBottom: 16,
+  },
+
+  input: {
+    backgroundColor: '#fff',
+    borderRadius: 5,
+    padding: 12,
+    marginBottom: 12,
+    fontSize: 16,
+  },
+
+  button: {
+    backgroundColor: '#9fbaf9',
+    borderRadius: 5,
+    paddingVertical: 12,
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  buttonText: {
+    color: '#fff',
+    fontWeight: '600',
+    fontSize: 16,
+  },
+
+  linkContainer: {
+    marginTop: 12,
+    alignItems: 'center',
+  },
+  linkText: {
+    color: '#fff',
+    textDecorationLine: 'underline',
   },
 });
