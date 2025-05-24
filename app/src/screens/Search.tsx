@@ -7,6 +7,7 @@ import {
   FlatList,
   TouchableOpacity,
   StyleSheet,
+  Keyboard,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -43,6 +44,12 @@ export default function SearchScreen() {
     );
   };
 
+  const clearSearch = () => {
+    setQuery('');
+    setResults(mockResults);
+    Keyboard.dismiss();
+  };
+
   return (
     <SafeAreaView style={styles.container}>
 
@@ -57,6 +64,11 @@ export default function SearchScreen() {
             value={query}
             onChangeText={handleSearch}
           />
+           {query.length > 0 && (
+            <TouchableOpacity onPress={clearSearch} style={styles.clearButton}>
+              <Ionicons name="close-circle" size={18} color="#666" />
+            </TouchableOpacity>
+          )}
         </View>
 
         {/* ——— Results Card ——— */}
@@ -152,5 +164,9 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color:     '#999',
     marginTop: 20,
+  },
+  clearButton: {
+    marginLeft: 8,
+    color:     '#000000',
   },
 });

@@ -50,7 +50,7 @@ export default function HomeScreen({ navigation }: any) {
             style={styles.pillButton}
             onPress={() => navigation.navigate('Quiz')}
           >
-            <Text style={styles.pillText}>Initial Quiz</Text>
+            <Text style={styles.pillText}>First Quiz</Text>
           </TouchableOpacity>
 
           {/* List or Loading */}
