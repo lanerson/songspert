@@ -20,7 +20,7 @@ export default function ProfileScreen({ navigation }: any) {
   );
   const [userName, setUserName] = useState('Arthur Bragança');
   const [userEmail, setUserEmail] = useState('arthur@example.com');
-  const [stats, setStats] = useState({ played: 42, highScore: 128 });
+  const [stats, setStats] = useState({ played: 42, highScore: 128, daily: 5, weekly: 20, monthly: 100, annually: 500, alltime: 1000, created: 10 });
 
   useEffect(() => {
     // load real user data here
@@ -36,6 +36,12 @@ export default function ProfileScreen({ navigation }: any) {
         setStats({
           played: res.data.games_played,
           highScore: res.data.high_score,
+          daily: res.data.daily_score,
+          weekly: res.data.weekly_score,
+          monthly: res.data.monthly_score,
+          annually: res.data.annual_score,
+          alltime: res.data.all_time_score,
+          created: res.data.challenges_created,
         });
       } catch (e) {
         console.log(e);
@@ -75,6 +81,32 @@ export default function ProfileScreen({ navigation }: any) {
             <View style={styles.statBox}>
               <Text style={styles.statValue}>{stats.highScore}</Text>
               <Text style={styles.statLabel}>High Score</Text>
+            </View>
+            <View style={styles.statBox}>
+              <Text style={styles.statValue}>{stats.created}</Text>
+              <Text style={styles.statLabel}>Created</Text>
+            </View>
+          </View>
+          <View style={styles.statsRow}>
+            <View style={styles.statBox}>
+              <Text style={styles.statValue}>{stats.daily}</Text>
+              <Text style={styles.statLabel}>Daily</Text>
+            </View>
+            <View style={styles.statBox}>
+              <Text style={styles.statValue}>{stats.weekly}</Text>
+              <Text style={styles.statLabel}>Weekly</Text>
+            </View>
+            <View style={styles.statBox}>
+              <Text style={styles.statValue}>{stats.monthly}</Text>
+              <Text style={styles.statLabel}>Monthly</Text>
+            </View>
+            <View style={styles.statBox}>
+              <Text style={styles.statValue}>{stats.annually}</Text>
+              <Text style={styles.statLabel}>Annually</Text>
+            </View>
+            <View style={styles.statBox}>
+              <Text style={styles.statValue}>{stats.alltime}</Text>
+              <Text style={styles.statLabel}>All time</Text>
             </View>
           </View>
 

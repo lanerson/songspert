@@ -14,6 +14,7 @@ import SearchScreen      from './src/screens/Search';
 import RankingScreen     from './src/screens/Ranking';
 import RandomGameScreen  from './src/screens/RandomGame';
 import ProfileScreen     from './src/screens/Profile';
+import EditProfileScreen from './src/screens/EditProfile'
 import QuizScreen        from './src/screens/Quiz';
 import GameScreen        from './src/screens/Game';
 
@@ -107,6 +108,12 @@ export default function App() {
           name="Home"
           component={MainTabs}
           options={{ headerShown: false }}
+        />
+        {/* now register EditProfile on the root stack */}
+        <RootStack.Screen
+          name="EditProfile"
+          component={EditProfileScreen}
+          options={{ title: 'Edit Profile', headerShown:false }}
         />
       </RootStack.Navigator>
     </NavigationContainer>
