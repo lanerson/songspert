@@ -3,20 +3,14 @@ import { useEffect, useState } from 'react';
 import '../styles/profile.css'
 import { getMyInfo } from '../scripts/auth';
 import { deleteCookies } from '../scripts/cookies';
+import { userType } from '../models/model';
 
 type ProfileProps = {
     visible: boolean;
 }
-type userType = {
-    username: string,
-    first_name: string,
-    last_name: string,
-    email: string
-}
-
 
 export default function Profile({ visible }: ProfileProps) {
-    const [info, setInfo] = useState<userType>({ username: "", first_name: "", last_name: "", email: "" })
+    const [info, setInfo] = useState<userType>(null)
     const [isAuth, setIsAuth] = useState(false)
     useEffect(() => {
         const getInfo = async () => {
@@ -39,7 +33,7 @@ export default function Profile({ visible }: ProfileProps) {
     }, [visible])
     const handleLogout = async (e) => {
         await deleteCookies()
-        setInfo({ username: "", first_name: "", last_name: "", email: "" })
+        setInfo(null)
         setIsAuth(false)
     }
 
@@ -48,7 +42,7 @@ export default function Profile({ visible }: ProfileProps) {
             style={{ display: visible ? "flex" : "none" }}>
             {isAuth ? (
                 <>
-                    <a href="/profile" className="perfil">ACESSAR PERFIL</a>
+                    <a href="/profile" className="perfil" style={{ backgroundImage: "url(info.profile_picture)" }}>ACESSAR PERFIL</a>
                     <div className="info-container">
                         <div className="info-item">{info.username}</div>
                         <div className="info-item">{info.first_name}</div>
@@ -60,8 +54,9 @@ export default function Profile({ visible }: ProfileProps) {
                 </>
             ) : (
                 <div className="login-container">
-                    <div>
-                        Não possui uma conta? Entre ou cadastre-se para salvar seu progresso, criar desafios e muito mais
+                    <div style={{ textAlign: 'justify' }}>
+                        Não possui uma conta?<br />
+                        Entre ou cadastre-se para salvar seu progresso, criar desafios e muito mais
                     </div>
                     <a href="/login" className="log-button">LOG IN</a>
                     <a href="/register" className="log-button">REGISTER</a>

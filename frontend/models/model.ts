@@ -26,7 +26,11 @@ type userType = {
     username: string,
     first_name: string,
     last_name: string,
-    email: string
+    email: string,
+    daily_points: number,
+    weekly_points: number,
+    monthly_points: number,
+    profile_picture: string
 }
 
 

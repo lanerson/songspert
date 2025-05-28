@@ -18,7 +18,7 @@ export default function Profile() {
                 </ul>
             </div>
             <div>My Challenges</div>
-            <div>Create a New Challenge</div>
+            <a href="/profile/create">Create a New Challenge</a>
         </div>
     )
 }

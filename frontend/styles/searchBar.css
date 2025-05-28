@@ -1,4 +1,11 @@
 .search-container {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.input-container {
     place-self: center;
     height: 40px;
     text-decoration: none;
@@ -13,6 +20,11 @@ input {
     all: unset;
     height: 35px;
     width: 260px;
+    color: var(--color-white);
+}
+
+input::placeholder {
+    color: var(--color-white);
 }
 
 .search-button {
@@ -23,4 +35,23 @@ input {
     background-position: right;
     background-repeat: no-repeat;
     cursor: pointer;
+}
+
+.suggestions-container {
+    width: 310px;
+    border: solid 1px var(--color-white);
+    list-style: none;
+}
+
+.suggestion-item {
+    cursor: pointer;
+}
+
+.suggestion-item:hover {
+    background-color: var(--color-two);
+}
+
+.suggestion-content {
+    padding: 5px;
+    font-size: small;
 }

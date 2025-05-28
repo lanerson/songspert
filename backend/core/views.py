@@ -134,6 +134,11 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all().order_by("id")
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
+    def get_permissions(self):
+        if self.action == "create":
+            return [permissions.AllowAny()]
+        return [permissions.IsAuthenticatedOrReadOnly()]
+
     def get_serializer_class(self):
         if self.action in ("list", "retrieve", "me"):
                return UserReadSerializer

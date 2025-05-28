@@ -1,6 +1,6 @@
 .auth-layout {
     position: absolute;
-    top: 0;
+    bottom: 0;
     width: 100vw;
     height: 90vh;
     z-index: 10;

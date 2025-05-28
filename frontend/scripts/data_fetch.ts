@@ -51,10 +51,13 @@ export async function getSongsByGenre(genre, qtdSongs = 1) { // dá pra colocar 
     return data
 }
 
-export async function getSongsByName(songName, qtdResults = 5) { // dá pra colocar um numero definido na interface, quando o cara for pesquisar
+export async function getSongsByName(songName, qtdResults = 5) { // dá pra colocar um numero definido na interface, quando o cara for pesquisar    
     const data = await fetch(base_url + `search?q=${songName}`)
         .then(async (res) => res.json())
-        .then((data) => data.data.slice(0, qtdResults).map((item) => { return { id: item.id, title: item.title_short, song: item.preview, artist: item.artist.name } }))
+        .then((data) => data.data.slice(0, qtdResults).map((item) => {
+            const title = item.title_short.split(" (")[0]
+            return { id: item.id, title: title, song: item.preview, artist: item.artist.name }
+        }))
     return data
 }
 
