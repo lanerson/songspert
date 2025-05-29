@@ -44,7 +44,6 @@ class ChallengeSerializer(serializers.ModelSerializer):
         child=serializers.CharField(),
         min_length=3,
         max_length=3,
-        write_only=True
     )
     correct_answer = serializers.SerializerMethodField(read_only=True)
     class Meta:
