@@ -9,7 +9,7 @@ export default function Countdown() {
     const audioRef = useRef<HTMLAudioElement | null>(null);
     const [content, setContent] = useState<string>('PRONTO?');
     const [start, setStart] = useState(false)
-
+    const [image, setImage] = useState('')
 
 
     const playSound = () => {
@@ -52,19 +52,21 @@ export default function Countdown() {
         const [song] = await getRandomSong()
         console.log(song)
         setupAudio(song.song)
+        setImage(song.picture)
+        setContent('')
         playSound()
     }
 
     return (
         <div className="challenge-container">
             <div className='game-screen'>
-                <div className='screen-content'>{content}</div>
+                <div className="screen-buttom next" onClick={handleRandomGame}></div>
+                <div className="screen-buttom hint"></div>
+                <div className='screen-content' style={{ backgroundImage: `url(${image})` }}>{content}</div>
             </div>
-
-            <div className="play-button" onClick={startCountdown} style={{ display: toggleStart ? 'none' : 'auto' }}></div>
-            {start && (
+            {start ? (
                 <SearchBar onClick={handleRandomGame} />
-            )}
+            ) : <div className="play-button" onClick={startCountdown} style={{ display: toggleStart ? 'none' : 'auto' }}></div>}
         </div>
     )
 }

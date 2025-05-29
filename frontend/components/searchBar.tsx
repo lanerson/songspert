@@ -31,13 +31,13 @@ export default function SearchBar({ onClick }: searchProps) {
     return (
         <div className="search-container">
             <div className="input-container">
-                <input placeholder="Digite uma música" type="text" onChange={(e) => setSearchValue(e.target.value)} />
+                <input placeholder="Digite uma música" type="text" value={searchValue} onChange={(e) => setSearchValue(e.target.value)} />
                 <div className="search-button"></div>
             </div>
             <div>
                 <ul className="suggestions-container">
                     {searchItems.map((item) =>
-                        <li key={item.id} className="suggestion-item" onClick={() => { onClick(item) }}>
+                        <li key={item.id} className="suggestion-item" onClick={() => { setSearchValue(""); onClick(item) }}>
                             <div className="suggestion-content">{item.title}</div>
                             <div className="suggestion-content" style={{ textAlign: "right" }}>{item.artist}</div>
                         </li>)}

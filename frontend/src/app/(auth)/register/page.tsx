@@ -1,7 +1,11 @@
 'use client'
 import { useState } from 'react'
 import '../styles.css'
+import './register.css'
 import { Register } from '../../../../scripts/auth'
+
+const avatars = ['bear', 'chicken', 'dinosaur', 'dog', 'gorilla', 'meerkat', 'panda', 'rabbit']
+
 export default function register() {
     const [username, setUsername] = useState("")
     const [email, setEmail] = useState("")
@@ -15,6 +19,7 @@ export default function register() {
     return (
         <div className="container">
             <form className='form-container' onSubmit={handleClick}>
+                <div className='avatar'></div>
                 <div>NICKNAME</div>
                 <input type="text" value={username} onChange={(e) => setUsername(e.target.value)}></input>
                 <div>EMAIL</div>

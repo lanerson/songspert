@@ -47,7 +47,10 @@ export async function getRandomSong() {
 export async function getSongsByGenre(genre, qtdSongs = 1) { // dá pra colocar um numero definido na interface, quando o cara for pesquisar
     const data = await fetch(base_url + `genre/list?name=${genre}&n=${qtdSongs}`)
         .then(async (res) => res.json())
-        .then((data) => data.data.map((item) => { return { title: item.title, song: item.preview, artist: item.artist } }))
+        .then((data) => data.data.map((item) => {
+            const title = item.title.split(" (")[0]
+            return { title: title, song: item.preview, artist: item.artist, picture: item.picture }
+        }))
     return data
 }
 

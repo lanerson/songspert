@@ -25,6 +25,14 @@
     border: solid 4px var(--color-one);
 }
 
+.frequency-button input[type='radio'] {
+    display: none;
+}
+
+.frequency-button.selected {
+    background-color: var(--color-three);
+}
+
 .frequency-button:hover {
     background-color: var(--color-three);
 }

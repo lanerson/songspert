@@ -5,34 +5,63 @@
     background-color: var(--color-three);
     border-radius: 15px;
     display: grid;
-    grid-template-rows: 35% 60%;
-    gap: 30px;
+    grid-template-rows: 20% 80%;
     justify-content: center;
+    align-items: flex-start;
+    gap: 20px;
 }
 
 .game-screen {
     background-image: url('../../../public/images/tv.png');
-    background-size: contain;
     background-position: center;
+    background-size: cover;
     background-repeat: no-repeat;
-    height: 300px;
+    height: 400px;
     aspect-ratio: 1 / 1;
     justify-self: center;
     position: relative;
 }
 
+.screen-buttom {
+    height: 12%;
+    aspect-ratio: 1 / 1;
+    position: absolute;
+    right: 6%;
+
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.screen-buttom:hover {
+    border: solid 5px black;
+}
+
+.screen-buttom.next {
+    top: 33.2%;
+}
+
+.screen-buttom.hint {
+    top: 49%;
+}
+
 .screen-content {
     background-color: var(--color-white);
-    color: var(--color-black);
+    color: var(--color-white);
     font-size: xx-large;
+    background-size: cover;
+    background-position: center;
     position: absolute;
     top: 34.7%;
     left: 11.6%;
     height: 40.5%;
     aspect-ratio: 2 / 1.25;
-
     place-content: center;
     text-align: center;
+    text-shadow:
+        -1px -1px 0 var(--color-black),
+        1px -1px 0 var(--color-black),
+        -1px 1px 0 var(--color-black),
+        1px 1px 0 var(--color-black);
 }
 
 .play-button {

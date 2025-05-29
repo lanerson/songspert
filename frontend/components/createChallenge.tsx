@@ -13,9 +13,19 @@ type responseType = {
 
 export default function CreateChallenge() {
     const [results, setResults] = useState([])
+    const [idPlaying, setIdPlaying] = useState(null)
     const audioRef = useRef<HTMLAudioElement | null>(null);
 
+    const handlePlay = (id) => {
+        if (idPlaying === id) {
+            setIdPlaying(null)
+        } else {
+            setIdPlaying(id)
+        }
+    }
+
     const playSound = (song) => {
+
         if (audioRef.current === null || audioRef.current.src !== song) {
             audioRef.current.src = song
         }
@@ -61,15 +71,17 @@ export default function CreateChallenge() {
     return (
         <div className="create-container">
             <audio ref={audioRef} />
+            <SearchBar onClick={(song) => addOption(song)} />
             <div>
-                <SearchBar onClick={(song) => addOption(song)} />
-                <ul>
+                <ul className="challenges-container">
                     {results ?
                         results.map((song) =>
                             <li key={song.id}>
                                 <div>{song.title}</div>
                                 <div>{song.artist}</div>
-                                <button onClick={() => playSound(song.song)}>play</button>
+                                <button onClick={() => { playSound(song.song); handlePlay(song.id) }}>
+                                    {(idPlaying === song.id ? 'Pausar' : 'Play')}
+                                </button>
                                 <button onClick={() => deleteOption(song)}>excluir</button>
                             </li>
                         ) : <></>}

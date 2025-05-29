@@ -95,7 +95,8 @@ def get_tracks_by_genre(request):
             {
                 "title": track["title"],
                 "artist": track["artist"]["name"],
-                "preview": track["preview"]
+                "preview": track["preview"],
+                "picture": track["artist"]["picture_medium"]
             } for track in selected_tracks
         ]
     })

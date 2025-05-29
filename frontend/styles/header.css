@@ -8,13 +8,13 @@ header {
 }
 
 .homeOptions {
-    /* text-decoration: none;
-    font-weight: bold;
-    font-size: larger;
-    color: var(--color-white); */
+    background-color: var(--color-one);
+    border-radius: 10px;
+    font-size: large;
     padding: 10px;
+    margin: 10px;
 }
 
 .homeOptions:hover {
-    font-size: x-large;
+    background-color: var(--color-three);
 }
