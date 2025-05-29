@@ -9,6 +9,7 @@ from .serializers import ChallengeSerializer, ChallengeSetSerializer, UserReadSe
 import random, requests
 from django.http import JsonResponse
 from django.conf import settings
+from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly #brags home app
 
 
 User = get_user_model()
@@ -102,10 +103,17 @@ def get_tracks_by_genre(request):
 
 class ChallengeSetViewSet(viewsets.ModelViewSet):
     serializer_class = ChallengeSetSerializer
-    permission_classes = (permissions.IsAuthenticated,)
+    #permission_classes = (permissions.IsAuthenticated,)            #brags app
+    permission_classes  = (AllowAny,)
 
+    # def get_queryset(self):
+    #       return ChallengeSet.objects.filter(created_by=self.request.user)   #brags app
     def get_queryset(self):
-          return ChallengeSet.objects.filter(created_by=self.request.user)
+        user = self.request.user
+        if user.is_authenticated:
+            return ChallengeSet.objects.filter(created_by=user)
+        # for anonymous users, either show all or none:
+        return ChallengeSet.objects.all()   # or .none()
     
     def perform_destroy(self, instance):
         if instance.created_by != self.request.user:
@@ -114,13 +122,26 @@ class ChallengeSetViewSet(viewsets.ModelViewSet):
     
 class ChallengeViewSet(viewsets.ModelViewSet):
     serializer_class = ChallengeSerializer
-    permission_classes = (permissions.IsAuthenticated,)
+    #permission_classes = (permissions.IsAuthenticated,)            #brags app
+    permission_classes  = (AllowAny,)
+    
 
+    # def get_queryset(self):
+    #     return Challenge.objects.filter(
+    #         challenge_set__created_by=self.request.user,
+    #         challenge_set_id=self.kwargs["challenge_set_pk"] #brags app
+    #     )     
     def get_queryset(self):
+        user = self.request.user
+        if user.is_authenticated:
+            return Challenge.objects.filter(
+                challenge_set__created_by=user,
+                challenge_set_id=self.kwargs["challenge_set_pk"]
+            )
+        # anonymous: show challenges for any set, or none:
         return Challenge.objects.filter(
-            challenge_set__created_by=self.request.user,
             challenge_set_id=self.kwargs["challenge_set_pk"]
-        )     
+        )  # or .none()
     
     def perform_create(self, serializer):
         cs = get_object_or_404(
@@ -132,7 +153,7 @@ class ChallengeViewSet(viewsets.ModelViewSet):
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all().order_by("id")
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+    # permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
     def get_serializer_class(self):
         if self.action in ("list", "retrieve", "me"):
