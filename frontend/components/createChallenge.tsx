@@ -1,6 +1,6 @@
 'use client'
 import { useRef, useState } from "react"
-import { getSongsByName } from "../scripts/data_fetch"
+import { createChallenge, getSongsByName } from "../scripts/data_fetch"
 import "../styles/createChallenge.css"
 import SearchBar from "./searchBar"
 
@@ -15,6 +15,7 @@ export default function CreateChallenge() {
     const [results, setResults] = useState([])
     const [idPlaying, setIdPlaying] = useState(null)
     const audioRef = useRef<HTMLAudioElement | null>(null);
+    const [challengeName, setChallengeName] = useState("")
 
     const handlePlay = (id) => {
         if (idPlaying === id) {
@@ -50,7 +51,7 @@ export default function CreateChallenge() {
         setResults(_results)
     }
 
-    const handleCreate = () => {
+    const handleCreate = async () => {
         // Criar lógica para embaralhar as alternativas
         if (results.length < 4) { alert("Selecione pelo menos 4 músicas") }
         else {
@@ -60,11 +61,14 @@ export default function CreateChallenge() {
                 let choices = []
                 while (choices.length < 3) {
                     let choice = titles[Math.floor(Math.floor(Math.random() * titles.length))]
-                    if (choice != titles[i]) choices.push(choice)
+                    if (choice != titles[i] && !choices.includes(choice)) choices.push(choice)
                 }
-                challenges.push({ track: results[i].song, correct_answer: results[i].title, genre: "", type: "title", false_options: choices })
+                challenges.push({ track: results[i].id, genre: "", type: "title", false_options: choices })
             }
-            console.log(challenges)
+            const challengeSet = { name: challengeName, challenges: challenges }
+            console.log(JSON.stringify(challengeSet))
+            await createChallenge(challengeSet)
+
         }
     }
 
@@ -88,7 +92,7 @@ export default function CreateChallenge() {
                 </ul>
                 {results.length !== 0 &&
                     <div>
-                        <input type="text" placeholder="Nome do Desafio" />
+                        <input type="text" placeholder="Nome do Desafio" value={challengeName} onChange={(e) => setChallengeName(e.target.value)} />
                         <button onClick={handleCreate}>create</button>
                     </div>}
             </div>

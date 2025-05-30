@@ -46,31 +46,27 @@ export async function Register(newUser) {
     }
 }
 
-export async function getMyInfo() {
+export async function refreshAccessCookie() {
     const tokens = await getCookies()
-    console.log("tokens", tokens)
-    if (tokens !== null) {
-        const res = await fetch(base_url + "users/me/", {
+    const res = await fetch(base_url + "auth/refresh", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ refresh: tokens.refresh })
+    })
+    const { access } = await res.json()
+    return access
+}
+
+export async function getMyInfo() {
+    const access = await refreshAccessCookie()
+    if (access) {
+        let data = await fetch(base_url + "users/me/", {
             headers: {
-                "Authorization": `Bearer ${tokens.access}`
+                "Authorization": `Bearer ${access}`
             }
-        })
-        if (res.status == 401) {
-            const { access } = await fetch(base_url + "auth/refresh", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ refresh: tokens.refresh })
-            }).then(async res => await res.json())
-            await setCookies(tokens.refresh, access)
-            const data = await fetch(base_url + "users/me/", {
-                headers: {
-                    "Authorization": `Bearer ${access}`
-                }
-            })
-        }
-        const data = await res.json()
+        }).then(async res => await res.json())
         return data
     }
     return null

@@ -1,3 +1,5 @@
+import { refreshAccessCookie } from "./auth"
+import { getCookies } from "./cookies"
 
 const base_url = "http://localhost:8000/"
 
@@ -80,7 +82,16 @@ export async function getUsers() {
     return data
 }
 
-
 export async function createChallenge(challenge_set) {
-
+    const access = await refreshAccessCookie()
+    const data = await fetch(base_url + "challenge_sets/", {
+        method: 'POST',
+        headers: {
+            "Authorization": `Bearer ${access}`,
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(challenge_set)
+    }).then(res => console.log(res.json()))
+        .catch(error => console.log(error.message))
+    return data
 }
