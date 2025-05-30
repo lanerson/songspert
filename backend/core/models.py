@@ -14,9 +14,15 @@ class Track(models.Model):
     preview = models.URLField()
     genre = models.CharField(max_length=100, blank=True)
 class ChallengeSet(models.Model):
+    CATEGORY_CHOICES = [
+        ('author', 'Author'),
+        ('title', 'Title'),
+    ]
+
     name = models.CharField(max_length=100)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-    created_at = models.DateTimeField(auto_now_add=True) 
+    created_at = models.DateTimeField(auto_now_add=True)
+    category = models.CharField(max_length=10, choices=CATEGORY_CHOICES, default='title')
 
     def __str__(self):
         return self.name

@@ -5,7 +5,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.contrib.auth import get_user_model
 from .models import Challenge, ChallengeSet
-from .serializers import ChallengeSerializer, ChallengeSetSerializer, UserReadSerializer, UserWriteSerializer
+from .serializers import ChallengeSerializer, ChallengeSetSerializer, UserReadSerializer, UserWriteSerializer, serializers
 import random, requests
 from django.http import JsonResponse
 from django.conf import settings
@@ -103,17 +103,26 @@ def get_tracks_by_genre(request):
 
 class ChallengeSetViewSet(viewsets.ModelViewSet):
     serializer_class = ChallengeSetSerializer
-    #permission_classes = (permissions.IsAuthenticated,)            #brags app
     permission_classes  = (AllowAny,)
 
-    # def get_queryset(self):
-    #       return ChallengeSet.objects.filter(created_by=self.request.user)   #brags app
     def get_queryset(self):
         user = self.request.user
         if user.is_authenticated:
             return ChallengeSet.objects.filter(created_by=user)
-        # for anonymous users, either show all or none:
-        return ChallengeSet.objects.all()   # or .none()
+
+        return ChallengeSet.objects.all()
+    
+    def perform_create(self, serializer):
+        cs = get_object_or_404(
+            ChallengeSet,
+            pk=self.kwargs["challenge_set_pk"],
+            created_by=self.request.user
+        )
+
+        # Inject category into serializer context and into the Challenge instance
+        serializer.context["challenge_set_category"] = cs.category
+        serializer.save(challenge_set=cs, type=cs.category)
+
     
     def perform_destroy(self, instance):
         if instance.created_by != self.request.user:
@@ -122,15 +131,9 @@ class ChallengeSetViewSet(viewsets.ModelViewSet):
     
 class ChallengeViewSet(viewsets.ModelViewSet):
     serializer_class = ChallengeSerializer
-    #permission_classes = (permissions.IsAuthenticated,)            #brags app
     permission_classes  = (AllowAny,)
     
 
-    # def get_queryset(self):
-    #     return Challenge.objects.filter(
-    #         challenge_set__created_by=self.request.user,
-    #         challenge_set_id=self.kwargs["challenge_set_pk"] #brags app
-    #     )     
     def get_queryset(self):
         user = self.request.user
         if user.is_authenticated:
@@ -149,7 +152,10 @@ class ChallengeViewSet(viewsets.ModelViewSet):
             pk=self.kwargs["challenge_set_pk"],
             created_by=self.request.user
         )
+        if serializer.validated_data.get("type") != cs.category:
+            raise serializers.ValidationError("Challenge type must match ChallengeSet category.")
         serializer.save(challenge_set=cs)
+
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all().order_by("id")

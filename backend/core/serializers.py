@@ -39,17 +39,18 @@ class UserWriteSerializer(serializers.ModelSerializer):
         return instance
 
 class ChallengeSerializer(serializers.ModelSerializer):
-    type = serializers.ChoiceField(choices=['author', 'title'])
     false_options = serializers.ListField(
         child=serializers.CharField(),
         min_length=3,
-        max_length=3,
+        max_length=3
     )
     correct_answer = serializers.SerializerMethodField(read_only=True)
+    type = serializers.CharField(read_only=True)  # Now it's read-only, auto-filled from ChallengeSet
+
     class Meta:
         model = Challenge
         fields = ("id", "track", "genre", "type", "false_options", "correct_answer")
-        read_only_fields = ("id", "correct_answer")
+        read_only_fields = ("id", "type", "correct_answer")
 
     def get_correct_answer(self, obj):
         if obj.type == 'author':
@@ -60,29 +61,29 @@ class ChallengeSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         track = data.get("track")
-        type_ = data.get("type")
         false_options = data.get("false_options", [])
+        type_ = self.context.get("challenge_set_category")
 
-        if not track or not type_ or not false_options:
+        if not track or not false_options or not type_:
             return data
-        
-        correct =  track.artist if type_ == "author" else track.title
+
+        correct = track.artist if type_ == "author" else track.title
         if correct in false_options:
             raise serializers.ValidationError("A resposta não pode estar entre as alternativas falsas.")
+        return data
 
-        return data       
-    
     def create(self, validated_data):
         false_options = validated_data.pop("false_options")
         validated_data["false_options"] = false_options
         return super().create(validated_data)
+
 
 class ChallengeSetSerializer(serializers.ModelSerializer):
     challenges = ChallengeSerializer(many=True, required=False)
 
     class Meta:
         model = ChallengeSet
-        fields = ("id", "name", "created_at", "challenges")
+        fields = ("id", "name", "category", "created_at", "challenges")
         read_only_fields = ("id", "created_at")
 
     def create(self, validated_data):
@@ -92,9 +93,11 @@ class ChallengeSetSerializer(serializers.ModelSerializer):
             **validated_data
         )
         for ch_data in challenges_data:
+            if ch_data.get("type") != cs.category:
+                raise serializers.ValidationError(f"Challenge type '{ch_data.get('type')}' must match ChallengeSet category '{cs.category}'.")
             Challenge.objects.create(challenge_set=cs, **ch_data)
         return cs
-    
+
     def update(self, instance, validated_data):
         challenges_data = validated_data.pop("challenges", None)
 
@@ -105,8 +108,11 @@ class ChallengeSetSerializer(serializers.ModelSerializer):
         if challenges_data is not None:
             instance.challenges.all().delete()
             for ch_data in challenges_data:
+                if ch_data.get("type") != instance.category:
+                    raise serializers.ValidationError(f"Challenge type '{ch_data.get('type')}' must match ChallengeSet category '{instance.category}'.")
                 Challenge.objects.create(challenge_set=instance, **ch_data)
 
         return instance
+
     
 
