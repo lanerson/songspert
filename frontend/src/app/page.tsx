@@ -1,7 +1,5 @@
-import Game from '../../components/game/game';
 import '../../styles/home.css'
 import NewChallengeCard from '../../components/newChallengeCard';
-import Header from '../../components/header';
 
 export default function Home() {
 
