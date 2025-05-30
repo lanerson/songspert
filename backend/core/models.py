@@ -9,6 +9,7 @@ class User(AbstractUser):
     profile_picture = models.URLField(blank=True, null=True) 
 
 class Track(models.Model):
+    id = models.IntegerField(unique=True, primary_key=True)
     title = models.CharField(max_length=255)
     artist = models.CharField(max_length=255)
     preview = models.URLField()
@@ -20,7 +21,7 @@ class ChallengeSet(models.Model):
     ]
 
     name = models.CharField(max_length=100)
-    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="challenge_sets")
     created_at = models.DateTimeField(auto_now_add=True)
     category = models.CharField(max_length=10, choices=CATEGORY_CHOICES, default='title')
 
@@ -34,7 +35,7 @@ class Challenge(models.Model):
     ]
 
     challenge_set = models.ForeignKey(ChallengeSet, on_delete=models.CASCADE, null=True, blank=True, related_name='challenges')
-    track = models.ForeignKey(Track, on_delete=models.CASCADE, null=True, blank=True)
+    track = models.BigIntegerField()
     genre = models.CharField(max_length=100, blank=True)
     type = models.CharField(max_length=10, choices=CHALLANGE_TYPE_CHOICES, default='title')
 

@@ -9,7 +9,7 @@ from .serializers import ChallengeSerializer, ChallengeSetSerializer, UserReadSe
 import random, requests
 from django.http import JsonResponse
 from django.conf import settings
-from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly #brags home app
+from rest_framework.permissions import AllowAny, IsAuthenticated #brags home app
 
 
 User = get_user_model()
@@ -103,7 +103,7 @@ def get_tracks_by_genre(request):
 
 class ChallengeSetViewSet(viewsets.ModelViewSet):
     serializer_class = ChallengeSetSerializer
-    permission_classes  = (AllowAny,)
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         user = self.request.user
@@ -113,16 +113,9 @@ class ChallengeSetViewSet(viewsets.ModelViewSet):
         return ChallengeSet.objects.all()
     
     def perform_create(self, serializer):
-        cs = get_object_or_404(
-            ChallengeSet,
-            pk=self.kwargs["challenge_set_pk"],
-            created_by=self.request.user
-        )
-
-        # Inject category into serializer context and into the Challenge instance
-        serializer.context["challenge_set_category"] = cs.category
-        serializer.save(challenge_set=cs, type=cs.category)
-
+        if not self.request.user.is_authenticated:
+            raise PermissionDenied("You must be logged in to create a ChallengeSet.")
+        serializer.save(created_by=self.request.user)
     
     def perform_destroy(self, instance):
         if instance.created_by != self.request.user:

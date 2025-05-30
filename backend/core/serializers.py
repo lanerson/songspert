@@ -1,7 +1,8 @@
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
-from .models import ChallengeSet, Challenge
+from .models import ChallengeSet, Challenge, Track
 from django.contrib.auth import get_user_model
+import requests
 
 User = get_user_model()
 
@@ -45,7 +46,7 @@ class ChallengeSerializer(serializers.ModelSerializer):
         max_length=3
     )
     correct_answer = serializers.SerializerMethodField(read_only=True)
-    type = serializers.CharField(read_only=True)  # Now it's read-only, auto-filled from ChallengeSet
+    type = serializers.CharField()  # Now it's read-only, auto-filled from ChallengeSet
 
     class Meta:
         model = Challenge
@@ -53,10 +54,18 @@ class ChallengeSerializer(serializers.ModelSerializer):
         read_only_fields = ("id", "type", "correct_answer")
 
     def get_correct_answer(self, obj):
-        if obj.type == 'author':
-            return obj.track.artist
-        elif obj.type == 'title':
-            return obj.track.title
+        try:
+            res = requests.get(f"https://api.deezer.com/track/{obj.track}")
+            if res.status_code != 200:
+                return None
+            data = res.json()
+            if obj.type == 'author':
+                return data["artist"]["name"]
+            elif obj.type == 'title':
+                return data["title"]
+        except:
+            pass
+
         return None
 
     def validate(self, data):
@@ -83,18 +92,17 @@ class ChallengeSetSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ChallengeSet
-        fields = ("id", "name", "category", "created_at", "challenges")
-        read_only_fields = ("id", "created_at")
+        fields = ("id", "name", "category", "created_by", "created_at", "challenges")
+        read_only_fields = ("id", "created_by", "created_at")
 
     def create(self, validated_data):
         challenges_data = validated_data.pop("challenges", [])
-        cs = ChallengeSet.objects.create(
-            created_by=self.context["request"].user,
-            **validated_data
-        )
+        cs = ChallengeSet.objects.create(**validated_data)  # 'created_by' set in perform_create()
         for ch_data in challenges_data:
             if ch_data.get("type") != cs.category:
-                raise serializers.ValidationError(f"Challenge type '{ch_data.get('type')}' must match ChallengeSet category '{cs.category}'.")
+                raise serializers.ValidationError(
+                    f"Challenge type '{ch_data.get('type')}' must match ChallengeSet category '{cs.category}'."
+                )
             Challenge.objects.create(challenge_set=cs, **ch_data)
         return cs
 
@@ -109,10 +117,32 @@ class ChallengeSetSerializer(serializers.ModelSerializer):
             instance.challenges.all().delete()
             for ch_data in challenges_data:
                 if ch_data.get("type") != instance.category:
-                    raise serializers.ValidationError(f"Challenge type '{ch_data.get('type')}' must match ChallengeSet category '{instance.category}'.")
+                    raise serializers.ValidationError(
+                        f"Challenge type '{ch_data.get('type')}' must match ChallengeSet category '{instance.category}'."
+                    )
                 Challenge.objects.create(challenge_set=instance, **ch_data)
 
         return instance
 
-    
+
+class TrackSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Track
+        fields = ("id", "tittle", "genre", "artist", "preview")
+        read_only_fields = ("id", "tittle", "genre", "artist", "preview")
+
+    def create(self, validated_data):
+        title = validated_data.pop("title_short")
+        genre = validated_data.pop("genre")
+        artist = validated_data.pop("artist")
+        preview = validated_data.pop("preview")
+        validated_data["title"] = title
+        validated_data["genre"] = genre
+        validated_data["artist"] = artist
+        validated_data["preview"] = preview
+        
+        return super().create(validated_data)
+
+
+
 
