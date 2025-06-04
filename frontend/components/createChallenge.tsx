@@ -3,6 +3,7 @@ import { useRef, useState } from "react"
 import { createChallenge, getSongsByName } from "../scripts/data_fetch"
 import "../styles/createChallenge.css"
 import SearchBar from "./searchBar"
+import { useRouter } from "next/navigation"
 
 type responseType = {
     id: string,
@@ -10,12 +11,12 @@ type responseType = {
     song: string,
     artist: string
 }
-
 export default function CreateChallenge() {
     const [results, setResults] = useState([])
     const [idPlaying, setIdPlaying] = useState(null)
     const audioRef = useRef<HTMLAudioElement | null>(null);
     const [challengeName, setChallengeName] = useState("")
+    const router = useRouter()
 
     const handlePlay = (id) => {
         if (idPlaying === id) {
@@ -63,14 +64,26 @@ export default function CreateChallenge() {
                     let choice = titles[Math.floor(Math.floor(Math.random() * titles.length))]
                     if (choice != titles[i] && !choices.includes(choice)) choices.push(choice)
                 }
-                challenges.push({ track: results[i].id, genre: "", type: "title", false_options: choices })
+                choices.push(titles[i])
+                let options = embaralharArray(choices)
+                challenges.push({ track: results[i].id, genre: "", type: "title", false_options: options })
             }
-            const challengeSet = { name: challengeName, challenges: challenges }
+            const challengeSet = { name: challengeName, category: "title", challenges: challenges }
             console.log(JSON.stringify(challengeSet))
             await createChallenge(challengeSet)
+                .then(() => { alert("Playlist Criada com sucesso"); router.replace("/profile") })
 
         }
     }
+    function embaralharArray(array) {
+        const arrayEmbaralhado = array.slice(); // cria uma cópia do array original
+        for (let i = arrayEmbaralhado.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1)); // índice aleatório entre 0 e i
+            [arrayEmbaralhado[i], arrayEmbaralhado[j]] = [arrayEmbaralhado[j], arrayEmbaralhado[i]]; // troca os elementos
+        }
+        return arrayEmbaralhado;
+    }
+
 
     return (
         <div className="create-container">

@@ -2,11 +2,11 @@ import Game from "../../../../components/game/game"
 
 export default async function Challenge({ params }:
     {
-        params: Promise<{ challengeId: string }>
+        params: Promise<{ challengeId: number }>
     }
 ) {
 
-    const challengeId = (await params).challengeId
+    const challengeId: number = (await params).challengeId
     return (
         <Game challengeId={challengeId} />
     )

@@ -42,11 +42,11 @@ class UserWriteSerializer(serializers.ModelSerializer):
 class ChallengeSerializer(serializers.ModelSerializer):
     false_options = serializers.ListField(
         child=serializers.CharField(),
-        min_length=3,
-        max_length=3
+        min_length=4,
+        max_length=4
     )
     correct_answer = serializers.SerializerMethodField(read_only=True)
-    type = serializers.CharField()  # Now it's read-only, auto-filled from ChallengeSet
+    type = serializers.CharField()
 
     class Meta:
         model = Challenge
@@ -62,7 +62,7 @@ class ChallengeSerializer(serializers.ModelSerializer):
             if obj.type == 'author':
                 return data["artist"]["name"]
             elif obj.type == 'title':
-                return data["title"]
+                return data["title"].split(" (")[0]
         except:
             pass
 

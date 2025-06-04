@@ -1,0 +1,90 @@
+{
+    "name": "MOST PLAYED SONGS IN THE 2000S",
+    "category": "mistureba",
+    "challenges": [
+        {
+            "track": 14525086,
+            "genre": "",
+            "type": "title",
+            "false_options": [
+                "Billie Jean",
+                "Look Away",
+                "Careless Whisper",
+                "Physical"
+            ],
+            "correct_answer": "Careless Whisper"
+        },
+        {
+            "track": 548100032,
+            "genre": "",
+            "type": "title",
+            "false_options": [
+                "Physical",
+                "Billie Jean",
+                "I Love Rock 'N Roll",
+                "Another One Bites The Dust"
+            ],
+            "correct_answer": "Physical"
+        },
+        {
+            "track": 3616320,
+            "genre": "",
+            "type": "title",
+            "false_options": [
+                "Careless Whisper",
+                "Eye of the Tiger",
+                "Physical",
+                "Look Away"
+            ],
+            "correct_answer": "Look Away"
+        },
+        {
+            "track": 12206946,
+            "genre": "",
+            "type": "title",
+            "false_options": [
+                "I Love Rock 'N Roll",
+                "Another One Bites The Dust",
+                "Careless Whisper",
+                "Physical"
+            ],
+            "correct_answer": "Another One Bites The Dust"
+        },
+        {
+            "track": 545992732,
+            "genre": "",
+            "type": "title",
+            "false_options": [
+                "Another One Bites The Dust",
+                "Careless Whisper",
+                "Billie Jean",
+                "I Love Rock 'N Roll"
+            ],
+            "correct_answer": "I Love Rock 'N Roll"
+        },
+        {
+            "track": 4603408,
+            "genre": "",
+            "type": "title",
+            "false_options": [
+                "Look Away",
+                "Billie Jean",
+                "Eye of the Tiger",
+                "Another One Bites The Dust"
+            ],
+            "correct_answer": "Billie Jean"
+        },
+        {
+            "track": 576431,
+            "genre": "",
+            "type": "title",
+            "false_options": [
+                "Look Away",
+                "I Love Rock 'N Roll",
+                "Physical",
+                "Eye of the Tiger"
+            ],
+            "correct_answer": "Eye of the Tiger"
+        }
+    ]
+}

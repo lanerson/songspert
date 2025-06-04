@@ -16,9 +16,11 @@ type challengeType = {
 
 type songType = {
     id: number,
-    src: string,
-    answers: string[],
-    correctAnswer: string
+    track: string,
+    genre: string,
+    type: string,
+    false_options: string[],
+    correct_answer: string
 }
 
 type userType = {

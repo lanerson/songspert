@@ -1,8 +1,10 @@
 'use client'
+
 import { useState } from 'react'
 import '../styles.css'
 import './register.css'
 import { Register } from '../../../../scripts/auth'
+import { useRouter } from 'next/navigation'
 
 const avatars = ['bear', 'chicken', 'dinosaur', 'dog', 'gorilla', 'meerkat', 'panda', 'rabbit']
 
@@ -12,9 +14,12 @@ export default function register() {
     const [password, setPassword] = useState("")
     const [first_name, setFirstName] = useState("")
     const [last_name, setLastName] = useState("")
+
+    const router = useRouter()
     const handleClick = async (e) => {
         e.preventDefault()
         await Register({ username, email, password, first_name, last_name })
+        router.replace("/")
     }
     return (
         <div className="container">

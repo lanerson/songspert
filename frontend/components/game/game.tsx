@@ -4,25 +4,33 @@ import '../../styles/game.css'
 import { useRouter } from 'next/navigation'
 import { songType } from '../../models/model'
 import Fase from './fase'
+import { getChallengeById } from '../../scripts/data_fetch'
 
 
-
-const challenge: songType[] = [
-    { id: 1, src: '/music/again.mp3', answers: ['AGAIN', 'HOLOGRAM', 'GOLDEN TIME', 'RAIN'], correctAnswer: 'AGAIN' },
-    { id: 2, src: '/music/hologram.mp3', answers: ['GOLDEN TIME', 'AGAIN', 'HOLOGRAM', 'RAIN'], correctAnswer: 'HOLOGRAM' },
-    { id: 3, src: '/music/goldentime.mp3', answers: ['REWRITE', 'HOLOGRAM', 'GOLDEN TIME', 'RAIN'], correctAnswer: 'GOLDEN TIME' },
-    { id: 4, src: '/music/rewrite.mp3', answers: ['REWRITE', 'AGAIN', 'GOLDEN TIME', 'RAIN'], correctAnswer: 'REWRITE' },
-    { id: 5, src: '/music/rain.mp3', answers: ['REWRITE', 'AGAIN', 'RAIN', 'GOLDEN TIME'], correctAnswer: 'RAIN' }
-]
-
-export default function Game(challengeId) {
+export default function Game({ challengeId }) {
     const [toggleStart, setToggleStart] = useState<boolean>(false);
     const [currentSong, setCurrentSong] = useState<songType | null>(null);
     const [songIndex, setSongIndex] = useState<number>(0);
     const audioRef = useRef<HTMLAudioElement | null>(null);
     const [content, setContent] = useState<string>('PRONTO?');
-
     const router = useRouter()
+    const [challenge, setChallenge] = useState<songType[]>([])
+
+    const getChallenge = async () => {
+        try {
+            const challenge = await getChallengeById(challengeId);
+            setChallenge(challenge);
+            console.log("desafios", challenge)
+        } catch (error) {
+            alert("Erro inesperado");
+            console.log(error.code, error.message)
+            router.replace("/")
+        }
+    }
+
+    useEffect(() => {
+        getChallenge()
+    }, [])
 
     const playSound = () => {
         if (audioRef.current) {
@@ -41,7 +49,7 @@ export default function Game(challengeId) {
     const startCountdown = () => {
         setupAudio("/music/drum_stick.mp3")
         setToggleStart(true)
-        const sequence: (number | string)[] = [3, 2, 1];
+        const sequence: (number | string)[] = [4, 3, 2, 1];
         let i = 0;
         setContent(sequence[i].toString());
         new Audio("/music/drum_stick.mp3").play()
@@ -69,7 +77,7 @@ export default function Game(challengeId) {
             router.refresh()
         }
         else {
-            setupAudio(challenge[songIndex].src)
+            setupAudio(challenge[songIndex].track)
             setCurrentSong(challenge[songIndex])
             playSound()
             let newIndex = songIndex + 1

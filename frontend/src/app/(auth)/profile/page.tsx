@@ -1,4 +1,6 @@
 import "../styles.css"
+import "./profile.css"
+
 export default function Profile() {
     return (
         <div>

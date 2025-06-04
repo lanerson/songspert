@@ -15,7 +15,7 @@ export default function Fase({ song, handleGame }: FaseType) {
         else {
 
             return (
-                song.answers.map((answer) => <div className="respostas" key={answer} onClick={handleGame}>{answer}</div>)
+                song.false_options.map((answer) => <div className="respostas" key={answer} onClick={handleGame}>{answer}</div>)
 
             )
         }

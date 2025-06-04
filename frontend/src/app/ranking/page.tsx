@@ -11,7 +11,7 @@ export default function Ranking() {
     const [frequency, setFrequency] = useState(frequencyData[0])
 
     useEffect(() => {
-        const newData = getData()
+        getData()
 
     }, [frequency])
 

@@ -1,14 +1,16 @@
 {
     "name": "Fullmetal Alchemist",
+    "category": "title",
     "challenges": [
         {
             "track": 975952742,
             "genre": "",
             "type": "title",
             "false_options": [
+                "Hologram",
+                "Golden Time Lover",
                 "Rewrite",
-                "Melissa",
-                "Golden Time Lover"
+                "Again"
             ]
         },
         {
@@ -16,9 +18,10 @@
             "genre": "",
             "type": "title",
             "false_options": [
-                "Melissa",
-                "Rewrite",
-                "Golden Time Lover"
+                "Again",
+                "Rain",
+                "Golden Time Lover",
+                "Hologram"
             ]
         },
         {
@@ -26,9 +29,10 @@
             "genre": "",
             "type": "title",
             "false_options": [
-                "Melissa",
-                "Hologram",
-                "Again"
+                "Rain",
+                "Rewrite",
+                "Again",
+                "Golden Time Lover"
             ]
         },
         {
@@ -36,9 +40,10 @@
             "genre": "",
             "type": "title",
             "false_options": [
+                "Again",
                 "Hologram",
-                "Melissa",
-                "Rain"
+                "Rain",
+                "Rewrite"
             ]
         },
         {
@@ -46,19 +51,10 @@
             "genre": "",
             "type": "title",
             "false_options": [
+                "Rewrite",
                 "Golden Time Lover",
                 "Hologram",
-                "Melissa"
-            ]
-        },
-        {
-            "track": 545698902,
-            "genre": "",
-            "type": "title",
-            "false_options": [
-                "Rewrite",
-                "Rain",
-                "Again"
+                "Rain"
             ]
         }
     ]

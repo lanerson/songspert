@@ -104,7 +104,7 @@ def get_tracks_by_genre(request):
 
 class ChallengeSetViewSet(viewsets.ModelViewSet):
     serializer_class = ChallengeSetSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
         user = self.request.user
@@ -152,14 +152,20 @@ class ChallengeViewSet(viewsets.ModelViewSet):
 
 
 class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all().order_by("id")
-    # permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+    queryset = User.objects.all().order_by("id")    
 
     def get_serializer_class(self):
         if self.action in ("list", "retrieve", "me"):
                return UserReadSerializer
         return UserWriteSerializer
     
+    def get_permissions(self):        
+        if self.action == "create":
+            return [permissions.AllowAny()]        
+        elif self.action == "me":
+            return [permissions.IsAuthenticated()]        
+        return [permissions.IsAuthenticatedOrReadOnly()]
+
     @action(detail=False, methods=["get", "patch"], url_path="me",  permission_classes=[permissions.IsAuthenticated])
 
     def me(self, request):

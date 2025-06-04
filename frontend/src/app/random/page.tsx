@@ -1,8 +1,8 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import "./random.css"
-import { getRandomSong } from "../../../scripts/data_fetch";
 import SearchBar from "../../../components/searchBar";
+import { getRandomSong } from "../../../scripts/data_client";
 
 export default function Countdown() {
     const [toggleStart, setToggleStart] = useState<boolean>(false);

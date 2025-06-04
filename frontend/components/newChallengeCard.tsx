@@ -1,8 +1,8 @@
 'use client'
 import { useEffect, useState } from "react"
 import "../styles/newChallengeCard.css"
-import Game from "./game/game"
-import { getDailyChallenge } from "../scripts/data_fetch"
+import { useRouter } from "next/navigation"
+import { getDailyChallenge } from "../scripts/data_client"
 
 type cardProps = {
     challengeID: number
@@ -13,6 +13,7 @@ export default function NewChallengeCard() {
 
     const [challengeID, setChallengeId] = useState<number>(0)
     const [title, setTitle] = useState<string>()
+    const router = useRouter()
 
     useEffect(() => {
         async function getChallenge() {
@@ -24,13 +25,9 @@ export default function NewChallengeCard() {
         getChallenge()
     })
 
-    const handleClick = () => <Game challengeID={challengeID} />
-
-
-
     return (
         <div className="daily-container">
-            <div className="card-button" onClick={handleClick} >
+            <div className="card-button" onClick={() => router.replace(`/random/${challengeID}`)} >
                 PLAY NOW
             </div>
             <div className="card-content">{title}</div>
