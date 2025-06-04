@@ -5,11 +5,11 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.contrib.auth import get_user_model
 from .models import Challenge, ChallengeSet
-from .serializers import ChallengeSerializer, ChallengeSetSerializer, UserReadSerializer, UserWriteSerializer, serializers
+from .serializers import ChallengeSerializer, ChallengeSetSerializer, UserReadSerializer, UserWriteSerializer
 import random, requests
 from django.http import JsonResponse
 from django.conf import settings
-from rest_framework.permissions import AllowAny, IsAuthenticated #brags home app
+from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
 
 
 User = get_user_model()
