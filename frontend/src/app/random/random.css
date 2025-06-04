@@ -1,0 +1,161 @@
+.challenge-container {
+    width: 80vw;
+    max-width: 1200px;
+    height: 80vh;
+    background-color: var(--color-three);
+    border-radius: 15px;
+    display: grid;
+    grid-template-rows: 50% 50%;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 20px;
+    padding: 10px;
+}
+
+.game-screen {
+    background-image: url('../../../public/images/tv.png');
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    height: 100%;
+    aspect-ratio: 1 / 1;
+    justify-self: center;
+    position: relative;
+}
+
+.screen-buttom {
+    height: 12%;
+    aspect-ratio: 1 / 1;
+    position: absolute;
+    right: 6%;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.screen-buttom:hover {
+    border: solid 5px black;
+}
+
+.screen-buttom.next {
+    top: 33.2%;
+}
+
+.screen-buttom.hint {
+    top: 49%;
+}
+
+.screen-content {
+    background-color: var(--color-white);
+    color: var(--color-white);
+    font-size: xx-large;
+    background-size: cover;
+    background-position: center;
+    position: absolute;
+    top: 34.7%;
+    left: 11.6%;
+    height: 40.5%;
+    aspect-ratio: 2 / 1.25;
+    display: grid;
+    place-content: center;
+    text-align: center;
+    text-shadow:
+        -1px -1px 0 var(--color-black),
+        1px -1px 0 var(--color-black),
+        -1px 1px 0 var(--color-black),
+        1px 1px 0 var(--color-black);
+}
+
+.play-button {
+    background-image: url("../../../public/images/play-button.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    height: 130px;
+    aspect-ratio: 1 / 1;
+    justify-self: center;
+    align-self: center;
+}
+
+.play-button:hover {
+    cursor: pointer;
+    height: 150px;
+}
+
+
+input {
+    all: unset;
+    height: 35px;
+    width: 260px;
+}
+
+.search-button {
+    height: 30px;
+    aspect-ratio: 1 / 1;
+    background-image: url("../../../public/images/lupa.png");
+    background-size: contain;
+    background-position: right;
+    background-repeat: no-repeat;
+    cursor: pointer;
+}
+
+
+/* RESPONSIVIDADE */
+@media (max-width: 600px) {
+    .challenge-container {
+        width: 95vw;
+        height: auto;
+        grid-template-rows: auto auto;
+        gap: 15px;
+        padding: 15px 10px;
+    }
+
+    .game-screen {
+        height: 220px;
+        aspect-ratio: unset;
+        width: 90%;
+        background-size: contain;
+    }
+
+    .screen-buttom {
+        height: 10%;
+        right: 4%;
+    }
+
+    .screen-buttom.next {
+        top: 30%;
+    }
+
+    .screen-buttom.hint {
+        top: 48%;
+    }
+
+    .screen-content {
+        top: 35%;
+        left: 10%;
+        width: 80%;
+        height: 35%;
+        font-size: 1.3rem;
+        aspect-ratio: unset;
+    }
+
+    .play-button {
+        height: 100px;
+    }
+
+    .play-button:hover {
+        height: 110px;
+    }
+
+    .search-container {
+        width: 90%;
+        height: 38px;
+    }
+
+    input {
+        width: 100%;
+        font-size: 1rem;
+    }
+
+    .search-button {
+        height: 25px;
+    }
+}

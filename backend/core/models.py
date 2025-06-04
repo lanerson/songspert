@@ -3,28 +3,53 @@ from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 
 class User(AbstractUser):
-    pass
+    daily_points = models.IntegerField(default=0)
+    weekly_points = models.IntegerField(default=0)
+    monthly_points = models.IntegerField(default=0)
+    profile_picture = models.URLField(blank=True, null=True) 
 
 class Track(models.Model):
+    id = models.IntegerField(unique=True, primary_key=True)
     title = models.CharField(max_length=255)
     artist = models.CharField(max_length=255)
     preview = models.URLField()
     genre = models.CharField(max_length=100, blank=True)
 class ChallengeSet(models.Model):
+    CATEGORY_CHOICES = [
+        ('author', 'Author'),
+        ('title', 'Title'),
+    ]
+
     name = models.CharField(max_length=100)
-    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-    created_at = models.DateTimeField(auto_now_add=True) 
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="challenge_sets")
+    created_at = models.DateTimeField(auto_now_add=True)
+    category = models.CharField(max_length=10, choices=CATEGORY_CHOICES, default='title')
 
     def __str__(self):
         return self.name
 
 class Challenge(models.Model):
-    challenge_set = models.ForeignKey(ChallengeSet, on_delete=models.CASCADE, null=True, blank=True, related_name='challenges')
-    track = models.ForeignKey(Track, on_delete=models.CASCADE, null=True, blank=True)
-    genre = models.CharField(max_length=100, blank=True)
+    CHALLANGE_TYPE_CHOICES = [
+        ('author', 'Author'),
+        ('title', 'Title'),
+    ]
 
-    def __str__(self):
-        return f"{self.track.title}"
+    challenge_set = models.ForeignKey(ChallengeSet, on_delete=models.CASCADE, null=True, blank=True, related_name='challenges')
+    track = models.BigIntegerField()
+    genre = models.CharField(max_length=100, blank=True)
+    type = models.CharField(max_length=10, choices=CHALLANGE_TYPE_CHOICES, default='title')
+
+    false_options = models.JSONField(default=list)
+
+    def correct_answer(self):
+        if self.type == 'author':
+            return self.track.artist
+        elif self.type == 'title':
+            return self.track.title
+        return None
+
+    def __str__(self):  
+        return f"{self.track.title} ({self.type})"
 
 class Attempt(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)

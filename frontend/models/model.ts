@@ -1,25 +1,40 @@
 import { setConfig } from "next/config"
 
-enum categoriesEnum {
-    Rock,
-    Pop,
-    MPB,
+enum typeChallengeEnum {
+    author = "author",
+    title = "title"
 }
 
-interface challengeInterface {
-    id: number,
-    name: string,
-    categories: categoriesEnum[],
-    songs: string[]
+type challengeType = {
+    "id": number,
+    "track": string,
+    "genre": string,
+    "type": typeChallengeEnum,
+    "correct_answer": "string"
 }
 
 
 type songType = {
-    src: string,
-    answers: string[],
-    correctAnswer: string
+    id: number,
+    track: string,
+    genre: string,
+    type: string,
+    false_options: string[],
+    correct_answer: string
+}
+
+type userType = {
+    id: number,
+    username: string,
+    first_name: string,
+    last_name: string,
+    email: string,
+    daily_points: number,
+    weekly_points: number,
+    monthly_points: number,
+    profile_picture: string
 }
 
 
-export type { challengeInterface, songType }
-export { categoriesEnum }
+export type { challengeType, songType, userType }
+export { typeChallengeEnum }

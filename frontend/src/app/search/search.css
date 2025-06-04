@@ -1,0 +1,105 @@
+.genre-container {
+    background-color: var(--color-one);
+    height: 80vh;
+    width: 80%;
+    max-width: 900px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    /* gap: 10px; */
+    padding: 10px;
+    border-radius: 10px;
+    flex-wrap: nowrap;
+}
+
+.carousel-wrapper {
+    overflow: hidden;
+    flex: 1;
+    max-width: 100%;
+}
+
+.buttons-carousel {
+    display: flex;
+    transition: transform 0.5s ease-in-out;
+    width: 100%;
+}
+
+.buttons-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 15px;
+    flex: 0 0 100%;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+}
+
+.buttons {
+    font-size: 1.2rem;
+    cursor: pointer;
+    background-color: var(--color-three);
+    color: var(--color-white);
+    text-align: center;
+    border: solid 4px var(--color-three);
+    border-radius: 15px;
+    padding: 10px;
+    width: 180px;
+    height: 100px;
+    justify-self: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    transition: background-color 0.3s ease;
+}
+
+.buttons:hover {
+    background-color: var(--color-two);
+}
+
+.change-button {
+    background-image: url("../../../public/images/arrow.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    height: 50px;
+    width: 50px;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.change-button:hover {
+    height: 55px;
+    width: 55px;
+}
+
+.left {
+    transform: scaleX(-1);
+}
+
+@media (max-width: 900px) {
+    .buttons {
+        font-size: 1rem;
+        height: 80px;
+        max-width: 150px;
+    }
+
+    .change-button {
+        height: 40px;
+        width: 40px;
+    }
+
+    .change-button:hover {
+        height: 45px;
+        width: 45px;
+    }
+}
+
+@media (max-width: 740px) {
+    .buttons {
+        font-size: .8rem;
+        height: 60px;
+        max-width: 120px;
+    }
+}

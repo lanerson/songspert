@@ -14,7 +14,7 @@ export default function Header() {
     return (
         <header>
             <a href="/" className="homeOptions">HOME</a>
-            <a href="/categories" className="homeOptions">CATEGORIES</a>
+            <a href="/search" className="homeOptions">SEARCH</a>
             <a href="/ranking" className="homeOptions">RANKING</a>
             <a href="/random" className="homeOptions">RANDOM GAME</a>
             <SideBar click={toggleVisible} />

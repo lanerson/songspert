@@ -9,7 +9,7 @@ from .serializers import ChallengeSerializer, ChallengeSetSerializer, UserReadSe
 import random, requests
 from django.http import JsonResponse
 from django.conf import settings
-from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly #brags home app
+from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
 
 
 User = get_user_model()
@@ -96,24 +96,27 @@ def get_tracks_by_genre(request):
             {
                 "title": track["title"],
                 "artist": track["artist"]["name"],
-                "preview": track["preview"]
+                "preview": track["preview"],
+                "picture": track["artist"]["picture_medium"]
             } for track in selected_tracks
         ]
     })
 
 class ChallengeSetViewSet(viewsets.ModelViewSet):
     serializer_class = ChallengeSetSerializer
-    #permission_classes = (permissions.IsAuthenticated,)            #brags app
-    permission_classes  = (AllowAny,)
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
-    # def get_queryset(self):
-    #       return ChallengeSet.objects.filter(created_by=self.request.user)   #brags app
     def get_queryset(self):
         user = self.request.user
         if user.is_authenticated:
             return ChallengeSet.objects.filter(created_by=user)
-        # for anonymous users, either show all or none:
-        return ChallengeSet.objects.all()   # or .none()
+
+        return ChallengeSet.objects.all()
+    
+    def perform_create(self, serializer):
+        if not self.request.user.is_authenticated:
+            raise PermissionDenied("You must be logged in to create a ChallengeSet.")
+        serializer.save(created_by=self.request.user)
     
     def perform_destroy(self, instance):
         if instance.created_by != self.request.user:
@@ -122,15 +125,9 @@ class ChallengeSetViewSet(viewsets.ModelViewSet):
     
 class ChallengeViewSet(viewsets.ModelViewSet):
     serializer_class = ChallengeSerializer
-    #permission_classes = (permissions.IsAuthenticated,)            #brags app
     permission_classes  = (AllowAny,)
     
 
-    # def get_queryset(self):
-    #     return Challenge.objects.filter(
-    #         challenge_set__created_by=self.request.user,
-    #         challenge_set_id=self.kwargs["challenge_set_pk"] #brags app
-    #     )     
     def get_queryset(self):
         user = self.request.user
         if user.is_authenticated:
@@ -149,17 +146,26 @@ class ChallengeViewSet(viewsets.ModelViewSet):
             pk=self.kwargs["challenge_set_pk"],
             created_by=self.request.user
         )
+        if serializer.validated_data.get("type") != cs.category:
+            raise serializers.ValidationError("Challenge type must match ChallengeSet category.")
         serializer.save(challenge_set=cs)
 
+
 class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all().order_by("id")
-    # permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+    queryset = User.objects.all().order_by("id")    
 
     def get_serializer_class(self):
         if self.action in ("list", "retrieve", "me"):
                return UserReadSerializer
         return UserWriteSerializer
     
+    def get_permissions(self):        
+        if self.action == "create":
+            return [permissions.AllowAny()]        
+        elif self.action == "me":
+            return [permissions.IsAuthenticated()]        
+        return [permissions.IsAuthenticatedOrReadOnly()]
+
     @action(detail=False, methods=["get", "patch"], url_path="me",  permission_classes=[permissions.IsAuthenticated])
 
     def me(self, request):
