@@ -15,7 +15,7 @@ export default function Countdown() {
 
     const playSound = () => {
         if (audioRef.current) {
-            audioRef.current.currentTime = 0; // volta ao início para tocar de novo
+            audioRef.current.currentTime = 0;
             audioRef.current.play();
         }
     }
@@ -80,11 +80,12 @@ export default function Countdown() {
     const handleHint = () => {
         setContent(info.artist)
     }
+
     return (
         <div className="challenge-container">
             <div className='game-screen'>
-                <div className="screen-buttom next" style={{ display: !toggleStart ? 'none' : 'auto' }} onClick={handleRandomGame}></div>
-                <div className="screen-buttom hint" style={{ display: !toggleStart ? 'none' : 'auto' }} onClick={handleHint}></div>
+                <div className="screen-buttom next" onClick={handleRandomGame}></div>
+                <div className="screen-buttom hint" onClick={handleHint}></div>
                 <div className='screen-content' style={{
                     backgroundImage: bgOverride ? 'none' : `url(${info.image})`,
                     backgroundColor: bgOverride || 'white',

@@ -13,7 +13,7 @@
 }
 
 .game-screen {
-    background-image: url('../../../public/images/tv.png');
+    background-image: url('/images/tv.png');
     background-position: center;
     background-size: cover;
     background-repeat: no-repeat;
@@ -66,7 +66,7 @@
 }
 
 .play-button {
-    background-image: url("../../../public/images/play-button.png");
+    background-image: url("/images/play-button.png");
     background-size: contain;
     background-repeat: no-repeat;
     height: 130px;
@@ -90,7 +90,7 @@ input {
 .search-button {
     height: 30px;
     aspect-ratio: 1 / 1;
-    background-image: url("../../../public/images/lupa.png");
+    background-image: url("/images/lupa.png");
     background-size: contain;
     background-position: right;
     background-repeat: no-repeat;
@@ -102,7 +102,7 @@ input {
     text-align: center;
     width: 100px;
     aspect-ratio: 1 / 1;
-    background-image: url("../../../public/images/arrow-left.png");
+    background-image: url("/images/arrow-left.png");
     background-size: contain;
     position: absolute;
     left: 92%;

@@ -16,6 +16,7 @@
 .perfil-image {
     border-radius: 50%;
     background-color: var(--color-black);
+    background-size: contain;
     height: 150px;
     aspect-ratio: 1 / 1;
     cursor: pointer;

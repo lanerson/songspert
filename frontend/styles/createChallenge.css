@@ -15,3 +15,27 @@
     overflow-y: auto;
     height: 500px;
 }
+
+.challenge-item {
+    width: 80%;
+    display: grid;
+    grid-template-columns: 3fr 1fr 1fr;
+    align-items: center;
+    padding: 10px;
+}
+
+.icon-button {
+    all: unset;
+    cursor: pointer;
+    height: 30px;
+    aspect-ratio: 1 / 1;
+    background-size: contain;
+}
+
+.icon-button.play {
+    background-image: url("/images/play-button.png");
+}
+
+.icon-button.pause {
+    background-image: url("/images/pause-button.png");
+}

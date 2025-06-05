@@ -1,5 +1,6 @@
 enum avatarName {
     bear = 'bear',
+    cat = 'cat',
     chicken = 'chicken',
     dinosaur = 'dinosaur',
     dog = 'dog',

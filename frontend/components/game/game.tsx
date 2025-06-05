@@ -97,7 +97,6 @@ export default function Game({ challengeId }) {
             setContent(`song ${newIndex}`)
         }
     }
-
     return (
         <div className="game-container">
             <div className='game-screen'>
