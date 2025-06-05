@@ -1,5 +1,5 @@
 // ProfileScreen.tsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   SafeAreaView,
   View,
@@ -12,42 +12,50 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { API_BASE_URL } from '../config/api';
+import { avatarNames, avatarImages, AvatarName } from '../../assets/images/avatar';
+import { useFocusEffect } from '@react-navigation/native';
 
 export default function ProfileScreen({ navigation }: any) {
-  // Placeholder user data state
-  const [profileUri, setProfileUri] = useState(
-    'https://placekitten.com/200/200'
-  );
+  const [avatar, setAvatar] = useState<AvatarName | null>(null);
+  const [profileUri, setProfileUri] = useState<string | null>(null);
   const [userName, setUserName] = useState('Arthur Bragança');
   const [userEmail, setUserEmail] = useState('arthur@example.com');
-  const [stats, setStats] = useState({ played: 42, highScore: 128, daily: 5, weekly: 20, monthly: 100, annually: 500, alltime: 1000, created: 10 });
+  const [stats, setStats] = useState({ played: 42, highScore: 128, daily: 5, weekly: 20, monthly: 100, created: 10 });
 
-  useEffect(() => {
-    // load real user data here
-    (async () => {
-      try {
-        const token = await AsyncStorage.getItem('token');
-        const res = await axios.get(`${API_BASE_URL}/users/me/`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setUserName(res.data.username);
-        setUserEmail(res.data.email);
-        setProfileUri(res.data.avatar_url || profileUri);
-        setStats({
-          played: res.data.games_played,
-          highScore: res.data.high_score,
-          daily: res.data.daily_score,
-          weekly: res.data.weekly_score,
-          monthly: res.data.monthly_score,
-          annually: res.data.annual_score,
-          alltime: res.data.all_time_score,
-          created: res.data.challenges_created,
-        });
-      } catch (e) {
-        console.log(e);
+  const loadUser = useCallback(async () => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+      const res = await axios.get(`${API_BASE_URL}/users/me/`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setUserName(res.data.username);
+      setUserEmail(res.data.email);
+      const pic = res.data.profile_picture || res.data.avatar_url;
+      if (pic && avatarNames.includes(pic)) {
+        setAvatar(pic as AvatarName);
+        setProfileUri(null);
+      } else if (pic) {
+        setProfileUri(pic);
+        setAvatar(null);
       }
-    })();
+      setStats({
+        played: res.data.games_played,
+        highScore: res.data.high_score,
+        daily: res.data.daily_score,
+        weekly: res.data.weekly_score,
+        monthly: res.data.monthly_score,
+        created: res.data.challenges_created,
+      });
+    } catch (e) {
+      console.log(e);
+    }
   }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadUser();
+    }, [loadUser])
+  );
 
   const handleLogout = async () => {
     await AsyncStorage.removeItem('token');
@@ -64,7 +72,10 @@ export default function ProfileScreen({ navigation }: any) {
       <View style={styles.content}>
         <View style={styles.card}>
           <TouchableOpacity style={styles.avatarWrapper} onPress={onEditPhoto}>
-            <Image source={{ uri: profileUri }} style={styles.avatar} />
+            <Image
+              source={avatar ? avatarImages[avatar] : { uri: profileUri || undefined }}
+              style={styles.avatar}
+            />
             <View style={styles.cameraOverlay}>
               <Ionicons name="camera-outline" size={20} color="#fff" />
             </View>
@@ -99,14 +110,6 @@ export default function ProfileScreen({ navigation }: any) {
             <View style={styles.statBox}>
               <Text style={styles.statValue}>{stats.monthly}</Text>
               <Text style={styles.statLabel}>Monthly</Text>
-            </View>
-            <View style={styles.statBox}>
-              <Text style={styles.statValue}>{stats.annually}</Text>
-              <Text style={styles.statLabel}>Annually</Text>
-            </View>
-            <View style={styles.statBox}>
-              <Text style={styles.statValue}>{stats.alltime}</Text>
-              <Text style={styles.statLabel}>All time</Text>
             </View>
           </View>
 

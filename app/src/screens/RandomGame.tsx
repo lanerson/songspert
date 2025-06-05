@@ -1,58 +1,180 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   SafeAreaView,
   View,
   Text,
   TouchableOpacity,
-  FlatList,
+  ActivityIndicator,
   StyleSheet,
+  ImageBackground,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+import axios from 'axios';
+import { Audio } from 'expo-av';
+import { API_BASE_URL } from '../config/api';
+import tvImg from '../../assets/images/tv.png';
 
-type Challenge = { id: string; name: string; };
+type Question = {
+  preview: string;
+  answers: string[];
+  correct: string;
+};
 
-const allChallenges: Challenge[] = [
-  { id: '1', name: 'Challenge A' },
-  { id: '2', name: 'Challenge B' },
-  { id: '3', name: 'Challenge C' },
-  { id: '4', name: 'Challenge D' },
-  { id: '5', name: 'Challenge E' },
+const GENRES = [
+  'mistureba',
+  'pop',
+  'anime',
+  'sertanejo',
+  'mpb',
+  'rap/funk brasileiro',
+  'rap/hip hop',
+  'reggaeton',
+  'rock',
+  'dance',
+  'alternativo',
+  'samba/pagode',
+  'electro',
+  'música religiosa',
+  'axé/forró',
+  'folk',
+  'reggae',
+  'jazz',
+  'clássica',
+  'metal',
+  'soul & funk',
+  'blues',
+  'cumbia',
+  'música africana',
+  'música indiana',
+  'música asiática',
+  'r&b',
 ];
 
 export default function RandomGameScreen() {
-  const [list, setList] = useState<Challenge[]>(allChallenges);
+  const [question, setQuestion] = useState<Question | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [feedback, setFeedback] = useState<string>('');
+  const [showAnswers, setShow] = useState(false);
+  const [score, setScore] = useState(0);
+  const [count, setCount] = useState(0);
+  const soundRef = useRef<Audio.Sound | null>(null);
 
-  const pickRandom = () => {
-    const random = allChallenges[Math.floor(Math.random() * allChallenges.length)];
-    setList([random]);
+  const pickRandom = async () => {
+    const genre = GENRES[Math.floor(Math.random() * GENRES.length)];
+    setLoading(true);
+    setFeedback('');
+    setShow(false);
+    if (soundRef.current) {
+      await soundRef.current.unloadAsync();
+    }
+    try {
+      const res = await axios.get(`${API_BASE_URL}/genre/list/`, {
+        params: { name: genre, n: 4 },
+      });
+      const data = res.data.data.map((item: any) => ({
+        title: item.title.split(' (')[0],
+        preview: item.preview,
+      }));
+      const correct = data[0];
+      const answers = [...data.map((d: { title: string; preview: string }) => d.title)];
+      answers.sort(() => Math.random() - 0.5);
+      setQuestion({ preview: correct.preview, answers, correct: correct.title });
+    } catch (err) {
+      console.error('Failed to fetch random song', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const playPreview = async () => {
+    if (!question) return;
+    setFeedback('');
+    setShow(false);
+    if (soundRef.current) await soundRef.current.unloadAsync();
+    try {
+      const { sound } = await Audio.Sound.createAsync(
+        { uri: question.preview },
+        { shouldPlay: true }
+      );
+      soundRef.current = sound;
+      setTimeout(() => setShow(true), 500);
+    } catch (err) {
+      console.warn('audio error', err);
+    }
+  };
+
+  const selectAnswer = (ans: string) => {
+    if (!question) return;
+    const correct = ans === question.correct;
+    setFeedback(correct ? 'CORRECT!' : 'TRY AGAIN');
+    if (correct) setScore(s => s + 1);
+    setCount(c => c + 1);
+    setShow(false);
+    setTimeout(() => pickRandom(), 1000);
   };
 
   return (
     <SafeAreaView style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.headerText}>Random Game</Text>
+        <LinearGradient colors={['#FFD54F', '#FFA000']} style={styles.scoreBadge}>
+          <FontAwesome5 name="trophy" size={20} color="#FFF" />
+          <Text style={styles.scoreBadgeText}>{score} / {count}</Text>
+        </LinearGradient>
+      </View>
 
-      {/* Centered Content */}
       <View style={styles.content}>
-        <TouchableOpacity style={styles.shuffleBtn} onPress={pickRandom}>
-          <Ionicons name="shuffle-outline" size={20} color="#fff" />
-          <Text style={styles.shuffleText}>Pick a Random Challenge</Text>
-        </TouchableOpacity>
-
-        <View style={styles.card}>
-          <FlatList
-            data={list}
-            keyExtractor={(item) => item.id}
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ paddingBottom: 16 }}
-            renderItem={({ item }) => (
-              <View style={styles.row}>
-                <Text style={styles.challengeName}>{item.name}</Text>
-                <Ionicons name="play-circle-outline" size={28} color="#4B73E5" />
-              </View>
-            )}
-            ItemSeparatorComponent={() => <View style={styles.separator} />}
-          />
+        <View style={styles.tvContainer}>
+          <ImageBackground source={tvImg} style={styles.tvBackground} resizeMode="contain">
+            <View
+              style={[
+                styles.screenOverlay,
+                feedback === 'CORRECT!' && styles.feedbackCorrect,
+                feedback === 'TRY AGAIN' && styles.feedbackWrong,
+              ]}
+            >
+              {!question ? (
+                <TouchableOpacity style={styles.playButton} onPress={pickRandom}>
+                  <Ionicons name="shuffle-outline" size={24} color="#FFF" />
+                </TouchableOpacity>
+              ) : !feedback ? (
+                <TouchableOpacity style={styles.playButton} onPress={playPreview}>
+                  {loading ? (
+                    <ActivityIndicator color="#FFF" />
+                  ) : (
+                    <Ionicons name="play" size={32} color="#FFF" />
+                  )}
+                </TouchableOpacity>
+              ) : (
+                <Text style={styles.feedbackText}>{feedback}</Text>
+              )}
+            </View>
+          </ImageBackground>
         </View>
+
+        {showAnswers && question && (
+          <View style={styles.options}>
+            {question.answers.map((ans) => (
+              <TouchableOpacity
+                key={ans}
+                style={[
+                  styles.option,
+                  feedback &&
+                    (ans === question.correct
+                      ? styles.correct
+                      : feedback === 'TRY AGAIN'
+                      ? styles.wrong
+                      : null),
+                ]}
+                onPress={() => selectAnswer(ans)}
+              >
+                <Text style={styles.optionText}>{ans}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
       </View>
     </SafeAreaView>
   );
@@ -60,60 +182,28 @@ export default function RandomGameScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#4B73E5' },
-  header: {
-    padding:      16,
-    alignItems:   'center',
-  },
-  headerText: {
-    color:     '#fff',
-    fontSize:  20,
-    fontWeight:'bold',
-  },
-  content: {
-    flex:              1,
-    justifyContent:    'center', // vertical center
-    alignItems:        'center', // horizontal center
+  header:        { paddingVertical: 24, alignItems: 'center' },
+  headerText:    { color: '#FFF', fontSize: 28, fontWeight: '700', marginBottom: 12 },
+  scoreBadge:    {
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 25,
+    elevation: 4,
   },
-  shuffleBtn: {
-    flexDirection:   'row',
-    alignItems:      'center',
-    backgroundColor: '#9fbaf9',
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius:    24,
-    marginBottom:    16,
-  },
-  shuffleText: {
-    color:     '#fff',
-    fontSize:  16,
-    fontWeight:'600',
-    marginLeft: 8,
-  },
-  card: {
-    backgroundColor:  '#fff',
-    borderRadius:     12,
-    padding:          16,
-    shadowColor:      '#000',
-    shadowOpacity:    0.05,
-    shadowRadius:     8,
-    shadowOffset:     { width: 0, height: 4 },
-    elevation:        3,
-    width:            '100%',
-  },
-  row: {
-    flexDirection:   'row',
-    justifyContent: 'space-between',
-    alignItems:      'center',
-    paddingVertical: 12,
-  },
-  challengeName: {
-    fontSize:   16,
-    fontWeight: '600',
-    color:      '#333',
-  },
-  separator: {
-    height:           1,
-    backgroundColor: '#eee',
-  },
+  scoreBadgeText:{ color: '#FFF', fontSize: 18, fontWeight: '700', marginLeft: 8 },
+  content:       { flex: 1, paddingHorizontal: 20, paddingTop: 16 },
+  tvContainer:   { alignItems: 'center', marginBottom: 16 },
+  tvBackground:  { width: '100%', aspectRatio: 4/3 },
+  screenOverlay: { position: 'absolute', top: '35%', left: '21%', width: '48.5%', height: '40%', backgroundColor: '#FFF', borderRadius: 2, justifyContent: 'center', alignItems: 'center', zIndex: 1 },
+  feedbackCorrect:{ backgroundColor: 'rgba(76,175,80,0.85)' },
+  feedbackWrong:  { backgroundColor: 'rgba(244,67,54,0.85)' },
+  playButton:    { backgroundColor: '#4B73E5', width: 60, height: 60, borderRadius: 30, justifyContent: 'center', alignItems: 'center', elevation: 3 },
+  feedbackText:  { color: '#FFF', fontSize: 20, fontWeight: '700' },
+  options:       { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
+  option:        { width: '48%', backgroundColor: '#E8F0FE', paddingVertical: 14, borderRadius: 25, marginBottom: 12, justifyContent: 'center', alignItems: 'center', elevation: 2 },
+  optionText:    { fontSize: 16, fontWeight: '600', color: '#333' },
+  correct:       { backgroundColor: '#c6f6d5' },
+  wrong:         { backgroundColor: '#fed7d7' },
 });
