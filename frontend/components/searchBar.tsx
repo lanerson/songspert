@@ -24,7 +24,7 @@ export default function SearchBar({ onClick }: searchProps) {
             setSearchItems(data)
         }, 300)
 
-        return () => clearTimeout(timeout) // limpa timeout anterior
+        return () => clearTimeout(timeout)
     }, [searchValue])
 
 

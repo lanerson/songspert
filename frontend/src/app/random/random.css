@@ -47,7 +47,7 @@
 .screen-content {
     background-color: var(--color-white);
     color: var(--color-white);
-    font-size: xx-large;
+    font-size: large;
     background-size: cover;
     background-position: center;
     position: absolute;
@@ -98,64 +98,20 @@ input {
 }
 
 
-/* RESPONSIVIDADE */
-@media (max-width: 600px) {
-    .challenge-container {
-        width: 95vw;
-        height: auto;
-        grid-template-rows: auto auto;
-        gap: 15px;
-        padding: 15px 10px;
-    }
+.arrow {
+    text-align: center;
+    width: 100px;
+    aspect-ratio: 1 / 1;
+    background-image: url("../../../public/images/arrow-left.png");
+    background-size: contain;
+    position: absolute;
+    left: 92%;
+}
 
-    .game-screen {
-        height: 220px;
-        aspect-ratio: unset;
-        width: 90%;
-        background-size: contain;
-    }
+.arrow.next {
+    top: 12%;
+}
 
-    .screen-buttom {
-        height: 10%;
-        right: 4%;
-    }
-
-    .screen-buttom.next {
-        top: 30%;
-    }
-
-    .screen-buttom.hint {
-        top: 48%;
-    }
-
-    .screen-content {
-        top: 35%;
-        left: 10%;
-        width: 80%;
-        height: 35%;
-        font-size: 1.3rem;
-        aspect-ratio: unset;
-    }
-
-    .play-button {
-        height: 100px;
-    }
-
-    .play-button:hover {
-        height: 110px;
-    }
-
-    .search-container {
-        width: 90%;
-        height: 38px;
-    }
-
-    input {
-        width: 100%;
-        font-size: 1rem;
-    }
-
-    .search-button {
-        height: 25px;
-    }
+.arrow.hint {
+    top: 29%;
 }

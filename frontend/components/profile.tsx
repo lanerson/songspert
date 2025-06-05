@@ -42,7 +42,7 @@ export default function Profile({ visible }: ProfileProps) {
             style={{ display: visible ? "flex" : "none" }}>
             {isAuth ? (
                 <>
-                    <a href="/profile" className="perfil" style={{ backgroundImage: "url(info.profile_picture)" }}>ACESSAR PERFIL</a>
+                    <a href="/perfil" className="perfil" style={{ backgroundImage: "url(info.profile_picture)" }}>ACESSAR PERFIL</a>
                     <div className="info-container">
                         <div className="info-item">{info.username}</div>
                         <div className="info-item">{info.first_name}</div>
