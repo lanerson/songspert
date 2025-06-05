@@ -24,7 +24,7 @@ const mockRanking: Entry[] = [
   { id: '10', name: 'Judy', score: 75 },
 ];
 
-const filters = ['Daily', 'Weekly', 'Monthly', 'Annually', 'All Time'];
+const filters = ['Daily', 'Weekly', 'Monthly'];
 
 export default function RankingScreen() {
   const [selected, setSelected] = useState(filters[0]);
@@ -32,7 +32,6 @@ export default function RankingScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
-        {/* ——— Pill-shaped Filter Row ——— */}
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -101,11 +100,12 @@ const styles = StyleSheet.create({
     paddingTop: 15,
     paddingBottom: 20,
   },
-
   filterRow: {
-    // space below pills before the card
     marginBottom: 0,
-    alignItems: 'center'
+    flexGrow: 1,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   filterBtn: {
     height: 48,              // same as search bar
