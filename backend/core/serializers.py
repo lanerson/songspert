@@ -50,7 +50,7 @@ class ChallengeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Challenge
-        fields = ("id", "track", "genre", "type", "false_options", "correct_answer")
+        fields = ("id", "track", "type", "false_options", "correct_answer")
         read_only_fields = ("id", "type", "correct_answer")
 
     def get_correct_answer(self, obj):
@@ -102,10 +102,6 @@ class ChallengeSetSerializer(serializers.ModelSerializer):
             if ch_data.get("type") != cs.category:
                 raise serializers.ValidationError(
                     f"Challenge type '{ch_data.get('type')}' must match ChallengeSet category '{cs.category}'."
-                )
-            elif ch_data.get("genre") != cs.genre:
-                raise serializers.ValidationError(
-                    f"Chanllenge genre '{ch_data.get('genre')} must match ChallengeSet genre '{cs.genre}'"
                 )
             Challenge.objects.create(challenge_set=cs, **ch_data)
         return cs

@@ -7,6 +7,7 @@ class User(AbstractUser):
     weekly_points = models.IntegerField(default=0)
     monthly_points = models.IntegerField(default=0)
     profile_picture = models.URLField(blank=True, null=True) 
+    complete_challenges = models.
 
 class Track(models.Model):
     id = models.IntegerField(unique=True, primary_key=True)
@@ -24,6 +25,7 @@ class ChallengeSet(models.Model):
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="challenge_sets")
     created_at = models.DateTimeField(auto_now_add=True)
     category = models.CharField(max_length=10, choices=CATEGORY_CHOICES, default='title')
+    
     genre = models.CharField(max_length=100, blank=True)
 
     def __str__(self):
@@ -37,7 +39,6 @@ class Challenge(models.Model):
 
     challenge_set = models.ForeignKey(ChallengeSet, on_delete=models.CASCADE, null=True, blank=True, related_name='challenges')
     track = models.BigIntegerField()
-    genre = models.CharField(max_length=100, blank=True)
     type = models.CharField(max_length=10, choices=CHALLANGE_TYPE_CHOICES, default='title')
 
     false_options = models.JSONField(default=list)
