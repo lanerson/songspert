@@ -1,7 +1,7 @@
 import random, requests
 from rest_framework import viewsets, permissions
 from rest_framework.exceptions import PermissionDenied
-from rest_framework.decorators import action, api_view
+from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.contrib.auth import get_user_model
@@ -198,6 +198,7 @@ class RandomAttemptViewSet(viewsets.ModelViewSet):
 
 
 @api_view(["GET"])
+@permission_classes([AllowAny])
 def ranking_view(request):
     period = request.GET.get("period", "week")
     now_ = now()
