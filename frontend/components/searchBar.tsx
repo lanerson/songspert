@@ -20,7 +20,7 @@ export default function SearchBar({ onClick }: searchProps) {
                 return
             }
 
-            const data = await getSongsByName(term)
+            const data = await getSongsByName(term, 4)
             setSearchItems(data)
         }, 300)
 
@@ -31,17 +31,17 @@ export default function SearchBar({ onClick }: searchProps) {
     return (
         <div className="search-container">
             <div className="input-container">
+                {/* <div className="search-button"></div> */}
                 <input placeholder="Digite uma música" type="text" value={searchValue} onChange={(e) => setSearchValue(e.target.value)} />
-                <div className="search-button"></div>
             </div>
             <div>
-                <ul className="suggestions-container">
+                <div className="suggestions-container">
                     {searchItems.map((item) =>
-                        <li key={item.id} className="suggestion-item" onClick={() => { setSearchValue(""); onClick(item) }}>
-                            <div className="suggestion-content">{item.title}</div>
-                            <div className="suggestion-content" style={{ textAlign: "right" }}>{item.artist}</div>
-                        </li>)}
-                </ul>
+                        <div key={item.id} className="suggestion-item" onClick={() => { setSearchValue(""); onClick(item) }}>
+                            <div className="suggestion-content" style={{ fontSize: '.8rem' }}>{item.title}</div>
+                            <div className="suggestion-content" style={{ textAlign: "right", opacity: .6 }}>{item.artist}</div>
+                        </div>)}
+                </div>
             </div>
         </div>
 
