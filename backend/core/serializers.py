@@ -180,13 +180,11 @@ class TrackSerializer(serializers.ModelSerializer):
 class AttemptSerializer(serializers.ModelSerializer):
     class Meta:
         model = Attempt
-        fields = ["id", "challenge_set", "is_correct", "submitted_at"]
+        fields = ["id", "challenge_set", "score", "is_correct", "submitted_at"]
         read_only_fields = ["id", "submitted_at"]
 
-        def create(self, validated_date):
-            return Attempt.objects.create(
-                user=self.context["request"].user, **validated_date
-            )
+        def create(self, validated_data):
+            return Attempt.objects.create(**validated_data)
 
 class RandomAttemptSerializer(serializers.ModelSerializer):
     class Meta:
@@ -195,10 +193,7 @@ class RandomAttemptSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "submitted_at"]
 
     def create(self, validated_data):
-        return RandomAttempt.objects.create(
-            user=self.context["request"].user,
-            **validated_data
-        )
+        return RandomAttempt.objects.create(**validated_data)
 
 
 

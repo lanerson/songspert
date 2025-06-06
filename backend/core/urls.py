@@ -8,7 +8,7 @@ router = routers.DefaultRouter()
 router.register(r"challenge_sets", ChallengeSetViewSet, basename="challenge_set")
 router.register(r"users", UserViewSet, basename="user")
 router.register(r"attempts", AttemptViewSet, basename="attempt")
-router.register(r'random_attempts', RandomAttemptViewSet)
+router.register(r'random_attempts', RandomAttemptViewSet, basename="random_attempt")
 
 
 nested = routers.NestedDefaultRouter(router, r"challenge_sets", lookup="challenge_set")
