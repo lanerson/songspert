@@ -6,7 +6,7 @@ class User(AbstractUser):
     daily_points = models.IntegerField(default=0)
     weekly_points = models.IntegerField(default=0)
     monthly_points = models.IntegerField(default=0)
-    profile_picture = models.CharField(blank=True, null=True)
+    profile_picture = models.CharField(max_length=100000, null=True)
 
 class Track(models.Model):
     id = models.IntegerField(unique=True, primary_key=True)
