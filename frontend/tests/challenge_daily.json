@@ -1,67 +1,90 @@
 {
     "name": "MOST PLAYED SONGS IN THE 2000S",
-    "category": "title",
-    "genre": "mistureba",
+    "category": "mistureba",
     "challenges": [
         {
-            "track": 975952742,
+            "track": 14525086,
+            "genre": "",
             "type": "title",
             "false_options": [
-                "Hologram",
-                "Melissa",
-                "Rewrite",
-                "Again"
-            ]
+                "Billie Jean",
+                "Look Away",
+                "Careless Whisper",
+                "Physical"
+            ],
+            "correct_answer": "Careless Whisper"
         },
         {
-            "track": 976056152,
+            "track": 548100032,
+            "genre": "",
             "type": "title",
             "false_options": [
-                "Hologram",
-                "Golden Time Lover",
-                "Rain",
-                "Again"
-            ]
+                "Physical",
+                "Billie Jean",
+                "I Love Rock 'N Roll",
+                "Another One Bites The Dust"
+            ],
+            "correct_answer": "Physical"
         },
         {
-            "track": 2624374662,
+            "track": 3616320,
+            "genre": "",
             "type": "title",
             "false_options": [
-                "Golden Time Lover",
-                "Rewrite",
-                "Rain",
-                "Again"
-            ]
+                "Careless Whisper",
+                "Eye of the Tiger",
+                "Physical",
+                "Look Away"
+            ],
+            "correct_answer": "Look Away"
         },
         {
-            "track": 1100590662,
+            "track": 12206946,
+            "genre": "",
             "type": "title",
             "false_options": [
-                "Golden Time Lover",
-                "Rewrite",
-                "Hologram",
-                "Again"
-            ]
+                "I Love Rock 'N Roll",
+                "Another One Bites The Dust",
+                "Careless Whisper",
+                "Physical"
+            ],
+            "correct_answer": "Another One Bites The Dust"
         },
         {
-            "track": 976068472,
+            "track": 545992732,
+            "genre": "",
             "type": "title",
             "false_options": [
-                "Rewrite",
-                "Golden Time Lover",
-                "Rain",
-                "Hologram"
-            ]
+                "Another One Bites The Dust",
+                "Careless Whisper",
+                "Billie Jean",
+                "I Love Rock 'N Roll"
+            ],
+            "correct_answer": "I Love Rock 'N Roll"
         },
         {
-            "track": 545698902,
+            "track": 4603408,
+            "genre": "",
             "type": "title",
             "false_options": [
-                "Again",
-                "Golden Time Lover",
-                "Melissa",
-                "Rewrite"
-            ]
+                "Look Away",
+                "Billie Jean",
+                "Eye of the Tiger",
+                "Another One Bites The Dust"
+            ],
+            "correct_answer": "Billie Jean"
+        },
+        {
+            "track": 576431,
+            "genre": "",
+            "type": "title",
+            "false_options": [
+                "Look Away",
+                "I Love Rock 'N Roll",
+                "Physical",
+                "Eye of the Tiger"
+            ],
+            "correct_answer": "Eye of the Tiger"
         }
     ]
 }

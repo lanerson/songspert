@@ -39,5 +39,5 @@ export function getRandomSong() {
 
 
 export function getDailyChallenge() {
-    return { challengeID: 8, title: "MOST PLAYED SONGS IN THE 2000S" }
+    return { challengeID: 9, title: "MOST PLAYED SONGS IN THE 2000S" }
 }
