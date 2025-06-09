@@ -37,7 +37,9 @@ export default function Ranking() {
             <ul className="list-container">
                 {users.map(user =>
                     <li className="list-item" key={user.id}>
-                        <div className="user-image" style={{ backgroundImage: `url(${user.profile_picture})` }}></div>
+                        <div className="user-image"
+                            style={{ backgroundImage: `url("/images/avatar/${user.profile_picture}.png")` }}
+                        ></div>
                         <div className="user-content">
                             <div>{user.username}</div>
                             <div>{`${user.first_name} ${user.last_name}`}</div>

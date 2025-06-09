@@ -9,12 +9,13 @@ export default function Countdown() {
     const audioRef = useRef<HTMLAudioElement | null>(null);
     const [content, setContent] = useState<string>('PRONTO?');
     const [start, setStart] = useState(false)
-    const [image, setImage] = useState('')
+    const [info, setInfo] = useState({ artist: '', title: '', image: '' })
+    const [bgOverride, setBgOverride] = useState(null)
 
 
     const playSound = () => {
         if (audioRef.current) {
-            audioRef.current.currentTime = 0; // volta ao início para tocar de novo
+            audioRef.current.currentTime = 0;
             audioRef.current.play();
         }
     }
@@ -25,9 +26,8 @@ export default function Countdown() {
             audioRef.current = new Audio(path);
         }
     };
-    // Transição Inicial
+
     const startCountdown = () => {
-        // setupAudio("/music/drum_stick.mp3")
         setToggleStart(true)
         const sequence: (number | string)[] = [3, 2, 1];
         let i = 0;
@@ -41,31 +41,66 @@ export default function Countdown() {
             } else {
                 clearInterval(interval);
                 setTimeout(() => { // Após terminar a transiçao
-                    setContent("Iniciar")
+                    setContent("")
                     setStart(true)
                     handleRandomGame()
                 }, 1000);
             }
         }, 1000);
     };
+
     const handleRandomGame = async () => {
         const [song] = await getRandomSong()
         console.log(song)
         setupAudio(song.song)
-        setImage(song.picture)
+        setInfo({ artist: song.artist, title: song.title, image: song.picture })
         setContent('')
         playSound()
+    }
+
+    const handleTry = (item) => {
+        let text = 'errou'
+        let color = 'red'
+        if (item.title == info.title) {
+            color = 'green'
+            text = 'acertou'
+        }
+        setContent(text)
+        setBgOverride(color)
+
+        // Remove após 1 segundo
+        setTimeout(() => {
+            setBgOverride(null)
+            setContent('')
+            handleRandomGame()
+        }, 1500)
+
+    }
+
+    const handleHint = () => {
+        setContent(info.artist)
     }
 
     return (
         <div className="challenge-container">
             <div className='game-screen'>
                 <div className="screen-buttom next" onClick={handleRandomGame}></div>
-                <div className="screen-buttom hint"></div>
-                <div className='screen-content' style={{ backgroundImage: `url(${image})` }}>{content}</div>
+                <div className="screen-buttom hint" onClick={handleHint}></div>
+                <div className='screen-content' style={{
+                    backgroundImage: bgOverride ? 'none' : `url(${info.image})`,
+                    backgroundColor: bgOverride || 'white',
+                    transition: 'background-color 0.5s ease'
+                }}>{content}</div>
+                <div className="arrow next" style={{ display: toggleStart ? 'none' : 'auto' }}>
+                    pular essa
+                </div>
+                <div className="arrow hint" style={{ display: toggleStart ? 'none' : 'auto' }}><br />
+                    dica
+                </div>
+
             </div>
             {start ? (
-                <SearchBar onClick={handleRandomGame} />
+                <SearchBar onClick={handleTry} />
             ) : <div className="play-button" onClick={startCountdown} style={{ display: toggleStart ? 'none' : 'auto' }}></div>}
         </div>
     )

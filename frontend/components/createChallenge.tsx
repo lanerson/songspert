@@ -1,23 +1,19 @@
 'use client'
 import { useRef, useState } from "react"
-import { createChallenge, getSongsByName } from "../scripts/data_fetch"
+import { createChallenge } from "../scripts/data_fetch"
 import "../styles/createChallenge.css"
 import SearchBar from "./searchBar"
 import { useRouter } from "next/navigation"
+import { getGenres } from "../scripts/data_client"
 
-type responseType = {
-    id: string,
-    title: string,
-    song: string,
-    artist: string
-}
 export default function CreateChallenge() {
     const [results, setResults] = useState([])
     const [idPlaying, setIdPlaying] = useState(null)
     const audioRef = useRef<HTMLAudioElement | null>(null);
     const [challengeName, setChallengeName] = useState("")
+    const [selectedGenre, setSelectedGenre] = useState("mistureba")
     const router = useRouter()
-
+    const genres = getGenres()
     const handlePlay = (id) => {
         if (idPlaying === id) {
             setIdPlaying(null)
@@ -53,7 +49,6 @@ export default function CreateChallenge() {
     }
 
     const handleCreate = async () => {
-        // Criar lógica para embaralhar as alternativas
         if (results.length < 4) { alert("Selecione pelo menos 4 músicas") }
         else {
             let challenges = []
@@ -66,15 +61,20 @@ export default function CreateChallenge() {
                 }
                 choices.push(titles[i])
                 let options = embaralharArray(choices)
-                challenges.push({ track: results[i].id, genre: "", type: "title", false_options: options })
+                challenges.push({ track: results[i].id, type: "title", false_options: options })
             }
-            const challengeSet = { name: challengeName, category: "title", challenges: challenges }
+            const challengeSet = { name: challengeName, category: "title", genre: selectedGenre, challenges: challenges }
             console.log(JSON.stringify(challengeSet))
             await createChallenge(challengeSet)
-                .then(() => { alert("Playlist Criada com sucesso"); router.replace("/profile") })
+                .then(() => { alert("Playlist Criada com sucesso"); router.replace("/perfil") })
 
         }
     }
+
+    const handleChange = (event) => {
+        setSelectedGenre(event.target.value);
+    };
+
     function embaralharArray(array) {
         const arrayEmbaralhado = array.slice(); // cria uma cópia do array original
         for (let i = arrayEmbaralhado.length - 1; i > 0; i--) {
@@ -84,7 +84,6 @@ export default function CreateChallenge() {
         return arrayEmbaralhado;
     }
 
-
     return (
         <div className="create-container">
             <audio ref={audioRef} />
@@ -93,20 +92,31 @@ export default function CreateChallenge() {
                 <ul className="challenges-container">
                     {results ?
                         results.map((song) =>
-                            <li key={song.id}>
-                                <div>{song.title}</div>
-                                <div>{song.artist}</div>
-                                <button onClick={() => { playSound(song.song); handlePlay(song.id) }}>
-                                    {(idPlaying === song.id ? 'Pausar' : 'Play')}
-                                </button>
-                                <button onClick={() => deleteOption(song)}>excluir</button>
+                            <li key={song.id} className="challenge-item">
+                                <div>{song.title}<br />{song.artist}</div>
+                                <button onClick={() => { playSound(song.song); handlePlay(song.id) }}
+                                    className={`icon-button ${idPlaying === song.id ? 'pause' : 'play'}`}
+                                />
+                                <button onClick={() => deleteOption(song)}
+                                    className="icon-button"
+                                    style={{
+                                        backgroundImage: "url(/images/trash.png)", backgroundSize: "contain"
+
+                                    }} />
                             </li>
                         ) : <></>}
                 </ul>
                 {results.length !== 0 &&
-                    <div>
-                        <input type="text" placeholder="Nome do Desafio" value={challengeName} onChange={(e) => setChallengeName(e.target.value)} />
-                        <button onClick={handleCreate}>create</button>
+                    <div style={{ margin: "10px" }}>
+                        <div>Selecione um gênero</div>
+                        <select value={selectedGenre} className="genre-select" onChange={handleChange}>
+                            {genres.map(genre => <option value={genre} key={genre}>{genre}</option>)}
+                        </select>
+                        <input type="text" placeholder="Nome do Desafio" style={{ margin: '10px' }}
+                            value={challengeName} onChange={(e) => setChallengeName(e.target.value)} />
+                        <button onClick={handleCreate}
+                            style={{ all: 'unset', padding: '10px', borderRadius: '10px', backgroundColor: 'var(--color-three)', cursor: 'pointer' }}
+                        >create</button>
                     </div>}
             </div>
         </div>

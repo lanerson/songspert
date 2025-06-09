@@ -14,12 +14,24 @@ export default function Game({ challengeId }) {
     const audioRef = useRef<HTMLAudioElement | null>(null);
     const [content, setContent] = useState<string>('PRONTO?');
     const router = useRouter()
-    const [challenge, setChallenge] = useState<songType[]>([])
+    const [challenge, setChallenge] = useState<songType[]>([{
+        id: 1,
+        track: "https://cdnt-preview.dzcdn.net/api/1/1/a/9/1/0/a91845f6dd1265c2f85a3f716d9029e5.mp3?hdnea=exp=1749089255~acl=/api/1/1/a/9/1/0/a91845f6dd1265c2f85a3f716d9029e5.mp3*~data=user_id=0,application_id=42~hmac=7d38fe7bc98218a626cc696bf70c23898c69a55382734435601a46e74a8e77c1",
+        genre: "",
+        type: "title",
+        false_options: [
+            "Billie Jean",
+            "Look Away",
+            "Careless Whisper",
+            "Physical"
+        ],
+        correct_answer: "Careless Whisper"
+    }])
 
     const getChallenge = async () => {
         try {
-            const challenge = await getChallengeById(challengeId);
-            setChallenge(challenge);
+            const _challenge = await getChallengeById(challengeId);
+            setChallenge(_challenge);
             console.log("desafios", challenge)
         } catch (error) {
             alert("Erro inesperado");
@@ -85,7 +97,6 @@ export default function Game({ challengeId }) {
             setContent(`song ${newIndex}`)
         }
     }
-
     return (
         <div className="game-container">
             <div className='game-screen'>
