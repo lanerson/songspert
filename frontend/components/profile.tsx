@@ -12,23 +12,21 @@ type ProfileProps = {
 export default function Profile({ visible }: ProfileProps) {
     const [info, setInfo] = useState<userType>(null)
     const [isAuth, setIsAuth] = useState(false)
-    useEffect(() => {
-        const getInfo = async () => {
-            try {
-                const res = await getMyInfo()
-                if (res === null) {
-
-                    setIsAuth(false)
-                }
-                else {
-                    setInfo(res)
-                    setIsAuth(true)
-                }
-            } catch (err) {
+    const getInfo = async () => {
+        try {
+            const res = await getMyInfo()
+            if (res === null) {
                 setIsAuth(false)
             }
+            else {
+                setInfo(res)
+                setIsAuth(true)
+            }
+        } catch (err) {
+            setIsAuth(false)
         }
-
+    }
+    useEffect(() => {
         getInfo()
     }, [visible])
     const handleLogout = async (e) => {

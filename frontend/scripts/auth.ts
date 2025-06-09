@@ -1,5 +1,6 @@
+"use server"
 import { getCookies, setCookies } from "./cookies"
-const base_url = "http://localhost:8000/"
+const base_url = "http://backend:8000/"
 
 
 export async function LogInWithUsernameAndPassword(username, password) {

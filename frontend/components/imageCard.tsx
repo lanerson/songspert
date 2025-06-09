@@ -17,7 +17,6 @@ type avatarProps = {
 export default function ImageCard({ visible, onClick }: avatarProps) {
     return (
         <div className='avatar-parent' onClick={() => onClick("")} style={{ display: (visible) ? 'flex' : 'none' }}>
-
             <div className="avatar-container" >
                 {avatars.map(avatar => <div key={avatar} className="avatar-content" onClick={() => onClick(avatar)}
                     style={{ backgroundImage: `url("/images/avatar/${avatar}.png")` }} />)}
