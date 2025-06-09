@@ -3,10 +3,10 @@
     height: 80vh;
     width: 80%;
     max-width: 900px;
-    display: flex;
-    flex-direction: row;
+    display: grid;
+    grid-template-columns: 1fr 4fr 1fr;
     align-items: center;
-    justify-content: center;
+    justify-items: center;
     /* gap: 10px; */
     padding: 10px;
     border-radius: 10px;
@@ -59,7 +59,7 @@
 }
 
 .change-button {
-    background-image: url("../../../public/images/arrow.png");
+    background-image: url("/images/arrow.png");
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;

@@ -20,6 +20,5 @@ export async function getCookies() {
 
 export async function deleteCookies() {
     const cookieStore = await cookies()
-    cookieStore.delete("access")
-    cookieStore.delete("refresh")
+    cookieStore.delete("token")
 }

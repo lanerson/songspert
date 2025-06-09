@@ -11,7 +11,7 @@
 }
 
 .game-screen {
-    background-image: url('../public/images/tv.png');
+    background-image: url('/images/tv.png');
     background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
@@ -36,7 +36,7 @@
 }
 
 .play-button {
-    background-image: url("../public/images/play-button.png");
+    background-image: url("/images/play-button.png");
     background-size: contain;
     height: 80px;
     aspect-ratio: 1 / 1;

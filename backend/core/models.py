@@ -6,7 +6,7 @@ class User(AbstractUser):
     daily_points = models.IntegerField(default=0)
     weekly_points = models.IntegerField(default=0)
     monthly_points = models.IntegerField(default=0)
-    profile_picture = models.URLField(blank=True, null=True) 
+    profile_picture = models.CharField(max_length=100000, null=True)
 
 class Track(models.Model):
     id = models.IntegerField(unique=True, primary_key=True)
@@ -24,6 +24,7 @@ class ChallengeSet(models.Model):
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="challenge_sets")
     created_at = models.DateTimeField(auto_now_add=True)
     category = models.CharField(max_length=10, choices=CATEGORY_CHOICES, default='title')
+    genre = models.CharField(max_length=100, blank=True)
 
     def __str__(self):
         return self.name
@@ -36,7 +37,6 @@ class Challenge(models.Model):
 
     challenge_set = models.ForeignKey(ChallengeSet, on_delete=models.CASCADE, null=True, blank=True, related_name='challenges')
     track = models.BigIntegerField()
-    genre = models.CharField(max_length=100, blank=True)
     type = models.CharField(max_length=10, choices=CHALLANGE_TYPE_CHOICES, default='title')
 
     false_options = models.JSONField(default=list)
@@ -52,34 +52,38 @@ class Challenge(models.Model):
         return f"{self.track.title} ({self.type})"
 
 class Attempt(models.Model):
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
-    Challenge = models.ForeignKey(Challenge, on_delete=models.CASCADE)
-    challenge_set = models.ForeignKey(ChallengeSet, on_delete=models.CASCADE, null=True, blank=True)
-    answer_text = models.CharField(max_length=255)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="attempts")
+    challenge_set = models.ForeignKey(ChallengeSet, on_delete=models.CASCADE)
     is_correct = models.BooleanField()
-    time_taken = models.FloatField(help_text="Time in seconds")
+    score = models.IntegerField()
     submitted_at = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self):
-        return f"{self.user} -> {self.Challenge} = {self.is_correct}"
-class GameRoom(models.Model):
-    code = models.CharField(max_length=10, unique=True)
-    host = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name='hosted_rooms'
-    )
-    players = models.ManyToManyField(
-        settings.AUTH_USER_MODEL,
-        related_name='joined_rooms'
-    )
-    challenge_set = models.ForeignKey(
-        ChallengeSet,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True
-    )
-    created_at = models.DateTimeField(auto_now_add=True)
+class RandomAttempt(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="random_attempts")
+    track = models.BigIntegerField()  # ID da faixa no Deezer
+    score = models.IntegerField()
+    tips_used = models.IntegerField()
+    submitted_at = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self):
-        return f"Room {self.code} ({self.status})"
+    
+# class GameRoom(models.Model):
+#     code = models.CharField(max_length=10, unique=True)
+#     host = models.ForeignKey(
+#         settings.AUTH_USER_MODEL,
+#         on_delete=models.CASCADE,
+#         related_name='hosted_rooms'
+#     )
+#     players = models.ManyToManyField(
+#         settings.AUTH_USER_MODEL,
+#         related_name='joined_rooms'
+#     )
+#     challenge_set = models.ForeignKey(
+#         ChallengeSet,
+#         on_delete=models.SET_NULL,
+#         null=True,
+#         blank=True
+#     )
+#     created_at = models.DateTimeField(auto_now_add=True)
+
+#     def __str__(self):
+#         return f"Room {self.code} ({self.status})"

@@ -14,7 +14,7 @@ export default function Home() {
                     <div className=''>
                         THEN MAKE YOUR OWN
                     </div>
-                    <a href="/profile/create" className='card-button'>
+                    <a href="/perfil/create" className='card-button'>
                         CHALLENGE
                     </a>
                 </div>

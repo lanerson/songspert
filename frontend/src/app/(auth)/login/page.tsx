@@ -14,7 +14,7 @@ export default function Login() {
         e.preventDefault()
 
         await LogInWithUsernameAndPassword(login, password)
-        router.replace("/")
+            .then(() => router.replace("/"))
     }
 
     return (

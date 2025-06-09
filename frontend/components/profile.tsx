@@ -12,23 +12,21 @@ type ProfileProps = {
 export default function Profile({ visible }: ProfileProps) {
     const [info, setInfo] = useState<userType>(null)
     const [isAuth, setIsAuth] = useState(false)
-    useEffect(() => {
-        const getInfo = async () => {
-            try {
-                const res = await getMyInfo()
-                if (res === null) {
-
-                    setIsAuth(false)
-                }
-                else {
-                    setInfo(res)
-                    setIsAuth(true)
-                }
-            } catch (err) {
+    const getInfo = async () => {
+        try {
+            const res = await getMyInfo()
+            if (res === null) {
                 setIsAuth(false)
             }
+            else {
+                setInfo(res)
+                setIsAuth(true)
+            }
+        } catch (err) {
+            setIsAuth(false)
         }
-
+    }
+    useEffect(() => {
         getInfo()
     }, [visible])
     const handleLogout = async (e) => {
@@ -42,7 +40,7 @@ export default function Profile({ visible }: ProfileProps) {
             style={{ display: visible ? "flex" : "none" }}>
             {isAuth ? (
                 <>
-                    <a href="/profile" className="perfil" style={{ backgroundImage: "url(info.profile_picture)" }}>ACESSAR PERFIL</a>
+                    <a href="/perfil" className="perfil" style={{ backgroundImage: `url("/images/avatar/${info.profile_picture}.png")` }}>ACESSAR PERFIL</a>
                     <div className="info-container">
                         <div className="info-item">{info.username}</div>
                         <div className="info-item">{info.first_name}</div>

@@ -1,15 +1,18 @@
-from django.shortcuts import render, get_object_or_404
+import random, requests
 from rest_framework import viewsets, permissions
 from rest_framework.exceptions import PermissionDenied
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.contrib.auth import get_user_model
-from .models import Challenge, ChallengeSet
-from .serializers import ChallengeSerializer, ChallengeSetSerializer, UserReadSerializer, UserWriteSerializer
-import random, requests
+from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
 from django.conf import settings
-from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
+from django.utils.timezone import now
+from django.db.models import Sum
+from datetime import timedelta
+from .models import Challenge, ChallengeSet, Attempt, RandomAttempt
+from .serializers import ChallengeSerializer, ChallengeSetSerializer, UserReadSerializer, UserWriteSerializer, serializers, AttemptSerializer, RandomAttemptSerializer
 
 
 User = get_user_model()
@@ -152,20 +155,21 @@ class ChallengeViewSet(viewsets.ModelViewSet):
 
 
 class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all().order_by("id")    
+    queryset = User.objects.all().order_by("id")
+    # permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+
+    def get_permissions(self):
+        if self.action == "me":            
+            permission_classes = [permissions.IsAuthenticated]
+        else:
+            permission_classes = [permissions.AllowAny]
+        return [permission() for permission in permission_classes]
 
     def get_serializer_class(self):
         if self.action in ("list", "retrieve", "me"):
                return UserReadSerializer
         return UserWriteSerializer
     
-    def get_permissions(self):        
-        if self.action == "create":
-            return [permissions.AllowAny()]        
-        elif self.action == "me":
-            return [permissions.IsAuthenticated()]        
-        return [permissions.IsAuthenticatedOrReadOnly()]
-
     @action(detail=False, methods=["get", "patch"], url_path="me",  permission_classes=[permissions.IsAuthenticated])
 
     def me(self, request):
@@ -174,9 +178,70 @@ class UserViewSet(viewsets.ModelViewSet):
             return Response(serializer.data)
         
         serializer = UserWriteSerializer(
-             request.user, data=request.data, partial=True
+            request.user, data=request.data, partial=True
         )
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(UserReadSerializer(request.user).data)
+
+class AttemptViewSet(viewsets.ModelViewSet):
+     serializer_class = AttemptSerializer
+     permission_classes = [permissions.IsAuthenticated]
+
+     def get_queryset(self):
+        return Attempt.objects.filter(user=self.request.user)
+     
+     def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+class RandomAttemptViewSet(viewsets.ModelViewSet):
+    serializer_class = RandomAttemptSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return RandomAttempt.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def ranking_view(request):
+    period = request.GET.get("period", "week")
+    now_ = now()
+
+    if period == "day":
+        since = now_ - timedelta(days=1)
+    elif period == "month":
+        since = now_ - timedelta(days=30)
+    else:
+        since = now_ - timedelta(days=7)
+
+    users = User.objects.all()
+    ranking_data = []
+
+    for user in users:
+        challenge_score = user.attempts.filter(
+            is_correct=True,
+            submitted_at__gte=since
+        ).aggregate(total=Sum("score"))["total"] or 0
+
+        random_score = user.random_attempts.filter(
+            submitted_at__gte=since
+        ).aggregate(total=Sum("score"))["total"] or 0
+
+        ranking_data.append({
+            "user_id": user.id,
+            "username": user.username,
+            "challenge_points": challenge_score,
+            "random_points": random_score,
+            "total_points": challenge_score + random_score
+        })
+
+    ranking_data.sort(key=lambda u: u["total_points"], reverse=True)
+    return Response(ranking_data)
+
+
+
       
