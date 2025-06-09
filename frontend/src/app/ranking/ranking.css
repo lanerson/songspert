@@ -68,6 +68,10 @@
     box-sizing: border-box;
 }
 
+.list-item:last-child {
+    border-bottom: none;
+}
+
 .user-image {
     background-color: var(--color-black);
     background-position: center;

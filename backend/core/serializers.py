@@ -76,8 +76,8 @@ class UserWriteSerializer(serializers.ModelSerializer):
 class ChallengeSerializer(serializers.ModelSerializer):
     false_options = serializers.ListField(
         child=serializers.CharField(),
-        min_length=3,
-        max_length=3
+        min_length=4,
+        max_length=4
     )
     correct_answer = serializers.SerializerMethodField(read_only=True)
     type = serializers.CharField()  # Now it's read-only, auto-filled from ChallengeSet
