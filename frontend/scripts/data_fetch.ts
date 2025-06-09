@@ -1,4 +1,5 @@
 "use server"
+import { attemptType } from "../models/model"
 import { refreshAccessCookie } from "./auth"
 
 const base_url = "http://backend:8000/"
@@ -10,7 +11,8 @@ export async function getSongById(id) {
         return {
             title: data.title_short,
             song: data.preview,
-            artist: data.artist.name
+            artist: data.artist.name,
+            rank: data.rank
         }
     } catch (err) {
         console.error("Erro ao buscar música por ID:", err)
@@ -28,7 +30,8 @@ export async function getSongsByGenre(genre, qtdSongs = 1) {
                 title: title,
                 song: item.preview,
                 artist: item.artist,
-                picture: item.picture
+                picture: item.picture,
+                rank: item.rank
             }
         })
     } catch (err) {
@@ -47,7 +50,8 @@ export async function getSongsByName(songName, qtdResults = 5) {
                 id: item.id,
                 title: title,
                 song: item.preview,
-                artist: item.artist.name
+                artist: item.artist.name,
+                rank: item.rank
             }
         })
     } catch (err) {
@@ -101,13 +105,30 @@ export async function getChallengeById(idChallenge: number) {
         const challengesWithSongs = await Promise.all(
             data.challenges.map(async challenge => {
                 const song = await getSongById(challenge.track)
-                return { ...challenge, track: song.song }
+                return { ...challenge, track: song.song, rank: song.rank }
             })
         )
 
         return challengesWithSongs
     } catch (err) {
-        console.error("Erro ao buscar desafio:", err)
+        console.error("Erro ao buscar desafio: ", err)
+        throw err
+    }
+}
+
+export async function tryChallenge(data: attemptType) {
+    try {
+        const access = await refreshAccessCookie()
+        const res = await fetch(base_url + "attempts/", {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${access}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data)
+        })
+    } catch (err) {
+        console.log("Erro ao realizar tentativa: ", err)
         throw err
     }
 }

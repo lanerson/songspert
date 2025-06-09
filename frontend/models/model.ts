@@ -17,8 +17,8 @@ type challengeType = {
 type songType = {
     id: number,
     track: string,
-    genre: string,
     type: string,
+    rank: number,
     false_options: string[],
     correct_answer: string
 }
@@ -35,6 +35,11 @@ type userType = {
     profile_picture: string
 }
 
+type attemptType = {
+    "challenge_set": number,
+    "score": number,
+    "is_correct": boolean
+}
 
-export type { challengeType, songType, userType }
+export type { challengeType, songType, userType, attemptType }
 export { typeChallengeEnum }

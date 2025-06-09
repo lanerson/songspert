@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation'
 import { songType } from '../../models/model'
 import Fase from './fase'
 import { getChallengeById } from '../../scripts/data_fetch'
-
+import { calcPoints } from '../../scripts/data_client'
+import Statistics from './statistics'
 
 export default function Game({ challengeId }) {
     const [toggleStart, setToggleStart] = useState<boolean>(false);
@@ -13,12 +14,14 @@ export default function Game({ challengeId }) {
     const [songIndex, setSongIndex] = useState<number>(0);
     const audioRef = useRef<HTMLAudioElement | null>(null);
     const [content, setContent] = useState<string>('PRONTO?');
+    const [bgOverride, setBgOverride] = useState(null)
+    const [points, setPoints] = useState<number>(0)
     const router = useRouter()
     const [challenge, setChallenge] = useState<songType[]>([{
         id: 1,
         track: "https://cdnt-preview.dzcdn.net/api/1/1/a/9/1/0/a91845f6dd1265c2f85a3f716d9029e5.mp3?hdnea=exp=1749089255~acl=/api/1/1/a/9/1/0/a91845f6dd1265c2f85a3f716d9029e5.mp3*~data=user_id=0,application_id=42~hmac=7d38fe7bc98218a626cc696bf70c23898c69a55382734435601a46e74a8e77c1",
-        genre: "",
         type: "title",
+        rank: 0,
         false_options: [
             "Billie Jean",
             "Look Away",
@@ -32,21 +35,20 @@ export default function Game({ challengeId }) {
         try {
             const _challenge = await getChallengeById(challengeId);
             setChallenge(_challenge);
-            console.log("desafios", challenge)
+            console.log("desafios", _challenge)
         } catch (error) {
             alert("Erro inesperado");
             console.log(error.code, error.message)
             router.replace("/")
         }
     }
-
     useEffect(() => {
         getChallenge()
     }, [])
 
     const playSound = () => {
         if (audioRef.current) {
-            audioRef.current.currentTime = 0; // volta ao início para tocar de novo
+            audioRef.current.currentTime = 0;
             audioRef.current.play();
         }
     }
@@ -59,9 +61,8 @@ export default function Game({ challengeId }) {
     };
     // Transição Inicial
     const startCountdown = () => {
-        setupAudio("/music/drum_stick.mp3")
         setToggleStart(true)
-        const sequence: (number | string)[] = [4, 3, 2, 1];
+        const sequence: (number | string)[] = [3, 2, 1];
         let i = 0;
         setContent(sequence[i].toString());
         new Audio("/music/drum_stick.mp3").play()
@@ -73,7 +74,7 @@ export default function Game({ challengeId }) {
                 new Audio("/music/drum_stick.mp3").play()
             } else {
                 clearInterval(interval);
-                setTimeout(() => { // Após terminar a transiçao                    
+                setTimeout(() => {
                     handleGame()
 
                 }, 1000);
@@ -82,11 +83,36 @@ export default function Game({ challengeId }) {
     };
 
 
+    const handleClickOption = (answer) => {
+        console.log("musica atual: ", currentSong)
+        let text = 'errou'
+        let color = 'red'
+        if (answer == currentSong.correct_answer) {
+            color = 'green'
+            text = 'acertou'
+            setPoints(points + calcPoints(currentSong.rank))
+        }
+        setContent(text)
+        setBgOverride(color)
+
+        // Remove após 1 segundo
+        setTimeout(() => {
+            setBgOverride(null)
+            handleGame()
+        }, 1500)
+    }
+
+    const handleFinish = async () => {
+        setContent("")
+        audioRef.current.pause()
+        router.refresh()
+
+    }
+
     const handleGame = () => {
         if (songIndex === challenge.length) {
-            alert("terminou")
-            audioRef.current.pause()
-            router.refresh()
+            handleFinish()
+
         }
         else {
             setupAudio(challenge[songIndex].track)
@@ -100,13 +126,19 @@ export default function Game({ challengeId }) {
     return (
         <div className="game-container">
             <div className='game-screen'>
-                <div className='screen-content'>{content}</div>
+                <div className='screen-content' style={{
+                    backgroundColor: bgOverride || 'white',
+                    transition: 'background-color 0.5s ease'
+                }}>{content}</div>
             </div>
 
             <div className="play-button" onClick={startCountdown} style={{ display: toggleStart ? 'none' : 'auto' }}></div>
             <Fase
                 song={currentSong}
-                handleGame={handleGame} />
+                handleClickOption={handleClickOption} />
+            {
+                content === "" && <Statistics />
+            }
         </div>
     )
 }

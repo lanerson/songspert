@@ -100,7 +100,8 @@ def get_tracks_by_genre(request):
                 "title": track["title"],
                 "artist": track["artist"]["name"],
                 "preview": track["preview"],
-                "picture": track["artist"]["picture_medium"]
+                "picture": track["artist"]["picture_medium"],
+                "rank": track["rank"]
             } for track in selected_tracks
         ]
     })
@@ -189,7 +190,7 @@ class AttemptViewSet(viewsets.ModelViewSet):
      permission_classes = [permissions.IsAuthenticated]
 
      def get_queryset(self):
-        return Attempt.objects.fitler(user=self.request.user)
+        return Attempt.objects.filter(user=self.request.user)
      
      def perform_create(self, serializer):
         serializer.save(user=self.request.user)

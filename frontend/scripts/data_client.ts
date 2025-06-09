@@ -41,3 +41,9 @@ export function getRandomSong() {
 export function getDailyChallenge() {
     return { challengeID: 9, title: "MOST PLAYED SONGS IN THE 2000S" }
 }
+
+export function calcPoints(rank: number) {
+    let n_char = rank.toString().length
+    let big_endian = parseInt(rank.toString()[0])
+    return n_char * big_endian
+}
