@@ -21,7 +21,7 @@ export default function register() {
     const router = useRouter()
     const handleClick = async (e) => {
         e.preventDefault()
-        await Register({ username, email, password, first_name, last_name, picture_profile: avatar })
+        await Register({ username, email, password, first_name, last_name, profile_picture: avatar })
         router.replace("/")
     }
 
