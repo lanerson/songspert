@@ -7,14 +7,22 @@ import {
   TouchableOpacity,
   Alert,
   StyleSheet,
+  Image,
+  Modal,
 } from 'react-native';
 import axios from 'axios';
 import { API_BASE_URL } from '../config/api';
+import { avatarNames, avatarImages, AvatarName } from '../../assets/images/avatar';
+import { Ionicons } from '@expo/vector-icons';
+import AvatarSelector from '../components/AvatarSelector';
+import PillButton from '../components/Buttons';
 
 export default function RegisterScreen({ navigation }: any) {
-  const [name, setName]         = useState('');
-  const [email, setEmail]       = useState('');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [selectedAvatar, setSelectedAvatar] = useState<AvatarName | null>(null);
+  const [modalVisible, setModalVisible] = useState(false);
 
   const handleRegister = async () => {
     try {
@@ -22,9 +30,10 @@ export default function RegisterScreen({ navigation }: any) {
         username: name,
         email,
         password,
+        avatar: selectedAvatar,
       });
       Alert.alert('Success', 'Account created! Please log in.');
-      navigation.replace('Login');
+      navigation.navigate('Login');
     } catch (err: any) {
       Alert.alert(
         'Registration failed',
@@ -37,11 +46,16 @@ export default function RegisterScreen({ navigation }: any) {
 
   return (
     <SafeAreaView style={styles.container}>
-
-      {/* Content */}
       <View style={styles.content}>
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Create Account</Text>
+
+          <AvatarSelector
+            selectedAvatar={selectedAvatar}
+            onSelectAvatar={setSelectedAvatar}
+            placeholderSize={100} 
+            iconSize={50}            
+          />
 
           <TextInput
             style={styles.input}
@@ -61,7 +75,6 @@ export default function RegisterScreen({ navigation }: any) {
             onChangeText={setName}
           />
 
-
           <TextInput
             style={styles.input}
             placeholder="Password"
@@ -71,13 +84,14 @@ export default function RegisterScreen({ navigation }: any) {
             secureTextEntry
           />
 
-          <TouchableOpacity style={styles.button} onPress={handleRegister}>
-            <Text style={styles.buttonText}>Sign Up</Text>
-          </TouchableOpacity>
+          <PillButton 
+            title="Sign Up"
+            onPress={handleRegister}
+            />
 
           <TouchableOpacity
             style={styles.linkContainer}
-            onPress={() => navigation.replace('Login')}
+            onPress={() => navigation.navigate('Login')}
           >
             <Text style={styles.linkText}>
               Already have an account? Log In
@@ -91,29 +105,14 @@ export default function RegisterScreen({ navigation }: any) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#4B73E5' },
-
-  header: {
-    padding: 16,
-    backgroundColor: '#678bec',
-    alignItems: 'center',
-  },
-  title: { color: '#fff', fontSize: 20, fontWeight: 'bold' },
-
-  content: {
-    flex: 1,
-    paddingHorizontal: 16,
-    justifyContent: 'center',
-  },
-
+  content: { flex: 1, paddingHorizontal: 16, justifyContent: 'center' },
   card: {
     backgroundColor: '#83A3F2',
     borderRadius: 8,
     padding: 20,
-    // iOS shadow
     shadowColor: '#000',
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    // Android elevation
     elevation: 2,
   },
   cardTitle: {
@@ -123,7 +122,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 16,
   },
-
   input: {
     backgroundColor: '#fff',
     borderRadius: 5,
@@ -131,7 +129,6 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     fontSize: 16,
   },
-
   button: {
     backgroundColor: '#9fbaf9',
     borderRadius: 5,
@@ -144,7 +141,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     fontSize: 16,
   },
-
   linkContainer: {
     marginTop: 12,
     alignItems: 'center',

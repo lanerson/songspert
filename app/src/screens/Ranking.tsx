@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   SafeAreaView,
   View,
@@ -7,27 +7,48 @@ import {
   FlatList,
   ScrollView,
   StyleSheet,
+  ActivityIndicator,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import axios from 'axios';
+import { API_BASE_URL } from '../config/api';
+import { useFocusEffect } from '@react-navigation/native';
 
-type Entry = { id: string; name: string; score: number; };
-const mockRanking: Entry[] = [
-  { id: '1', name: 'Alice', score: 120 },
-  { id: '2', name: 'Bob',   score: 115 },
-  { id: '3', name: 'Carol', score: 110 },
-  { id: '4', name: 'David', score: 105 },
-  { id: '5', name: 'Eve',   score: 100 },
-  { id: '6', name: 'Frank', score: 95 },
-  { id: '7', name: 'Grace', score: 90 },
-  { id: '8', name: 'Heidi', score: 85 },
-  { id: '9', name: 'Ivan',  score: 80 },
-  { id: '10', name: 'Judy', score: 75 },
-];
+type Entry = { id: string; name: string; score: number };
 
 const filters = ['Daily', 'Weekly', 'Monthly'];
 
 export default function RankingScreen() {
   const [selected, setSelected] = useState(filters[0]);
+  const [ranking, setRanking] = useState<Entry[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  const fetchRanking = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await axios.get(`${API_BASE_URL}/users/`);
+      const data = res.data as any[];
+      const field = `${selected.toLowerCase()}_points` as keyof typeof data[0];
+      const mapped = data
+        .map(u => ({
+          id: String(u.id),
+          name: u.username,
+          score: u[field] || 0,
+        }))
+        .sort((a, b) => b.score - a.score);
+      setRanking(mapped);
+    } catch (err) {
+      console.error('fetch ranking failed', err);
+    } finally {
+      setLoading(false);
+    }
+  }, [selected]);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchRanking();
+    }, [fetchRanking])
+  );
 
   return (
     <SafeAreaView style={styles.container}>
@@ -61,23 +82,27 @@ export default function RankingScreen() {
 
         {/* ——— Ranking Card ——— */}
         <View style={styles.card}>
-          <FlatList
-            data={mockRanking}
-            keyExtractor={(item) => item.id}
-            showsVerticalScrollIndicator={false}
-            style={{ flex: 1 }}
-            contentContainerStyle={{ paddingBottom: 16 }}
-            renderItem={({ item, index }) => (
-              <View style={styles.rankRow}>
-                <View style={styles.avatar}>
-                  <Text style={styles.rankNum}>{index + 1}</Text>
+         {loading ? (
+            <ActivityIndicator style={{ marginTop: 20 }} />
+          ) : (
+            <FlatList
+              data={ranking}
+              keyExtractor={(item) => item.id}
+              showsVerticalScrollIndicator={false}
+              style={{ flex: 1 }}
+              contentContainerStyle={{ paddingBottom: 16 }}
+              renderItem={({ item, index }) => (
+                <View style={styles.rankRow}>
+                  <View style={styles.avatar}>
+                    <Text style={styles.rankNum}>{index + 1}</Text>
+                  </View>
+                  <Text style={styles.playerName}>{item.name}</Text>
+                  <Text style={styles.playerScore}>{item.score}</Text>
                 </View>
-                <Text style={styles.playerName}>{item.name}</Text>
-                <Text style={styles.playerScore}>{item.score}</Text>
-              </View>
-            )}
-            ItemSeparatorComponent={() => <View style={styles.separator} />}
-          />
+                 )}
+              ItemSeparatorComponent={() => <View style={styles.separator} />}
+            />
+          )}
         </View>
       </View>
     </SafeAreaView>
@@ -86,9 +111,9 @@ export default function RankingScreen() {
 
 const styles = StyleSheet.create({
   filterContainer: {
-    height: 48,               // same as filterBtn height
+    height: 48,               
     maxHeight: 48,
-    marginBottom:16      // clip any content outside 48px
+    marginBottom:16      
   },
   container: { 
     flex: 1, 
@@ -108,8 +133,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   filterBtn: {
-    height: 48,              // same as search bar
-    borderRadius: 24,        // half the height
+    height: 48,              
+    borderRadius: 24,      
     backgroundColor: '#E8F0FE',
     paddingHorizontal: 16,
     justifyContent: 'center',

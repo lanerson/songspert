@@ -5,8 +5,9 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import CreateChallengeScreen from './src/screens/CreateChallenge.tsx'
 
-// Screens
+
 import LoginScreen       from './src/screens/Login';
 import RegisterScreen    from './src/screens/Register';
 import HomeScreen        from './src/screens/Home';
@@ -21,19 +22,36 @@ import GameScreen        from './src/screens/Game';
 const RootStack = createNativeStackNavigator();
 const HomeStack = createNativeStackNavigator();
 const Tab       = createBottomTabNavigator();
+const SearchStack = createNativeStackNavigator();
 
-// Nest Home, Quiz, Game under Home tab so bottom tabs persist on Quiz
+
 function HomeStackScreen() {
   return (
     <HomeStack.Navigator screenOptions={{ headerShown: false }}>
       <HomeStack.Screen name="HomeMain" component={HomeScreen} />
       <HomeStack.Screen name="Quiz"     component={QuizScreen}   />
       <HomeStack.Screen name="Game"     component={GameScreen}   />
+      <HomeStack.Screen name="CreateChallenge" component={CreateChallengeScreen} />
     </HomeStack.Navigator>
   );
 }
 
-// Main bottom tabs
+function SearchStackScreen() {
+  return (
+    <SearchStack.Navigator screenOptions={{ headerShown: false }}>
+      <SearchStack.Screen
+        name="SearchMain"
+        component={SearchScreen}
+      />
+      <SearchStack.Screen
+        name="Game"
+        component={GameScreen}
+      />
+    </SearchStack.Navigator>
+  );
+}
+
+
 function MainTabs() {
   return (
     <Tab.Navigator
@@ -67,7 +85,7 @@ function MainTabs() {
       })}
     >
       <Tab.Screen name="Home"       component={HomeStackScreen} />
-      <Tab.Screen name="Search"     component={SearchScreen}   />
+      <Tab.Screen name="Search"     component={SearchStackScreen}   />
       <Tab.Screen name="Ranking"    component={RankingScreen}  />
       <Tab.Screen name="RandomGame" component={RandomGameScreen} />
       <Tab.Screen name="Profile"    component={ProfileScreen}   />
@@ -76,7 +94,6 @@ function MainTabs() {
 }
 
 export default function App() {
-  // configure audio mode
   useEffect(() => {
     Audio.setAudioModeAsync({
       allowsRecordingIOS:     false,
@@ -88,10 +105,10 @@ export default function App() {
     });
   }, []);
 
+
   return (
     <NavigationContainer>
       <RootStack.Navigator initialRouteName="Home">
-        {/* Auth flow */}
         <RootStack.Screen
           name="Login"
           component={LoginScreen}
@@ -102,14 +119,11 @@ export default function App() {
           component={RegisterScreen}
           options={{ headerShown: false }}
         />
-
-        {/* Main app with tabs */}
         <RootStack.Screen
           name="Home"
           component={MainTabs}
           options={{ headerShown: false }}
-        />
-        {/* now register EditProfile on the root stack */}
+        />        
         <RootStack.Screen
           name="EditProfile"
           component={EditProfileScreen}
@@ -119,3 +133,4 @@ export default function App() {
     </NavigationContainer>
   );
 }
+

@@ -1,101 +1,106 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   SafeAreaView,
   View,
   Text,
-  TextInput,
-  FlatList,
   TouchableOpacity,
+  FlatList,
+  ActivityIndicator,
   StyleSheet,
-  Keyboard,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import axios from 'axios';
+import { API_BASE_URL } from '../config/api';
+import PillButton from '../components/Buttons';
 
-type Result = { id: string; name: string; artist: string };
-const mockResults: Result[] = [
-  { id: '1', name: 'Song One',   artist: 'Artist A' },
-  { id: '2', name: 'Song Two',   artist: 'Artist B' },
-  { id: '3', name: 'Song Three', artist: 'Artist C' },
-  { id: '4', name: 'Song Four',  artist: 'Artist D' },
-  { id: '5', name: 'Song Five',  artist: 'Artist E' },
-  { id: '6', name: 'Song Six',   artist: 'Artist F' },
-  { id: '7', name: 'Song Seven', artist: 'Artist G' },
-  { id: '8', name: 'Song Eight', artist: 'Artist H' },
-  { id: '9', name: 'Song Nine',  artist: 'Artist I' },
-  { id: '10', name: 'Song Ten',  artist: 'Artist J' },
-  { id: '11', name: 'Song Eleven', artist: 'Artist K' },
-  { id: '12', name: 'Song Twelve', artist: 'Artist L' },
-  { id: '13', name: 'Song Thirteen', artist: 'Artist M' },
-  { id: '14', name: 'Song Fourteen', artist: 'Artist N' },
-  { id: '15', name: 'Song Fifteen', artist: 'Artist O' },
+const GENRES = [
+  'eclético','pop','anime','sertanejo','mpb','rap/funk brasileiro','rap/hip hop',
+  'reggaeton','rock','dance','alternativo','samba/pagode','electro','música religiosa',
+  'axé/forró','folk','reggae','jazz','clássica','metal','soul & funk','blues','cumbia',
+  'música africana','música indiana','música asiática','r&b'
 ];
 
-export default function SearchScreen() {
-  const [query, setQuery]     = useState('');
-  const [results, setResults] = useState<Result[]>(mockResults);
+type ChallengeSet = { id: string; name: string; genre: string };
 
-  const handleSearch = (text: string) => {
-    setQuery(text);
-    setResults(
-      mockResults.filter(r =>
-        r.name.toLowerCase().includes(text.toLowerCase())
-      )
-    );
+export default function SearchScreen({ navigation }: any) {
+  const [genre, setGenre] = useState<string | null>(null);
+  const [sets, setSets] = useState<ChallengeSet[]>([]);
+  const [loading, setLoading] = useState(false);
+  const listRef = useRef<FlatList<string> | null>(null);
+
+  useEffect(() => {
+    if (genre) fetchSets(genre);
+    else setSets([]);
+  }, [genre]);
+
+  const fetchSets = async (g: string) => {
+    setLoading(true);
+    try {
+      const res = await axios.get<ChallengeSet[]>(`${API_BASE_URL}/challenge_sets/`);
+      const filtered = res.data.filter(
+        (s) => (s.genre || '').toLowerCase() === g.toLowerCase()
+      );
+      setSets(filtered);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const clearSearch = () => {
-    setQuery('');
-    setResults(mockResults);
-    Keyboard.dismiss();
-  };
+  const renderGenreItem = ({ item }: { item: string }) => (
+    // <TouchableOpacity
+    //   key={item}
+    //   style={[styles.genreButton, genre === item && styles.genreActive]}
+    //   onPress={() => setGenre(item)}
+    // >
+    //   <Text style={styles.genreText}>{item}</Text>
+    // </TouchableOpacity>
+    <PillButton 
+    title={item}
+    key={item}
+    onPress={() => {setGenre(item)}}
+    />
+  );
 
   return (
     <SafeAreaView style={styles.container}>
-
       <View style={styles.content}>
-        {/* ——— Pill-shaped Search Button ——— */}
-        <View style={styles.searchPill}>
-          <Ionicons name="search" size={20} color="#000000" />
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search"
-            placeholderTextColor="#000000"
-            value={query}
-            onChangeText={handleSearch}
+        <View style={styles.carouselRow}>
+          <FlatList
+            ref={listRef}
+            data={GENRES}
+            keyExtractor={(item) => item}
+            renderItem={renderGenreItem}
+            showsVerticalScrollIndicator={false}
           />
-           {query.length > 0 && (
-            <TouchableOpacity onPress={clearSearch} style={styles.clearButton}>
-              <Ionicons name="close-circle" size={18} color="#666" />
-            </TouchableOpacity>
-          )}
         </View>
 
-        {/* ——— Results Card ——— */}
         <View style={styles.card}>
-          <FlatList
-            data={results}
-            keyExtractor={(item) => item.id}
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ paddingBottom: 16 }}
-            renderItem={({ item }) => (
-              <TouchableOpacity style={styles.row}>
-                <View>
-                  <Text style={styles.songName}>{item.name}</Text>
-                  <Text style={styles.artist}>{item.artist}</Text>
-                </View>
-                <Ionicons
-                  name="play-circle-outline"
-                  size={28}
-                  color="#4B73E5"
-                />
-              </TouchableOpacity>
-            )}
-            ItemSeparatorComponent={() => <View style={styles.separator} />}
-            ListEmptyComponent={
-              <Text style={styles.empty}>No results found.</Text>
-            }
-          />
+          {loading ? (
+            <ActivityIndicator size="large" color="#4B73E5" />
+          ) : (
+            <FlatList
+              data={sets}
+              keyExtractor={(item) => item.id}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={styles.row}
+                  onPress={() =>
+                    navigation.navigate('Game', {
+                      setId: item.id,
+                      setName: item.name,
+                    })
+                  }
+                >
+                  <Text style={styles.itemName}>{item.name}</Text>
+                  <Ionicons name="chevron-forward-outline" size={24} color="#4B73E5" />
+                </TouchableOpacity>
+              )}
+              ItemSeparatorComponent={() => <View style={styles.separator} />}
+              ListEmptyComponent={<Text style={styles.empty}>No challenges.</Text>}
+            />
+          )}
         </View>
       </View>
     </SafeAreaView>
@@ -104,69 +109,52 @@ export default function SearchScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#4B73E5' },
+  content: { flex: 1, paddingHorizontal: 16, paddingTop: 15, paddingBottom: 20 },
 
-  header: {
-    padding:      16,
-    alignItems:   'center',
-  },
-  headerText: {
-    color:     '#fff',
-    fontSize:  20,
-    fontWeight:'bold',
+  carouselRow: {
+    flex: 2,
+    marginBottom: 12,
   },
 
-  content: {
-    flex:              1,
-    paddingHorizontal: 16,
-    paddingTop:        15,
-    paddingBottom:   20
+  genreButton: {
+    width: '100%',
+    backgroundColor: '#E8F0FE',
+    paddingVertical: 16,
+    borderRadius: 12,
+    marginBottom: 7,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 4,
   },
 
-  searchPill: {
-    flexDirection:   'row',
-    alignItems:      'center',
-    backgroundColor: '#FFFFFF',
-    borderRadius:    24,
-    height:          48,
-    paddingHorizontal: 16,
-    marginBottom:    16,
-  },
-  searchInput: {
-    flex:       1,
-    marginLeft: 8,
-    fontSize:   16,
-    color:      '#333',
-  },
+  genreActive: { backgroundColor: '#9FB9F9' },
+
+  genreText: { fontSize: 16, fontWeight: '600', color: '#333' },
 
   card: {
+    flex: 3,
     backgroundColor: '#fff',
-    borderRadius:    12,
-    padding:         16,
-    shadowColor:     '#000',
-    shadowOpacity:   0.05,
-    shadowRadius:    8,
-    shadowOffset:    { width: 0, height: 4 },
-    elevation:       3,
-    flex:            1,
+    borderRadius: 12,
+    padding: 16,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 3,
   },
 
   row: {
-    flexDirection:   'row',
+    flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems:      'center',
+    alignItems: 'center',
     paddingVertical: 12,
   },
-  songName: { fontSize: 16, fontWeight: '600', color: '#333' },
-  artist:   { fontSize: 14, color: '#666', marginTop: 2 },
-  separator:{ height: 1, backgroundColor: '#eee' },
 
-  empty: {
-    textAlign: 'center',
-    color:     '#999',
-    marginTop: 20,
-  },
-  clearButton: {
-    marginLeft: 8,
-    color:     '#000000',
-  },
+  itemName: { fontSize: 16, fontWeight: '600', color: '#333' },
+  separator: { height: 1, backgroundColor: '#eee' },
+  empty: { textAlign: 'center', color: '#999', marginTop: 20 },
 });
