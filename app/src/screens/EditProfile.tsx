@@ -65,7 +65,7 @@ export default function EditProfileScreen() {
 
           <TextInput
             style={styles.input}
-            placeholder="Name"
+            placeholder="New Username"
             placeholderTextColor="#666"
             value={name}
             onChangeText={setName}
@@ -73,7 +73,7 @@ export default function EditProfileScreen() {
 
           <TextInput
             style={styles.input}
-            placeholder="Email"
+            placeholder="New Email"
             placeholderTextColor="#666"
             keyboardType="email-address"
             autoCapitalize="none"
@@ -83,7 +83,7 @@ export default function EditProfileScreen() {
 
           <TextInput
             style={styles.input}
-            placeholder="Password"
+            placeholder="New Password"
             placeholderTextColor="#666"
             secureTextEntry
             value={password}
