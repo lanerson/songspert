@@ -53,6 +53,13 @@ export default function HomeScreen({ navigation }: any) {
             <Text style={styles.pillText}>First Quiz</Text>
           </TouchableOpacity>
 
+          <TouchableOpacity
+            style={styles.pillButton}
+            onPress={() => navigation.navigate('CreateChallenge')}
+          >
+            <Text style={styles.pillText}>Create Challenge</Text>
+          </TouchableOpacity>
+
           {/* List or Loading */}
           {loading ? (
             <ActivityIndicator size="large" color="#4B73E5" style={{ flex: 1 }} />

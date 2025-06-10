@@ -20,7 +20,8 @@ export default function ProfileScreen({ navigation }: any) {
   const [profileUri, setProfileUri] = useState<string | null>(null);
   const [userName, setUserName] = useState('Arthur Bragança');
   const [userEmail, setUserEmail] = useState('arthur@example.com');
-  const [stats, setStats] = useState({ played: 42, highScore: 128, daily: 5, weekly: 20, monthly: 100, created: 10 });
+  const [stats, setStats] = useState({ played: 42, daily: 5, weekly: 20, monthly: 100, created: 10 });
+  const [isAuth, setIsAuth] = useState(false);
 
   const loadUser = useCallback(async () => {
     try {
@@ -28,6 +29,7 @@ export default function ProfileScreen({ navigation }: any) {
       const res = await axios.get(`${API_BASE_URL}/users/me/`, {
         headers: { Authorization: `Bearer ${token}` },
       });
+      setIsAuth(true);
       setUserName(res.data.username);
       setUserEmail(res.data.email);
       const pic = res.data.profile_picture || res.data.avatar_url;
@@ -40,7 +42,6 @@ export default function ProfileScreen({ navigation }: any) {
       }
       setStats({
         played: res.data.games_played,
-        highScore: res.data.high_score,
         daily: res.data.daily_score,
         weekly: res.data.weekly_score,
         monthly: res.data.monthly_score,
@@ -48,6 +49,7 @@ export default function ProfileScreen({ navigation }: any) {
       });
     } catch (e) {
       console.log(e);
+      setIsAuth(false);
     }
   }, []);
 
@@ -70,16 +72,17 @@ export default function ProfileScreen({ navigation }: any) {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
-        <View style={styles.card}>
-          <TouchableOpacity style={styles.avatarWrapper} onPress={onEditPhoto}>
-            <Image
-              source={avatar ? avatarImages[avatar] : { uri: profileUri || undefined }}
-              style={styles.avatar}
-            />
-            <View style={styles.cameraOverlay}>
-              <Ionicons name="camera-outline" size={20} color="#fff" />
-            </View>
-          </TouchableOpacity>
+         {isAuth ? (
+          <View style={styles.card}>
+            <TouchableOpacity style={styles.avatarWrapper} onPress={onEditPhoto}>
+              <Image
+                source={avatar ? avatarImages[avatar] : { uri: profileUri || undefined }}
+                style={styles.avatar}
+              />
+              <View style={styles.cameraOverlay}>
+                <Ionicons name="camera-outline" size={20} color="#fff" />
+              </View>
+            </TouchableOpacity>
 
           <Text style={styles.cardTitle}>{userName}</Text>
           <Text style={styles.email}>{userEmail}</Text>
@@ -88,10 +91,6 @@ export default function ProfileScreen({ navigation }: any) {
             <View style={styles.statBox}>
               <Text style={styles.statValue}>{stats.played}</Text>
               <Text style={styles.statLabel}>Played</Text>
-            </View>
-            <View style={styles.statBox}>
-              <Text style={styles.statValue}>{stats.highScore}</Text>
-              <Text style={styles.statLabel}>High Score</Text>
             </View>
             <View style={styles.statBox}>
               <Text style={styles.statValue}>{stats.created}</Text>
@@ -113,20 +112,37 @@ export default function ProfileScreen({ navigation }: any) {
             </View>
           </View>
 
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => navigation.navigate('EditProfile')}
-          >
-            <Text style={styles.buttonText}>Edit Profile</Text>
-          </TouchableOpacity>
+           <TouchableOpacity
+              style={styles.button}
+              onPress={() => navigation.navigate('EditProfile')}
+            >
+              <Text style={styles.buttonText}>Edit Profile</Text>
+            </TouchableOpacity>
 
-          <TouchableOpacity
-            style={styles.linkContainer}
-            onPress={handleLogout}
-          >
-            <Text style={styles.linkText}>Log Out</Text>
-          </TouchableOpacity>
-        </View>
+         <TouchableOpacity
+              style={styles.linkContainer}
+              onPress={handleLogout}
+            >
+              <Text style={styles.linkText}>Log Out</Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <View style={styles.card}>
+            <Text style={styles.cardTitle}>🚀 Join now to save your progress,    🧠 create your own challenges, and  🧰 discover even more tools!</Text>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => navigation.replace('Login')}
+            >
+              <Text style={styles.buttonText}>Log In</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.linkContainer}
+              onPress={() => navigation.navigate('Register')}
+            >
+              <Text style={styles.linkText}>Sign Up</Text>
+            </TouchableOpacity>
+          </View>
+        )}
       </View>
     </SafeAreaView>
   );

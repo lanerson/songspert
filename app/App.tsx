@@ -5,8 +5,9 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import CreateChallengeScreen from './src/screens/CreateChallenge.tsx'
 
-// Screens
+
 import LoginScreen       from './src/screens/Login';
 import RegisterScreen    from './src/screens/Register';
 import HomeScreen        from './src/screens/Home';
@@ -22,18 +23,19 @@ const RootStack = createNativeStackNavigator();
 const HomeStack = createNativeStackNavigator();
 const Tab       = createBottomTabNavigator();
 
-// Nest Home, Quiz, Game under Home tab so bottom tabs persist on Quiz
+
 function HomeStackScreen() {
   return (
     <HomeStack.Navigator screenOptions={{ headerShown: false }}>
       <HomeStack.Screen name="HomeMain" component={HomeScreen} />
       <HomeStack.Screen name="Quiz"     component={QuizScreen}   />
       <HomeStack.Screen name="Game"     component={GameScreen}   />
+      <HomeStack.Screen name="CreateChallenge" component={CreateChallengeScreen} />
     </HomeStack.Navigator>
   );
 }
 
-// Main bottom tabs
+
 function MainTabs() {
   return (
     <Tab.Navigator
