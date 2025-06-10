@@ -11,6 +11,7 @@ import {
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_BASE_URL } from '../config/api';
+import PillButton from '../components/Buttons';
 
 export default function LoginScreen({ navigation }: any) {
   const [email, setEmail]       = useState('');
@@ -23,7 +24,7 @@ export default function LoginScreen({ navigation }: any) {
         password,
       });
       await AsyncStorage.setItem('token', res.data.access);
-      navigation.replace('Home');
+      navigation.navigate('Home');
     } catch (err: any) {
       Alert.alert(
         'Login failed',
@@ -35,7 +36,6 @@ export default function LoginScreen({ navigation }: any) {
   return (
     <SafeAreaView style={styles.container}>
       
-      {/* Content */}
       <View style={styles.content}>
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Welcome to Songspert</Text>
@@ -59,9 +59,10 @@ export default function LoginScreen({ navigation }: any) {
             secureTextEntry
           />
 
-          <TouchableOpacity style={styles.button} onPress={handleLogin}>
-            <Text style={styles.buttonText}>Log In</Text>
-          </TouchableOpacity>
+          <PillButton 
+          title="Log In" 
+          onPress={handleLogin}
+          />
 
           <TouchableOpacity
             style={styles.linkContainer}
@@ -96,11 +97,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#83A3F2',
     borderRadius: 8,
     padding: 20,
-    // iOS shadow
     shadowColor: '#000',
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    // Android elevation
     elevation: 2,
   },
   cardTitle: {

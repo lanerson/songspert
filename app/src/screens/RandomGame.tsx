@@ -23,7 +23,7 @@ type Question = {
 };
 
 const GENRES = [
-  'mistureba',
+  'eclético',
   'pop',
   'anime',
   'sertanejo',

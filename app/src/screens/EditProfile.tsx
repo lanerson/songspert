@@ -7,12 +7,14 @@ import {
   Image,
   TouchableOpacity,
   StyleSheet,
+  Modal,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_BASE_URL } from '../config/api';
 import { avatarNames, avatarImages, AvatarName } from '../../assets/images/avatar';
+import AvatarSelector from '../components/AvatarSelector';
 
 export default function EditProfileScreen() {
   const navigation = useNavigation<any>();
@@ -20,6 +22,7 @@ export default function EditProfileScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [selectedAvatar, setSelectedAvatar] = useState<AvatarName | null>(null);
+  const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -63,6 +66,13 @@ export default function EditProfileScreen() {
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Edit Profile</Text>
 
+          <AvatarSelector
+            selectedAvatar={selectedAvatar}
+            onSelectAvatar={setSelectedAvatar}
+            placeholderSize={100} 
+            iconSize={50}            
+          />
+
           <TextInput
             style={styles.input}
             placeholder="New Username"
@@ -90,20 +100,6 @@ export default function EditProfileScreen() {
             onChangeText={setPassword}
           />
 
-          <View style={styles.avatarsRow}>
-            {avatarNames.map((a) => (
-              <TouchableOpacity
-                key={a}
-                onPress={() => setSelectedAvatar(a as AvatarName)}
-                style={[
-                  styles.avatarOption,
-                  selectedAvatar === a && styles.avatarSelected,
-                ]}
-              >
-                <Image source={avatarImages[a as AvatarName]} style={styles.avatarImage} />
-              </TouchableOpacity>
-            ))}
-          </View>
 
           <TouchableOpacity style={styles.button} onPress={handleSave}>
             <Text style={styles.buttonText}>Save Changes</Text>
@@ -140,28 +136,6 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     fontSize: 16,
   },
-  avatarsRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    marginBottom: 12,
-  },
-  avatarOption: {
-    width: 96,
-    height: 96,
-    margin: 4,
-    borderWidth: 2,
-    borderColor: 'transparent',
-    borderRadius: 48,
-    overflow: 'hidden',
-  },
-  avatarSelected: {
-    borderColor: '#4B73E5',
-  },
-  avatarImage: {
-    width: '100%',
-    height: '100%',
-  },
   button: {
     backgroundColor: '#9fbaf9',
     borderRadius: 5,
@@ -173,5 +147,5 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: '600',
     fontSize: 16,
-  },
+  }
 });

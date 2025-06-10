@@ -1,197 +1,251 @@
-import React, { useState, useEffect, useRef } from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  ActivityIndicator,
-} from 'react-native';
-import { Audio } from 'expo-av';
+// import React, { useState, useEffect, useRef } from 'react';
+// import {
+//   SafeAreaView,
+//   View,
+//   Text,
+//   TouchableOpacity,
+//   StyleSheet,
+//   ActivityIndicator,
+//   ImageBackground,
+// } from 'react-native';
+// import { Audio } from 'expo-av';
+// import * as Progress from 'react-native-progress';
+// import Ionicons from 'react-native-vector-icons/Ionicons';
+// import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+// import { LinearGradient } from 'expo-linear-gradient';
+// import axios from 'axios';
+// import AsyncStorage from '@react-native-async-storage/async-storage';
+// import { useRoute } from '@react-navigation/native';
+// import { API_BASE_URL } from '../config/api';
+// import tvImg from '../../assets/images/tv.png';
 
-// Import your local audio files (make sure these paths match your assets folder)
-import againMp3 from '../assets/music/again.mp3';
-import hologramMp3 from '../assets/music/hologram.mp3';
-import goldentimeMp3 from '../../assets/music/goldentime.mp3';
-import rewriteMp3 from '../../assets/music/rewrite.mp3';
-import rainMp3 from '../../assets/music/rain.mp3';
+// type Challenge = {
+//   id: number;
+//   preview: string;
+//   answers: string[];
+//   correct: string;
+// };
 
-type SongChallenge = {
-  src: any;           // local asset reference
-  answers: string[];
-  correctAnswer: string;
-};
+// export default function GameScreen() {
+//   const route = useRoute<any>();
+//   const { setId, setName } = route.params;
 
-const challenge: SongChallenge[] = [
-  {
-    src: againMp3,
-    answers: ['AGAIN', 'HOLOGRAM', 'GOLDEN TIME', 'RAIN'],
-    correctAnswer: 'AGAIN',
-  },
-  {
-    src: hologramMp3,
-    answers: ['GOLDEN TIME', 'AGAIN', 'HOLOGRAM', 'RAIN'],
-    correctAnswer: 'HOLOGRAM',
-  },
-  {
-    src: goldentimeMp3,
-    answers: ['REWRITE', 'HOLOGRAM', 'GOLDEN TIME', 'RAIN'],
-    correctAnswer: 'GOLDEN TIME',
-  },
-  {
-    src: rewriteMp3,
-    answers: ['REWRITE', 'AGAIN', 'GOLDEN TIME', 'RAIN'],
-    correctAnswer: 'REWRITE',
-  },
-  {
-    src: rainMp3,
-    answers: ['REWRITE', 'AGAIN', 'RAIN', 'GOLDEN TIME'],
-    correctAnswer: 'RAIN',
-  },
-];
+//   const [challenges, setChallenges] = useState<Challenge[]>([]);
+//   const [index, setIndex] = useState(0);
+//   const [score, setScore] = useState(0);
+//   const [loading, setLoading] = useState(true);
+//   const [audioLoading, setAudioLoading] = useState(false);
+//   const [showChoices, setShowChoices] = useState(false);
+//   const [feedback, setFeedback] = useState<string | null>(null);
+//   const [finished, setFinished] = useState(false);
+//   const soundRef = useRef<Audio.Sound | null>(null);
 
-export default function Game() {
-  const [index, setIndex] = useState(0);
-  const [isCounting, setIsCounting] = useState(false);
-  const [feedback, setFeedback] = useState<string>('');
-  const soundRef = useRef<Audio.Sound | null>(null);
+//   useEffect(() => {
+//     fetchChallenges();
+//     return () => {
+//       if (soundRef.current) soundRef.current.unloadAsync();
+//     };
+//   }, []);
 
-  const song = challenge[index];
+//   const shuffle = (arr: string[]) => [...arr].sort(() => Math.random() - 0.5);
 
-  // Clean up previous sound when index changes or on unmount
-  useEffect(() => {
-    return () => {
-      if (soundRef.current) {
-        soundRef.current.unloadAsync();
-        soundRef.current = null;
-      }
-    };
-  }, [index]);
+//   const fetchChallenges = async () => {
+//     try {
+//       const res = await axios.get(`${API_BASE_URL}/challenge_sets/${setId}/`);
+//       const fetched = await Promise.all(
+//         res.data.challenges.map(async (ch: any) => {
+//           const t = await axios.get(`${API_BASE_URL}/track/${ch.track}/`);
+//           return {
+//             id: ch.id,
+//             preview: t.data.preview,
+//             answers: shuffle([...ch.false_options]),
+//             correct: ch.correct_answer,
+//           } as Challenge;
+//         })
+//       );
+//       setChallenges(fetched);
+//     } catch (err) {
+//       console.error('fetchChallenges failed', err);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
 
-  const playSong = async () => {
-    setFeedback('');
-    setIsCounting(false);
 
-    try {
-      const { sound } = await Audio.Sound.createAsync(song.src, {
-        shouldPlay: true,
-      });
-      soundRef.current = sound;
+//   const playAudio = async () => {
+//     setFeedback(null);
+//     setShowChoices(false);
+//     if (soundRef.current) await soundRef.current.unloadAsync();
+//     try {
+//       setAudioLoading(true);
+//       const { sound } = await Audio.Sound.createAsync(
+//         { uri: challenges[index].preview },
+//         { shouldPlay: true }
+//       );
+//       soundRef.current = sound;
+//       setTimeout(() => {
+//         setShowChoices(true);
+//         setAudioLoading(false);
+//       }, 500);
+//     } catch (err) {
+//       setAudioLoading(false);
+//       console.warn('Audio error', err);
+//     }
+//   };
 
-      // Delay showing answers until playback starts
-      setTimeout(() => setIsCounting(true), 500);
-    } catch (err) {
-      console.warn('Audio error', err);
-    }
-  };
+//   const handleAnswer = (ans: string) => {
+//     const correct = ans === challenges[index].correct;
+//     if (correct) setScore(s => s + 1);
+//     setFeedback(correct ? 'CORRECT!' : 'TRY AGAIN');
+//     setShowChoices(false);
+//     setTimeout(() => {
+//       if (index === challenges.length - 1) setFinished(true);
+//       else setIndex(i => i + 1);
+//       setFeedback(null);
+//     }, 1200);
+//   };
 
-  const handleSelect = (answer: string) => {
-    const correct = answer === song.correctAnswer;
-    setFeedback(correct ? '✅ Correct!' : '❌ Try Again');
-    setIsCounting(false);
+//   const handleRestart = () => {
+//     setIndex(0);
+//     setScore(0);
+//     setFinished(false);
+//     setFeedback(null);
+//   };
 
-    // After showing feedback, move to next challenge
-    setTimeout(() => {
-      const next = index + 1 < challenge.length ? index + 1 : 0;
-      setIndex(next);
-    }, 1000);
-  };
+//   if (loading) {
+//     return (
+//       <View style={styles.center}>
+//         <ActivityIndicator size="large" color="#fff" />
+//       </View>
+//     );
+//   }
 
-  return (
-    <View style={styles.container}>
-      <View style={styles.screen}>
-        <Text style={styles.screenText}>
-          {feedback || (isCounting ? 'Choose an answer:' : '🎵 Tap Play')}
-        </Text>
-      </View>
+//   if (!challenges.length) {
+//     return (
+//       <SafeAreaView style={styles.container}>
+//         <View style={styles.center}>
+//           <Text style={{ color: '#fff' }}>No challenges found.</Text>
+//         </View>
+//       </SafeAreaView>
+//     );
+//   }
 
-      <TouchableOpacity style={styles.playButton} onPress={playSong}>
-        <Text style={styles.playText}>▶️ Play</Text>
-      </TouchableOpacity>
+//   const progress = index / challenges.length;
+//   const question = challenges[index];
 
-      {isCounting && (
-        <View style={styles.optionsContainer}>
-          {song.answers.map((ans) => (
-            <TouchableOpacity
-              key={ans}
-              style={[
-                styles.option,
-                feedback &&
-                  (ans === song.correctAnswer
-                    ? styles.correct
-                    : ans !== song.correctAnswer && feedback.startsWith('❌')
-                    ? styles.wrong
-                    : null),
-              ]}
-              onPress={() => handleSelect(ans)}
-            >
-              <Text style={styles.optionText}>{ans}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      )}
 
-      {!isCounting && feedback !== '' && (
-        <ActivityIndicator style={styles.loader} size="large" />
-      )}
-    </View>
-  );
-}
+//   if (finished) {
+//     return (
+//       <SafeAreaView style={styles.container}>
+//         <View style={styles.header}>
+//           <Text style={styles.headerText}>{setName}</Text>
+//           <LinearGradient colors={['#FFD54F', '#FFA000']} style={styles.scoreBadge}>
+//             <FontAwesome5 name="trophy" size={20} color="#FFF" />
+//             <Text style={styles.scoreBadgeText}>{score} / {challenges.length}</Text>
+//           </LinearGradient>
+//         </View>
+//         <View style={styles.center}>
+//           <TouchableOpacity style={styles.restartButton} onPress={handleRestart}>
+//             <Text style={styles.restartText}>Play Again</Text>
+//           </TouchableOpacity>
+//         </View>
+//       </SafeAreaView>
+//     );
+//   }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 16,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  screen: {
-    width: '100%',
-    padding: 24,
-    marginBottom: 20,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  screenText: {
-    fontSize: 18,
-    color: '#333',
-  },
-  playButton: {
-    padding: 16,
-    backgroundColor: '#4a90e2',
-    borderRadius: 50,
-    marginBottom: 20,
-  },
-  playText: {
-    fontSize: 24,
-    color: '#fff',
-  },
-  optionsContainer: {
-    width: '100%',
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-  },
-  option: {
-    width: '48%',
-    padding: 12,
-    marginVertical: 6,
-    backgroundColor: '#eee',
-    borderRadius: 6,
-    alignItems: 'center',
-  },
-  optionText: {
-    fontSize: 16,
-  },
-  correct: {
-    backgroundColor: '#c6f6d5',
-  },
-  wrong: {
-    backgroundColor: '#fed7d7',
-  },
-  loader: {
-    marginTop: 20,
-  },
-});
+//   return (
+//     <SafeAreaView style={styles.container}>
+//       <View style={styles.header}>
+//         <Text style={styles.headerText}>{setName}</Text>
+//         <LinearGradient colors={['#FFD54F', '#FFA000']} style={styles.scoreBadge}>
+//           <FontAwesome5 name="trophy" size={20} color="#FFF" />
+//           <Text style={styles.scoreBadgeText}>{score} / {challenges.length}</Text>
+//         </LinearGradient>
+//       </View>
+
+
+//       <View style={styles.content}>
+//         <View style={styles.tvContainer}>
+//           <ImageBackground source={tvImg} style={styles.tvBackground} resizeMode="contain">
+//             <View style={[
+//               styles.screenOverlay,
+//               feedback === 'CORRECT!' && styles.feedbackCorrect,
+//               feedback === 'TRY AGAIN' && styles.feedbackWrong,
+//             ]}>
+//               {!feedback ? (
+//                 <TouchableOpacity style={styles.playButton} onPress={playAudio}>
+//                   {audioLoading ? (
+//                     <ActivityIndicator color="#FFF" />
+//                   ) : (
+//                     <Ionicons name="play" size={32} color="#FFF" />
+//                   )}
+//                 </TouchableOpacity>
+//               ) : (
+//                 <Text style={styles.feedbackText}>{feedback}</Text>
+//               )}
+//             </View>
+//           </ImageBackground>
+//         </View>
+
+//         <Progress.Bar
+//           progress={progress}
+//           width={null}
+//           color="#FFF"
+//           unfilledColor="rgba(255,255,255,0.3)"
+//           borderWidth={0}
+//           style={styles.progress}
+//         />
+//         {showChoices && !feedback && (
+//           <View style={styles.choicesContainer}>
+//             {question.answers.map(c => (
+//               <TouchableOpacity key={c} onPress={() => handleAnswer(c)} style={styles.choiceButton}>
+//                 <Text style={styles.choiceText}>{c}</Text>
+//               </TouchableOpacity>
+//             ))}
+//           </View>
+//         )}
+//       </View>
+//     </SafeAreaView>
+//   );
+// }
+
+// const styles = StyleSheet.create({
+//   container: { flex: 1, backgroundColor: '#4B73E5' },
+//   header: { paddingVertical: 24, alignItems: 'center' },
+//   headerText: { color: '#FFF', fontSize: 24, fontWeight: '700', marginBottom: 8 },
+//   scoreBadge: {
+//     flexDirection: 'row',
+//     alignItems: 'center',
+//     paddingHorizontal: 16,
+//     paddingVertical: 8,
+//     borderRadius: 25,
+//     elevation: 4,
+//   },
+//   scoreBadgeText: { color: '#FFF', fontSize: 18, fontWeight: '700', marginLeft: 8 },
+//   content: { flex: 1, paddingHorizontal: 20, paddingTop: 16 },
+//   tvContainer: { alignItems: 'center', marginBottom: 16 },
+//   tvBackground: { width: '100%', aspectRatio: 4 / 3 },
+//   screenOverlay: {
+//     position: 'absolute',
+//     top: '35%',
+//     left: '21%',
+//     width: '48.5%',
+//     height: '40%',
+//     backgroundColor: '#FFF',
+//     borderRadius: 2,
+//     justifyContent: 'center',
+//     alignItems: 'center',
+//     zIndex: 1,
+//   },
+//   feedbackCorrect: { backgroundColor: 'rgba(76,175,80,0.85)' },
+//   feedbackWrong: { backgroundColor: 'rgba(244,67,54,0.85)' },
+//   playButton: { backgroundColor: '#4B73E5', width: 60, height: 60, borderRadius: 30, justifyContent: 'center', alignItems: 'center', elevation: 3 },
+//   feedbackText: { color: '#FFF', fontSize: 20, fontWeight: '700' },
+//   progress: { marginVertical: 16, height: 8, borderRadius: 4 },
+//   choicesContainer: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
+//   choiceButton: { width: '100%', backgroundColor: '#E8F0FE', paddingVertical: 14, borderRadius: 25, marginBottom: 12, justifyContent: 'center', alignItems: 'center', elevation: 2 },
+//   choiceText: { fontSize: 16, fontWeight: '600', color: '#333' },
+//   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+//   restartButton: { backgroundColor: '#FFF', paddingHorizontal: 24, paddingVertical: 12, borderRadius: 25, elevation: 2 },
+//   restartText: { color: '#333', fontSize: 16, fontWeight: '600' },
+// });

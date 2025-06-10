@@ -94,7 +94,6 @@ function MainTabs() {
 }
 
 export default function App() {
-  
   useEffect(() => {
     Audio.setAudioModeAsync({
       allowsRecordingIOS:     false,
@@ -106,10 +105,10 @@ export default function App() {
     });
   }, []);
 
+
   return (
     <NavigationContainer>
       <RootStack.Navigator initialRouteName="Home">
-      
         <RootStack.Screen
           name="Login"
           component={LoginScreen}
@@ -120,14 +119,11 @@ export default function App() {
           component={RegisterScreen}
           options={{ headerShown: false }}
         />
-
-        
         <RootStack.Screen
           name="Home"
           component={MainTabs}
           options={{ headerShown: false }}
-        />
-        
+        />        
         <RootStack.Screen
           name="EditProfile"
           component={EditProfileScreen}

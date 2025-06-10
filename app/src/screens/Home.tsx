@@ -12,6 +12,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import axios from 'axios';
 import { API_BASE_URL } from '../config/api';
+import PillButton from '../components/Buttons';
 
 type ChallengeSet = { id: string; name: string; created_at: string; challenges: any[] };
 
@@ -59,7 +60,6 @@ export default function HomeScreen({ navigation }: any) {
           >
             <Text style={styles.pillText}>Create Challenge</Text>
           </TouchableOpacity>
-
           
           {loading ? (
             <ActivityIndicator size="large" color="#4B73E5" style={{ flex: 1 }} />
@@ -130,6 +130,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 16,
+    borderColor: '#4B73E5',
+    borderWidth: 1,
   },
   pillText: { color: '#4B73E5', fontSize: 16, fontWeight: '600' },
 
