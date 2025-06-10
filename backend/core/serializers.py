@@ -194,6 +194,3 @@ class RandomAttemptSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         return RandomAttempt.objects.create(**validated_data)
-
-
-

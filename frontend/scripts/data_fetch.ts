@@ -116,17 +116,63 @@ export async function getChallengeById(idChallenge: number) {
     }
 }
 
-export async function tryChallenge(data: attemptType) {
+export async function getChallenges() {
+    try {
+        const res = await fetch(base_url + `challenge_sets/`)
+
+        if (!res.ok) {
+            throw new Error(`Erro ao procurar desafios`)
+        }
+        const data = await res.json()
+        return data
+
+    } catch (err) {
+        console.error("Erro ao buscar desafios", err)
+        throw err
+    }
+}
+
+export async function verifyAttempt(challengeId) {
     try {
         const access = await refreshAccessCookie()
         const res = await fetch(base_url + "attempts/", {
-            method: "POST",
+            method: "GET",
             headers: {
                 "Authorization": `Bearer ${access}`,
-                "Content-Type": "application/json",
             },
-            body: JSON.stringify(data)
+
         })
+        const data = await res.json()
+        return data.filter(teste => teste.challenge_set == challengeId)
+    } catch (err) {
+        console.log("Erro verificar tentativas: ", err)
+        throw err
+    }
+}
+
+export async function tryChallenge(data: attemptType) {
+    try {
+        const result = await verifyAttempt(data.challenge_set)
+        const access = await refreshAccessCookie()
+        if (result) {
+            await fetch(base_url + `attempts/${result.id}/`, {
+                method: "PUT",
+                headers: {
+                    "Authorization": `Bearer ${access}`,
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data)
+            })
+        } else {
+            await fetch(base_url + "attempts/", {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${access}`,
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data)
+            })
+        }
     } catch (err) {
         console.log("Erro ao realizar tentativa: ", err)
         throw err

@@ -85,7 +85,7 @@
 .user-content {
     width: 100%;
     display: grid;
-    grid-template-columns: 30% 30% 30%;
+    grid-template-columns: 25% 55% 20%;
     gap: 10px;
 }
 
