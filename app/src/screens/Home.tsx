@@ -34,7 +34,7 @@ export default function HomeScreen({ navigation }: any) {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Gradient Header */}
+     
       <LinearGradient
         colors={['#4B73E5', '#4B73E5']}
         style={styles.header}
@@ -42,10 +42,10 @@ export default function HomeScreen({ navigation }: any) {
         <Text style={styles.headerText}>Songspert</Text>
       </LinearGradient>
 
-      {/* Content */}
+    
       <View style={styles.content}>
         <View style={styles.card}>
-          {/* Initial Quiz */}
+       
           <TouchableOpacity
             style={styles.pillButton}
             onPress={() => navigation.navigate('Quiz')}
@@ -60,7 +60,7 @@ export default function HomeScreen({ navigation }: any) {
             <Text style={styles.pillText}>Create Challenge</Text>
           </TouchableOpacity>
 
-          {/* List or Loading */}
+          
           {loading ? (
             <ActivityIndicator size="large" color="#4B73E5" style={{ flex: 1 }} />
           ) : (

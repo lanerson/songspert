@@ -51,17 +51,14 @@ export default function GameScreen() {
 
   const fetchChallenges = async () => {
     try {
-      const token = await AsyncStorage.getItem('token');
-      const headers = token ? { Authorization: `Bearer ${token}` } : {};
-
-      const res = await axios.get(`${API_BASE_URL}/challenge_sets/${setId}/`, { headers });
+      const res = await axios.get(`${API_BASE_URL}/challenge_sets/${setId}/`);
       const fetched = await Promise.all(
         res.data.challenges.map(async (ch: any) => {
           const t = await axios.get(`${API_BASE_URL}/track/${ch.track}/`);
           return {
             id: ch.id,
             preview: t.data.preview,
-            answers: shuffle([ch.correct_answer, ...ch.false_options]),
+            answers: shuffle([...ch.false_options]),
             correct: ch.correct_answer,
           } as Challenge;
         })
@@ -246,7 +243,7 @@ const styles = StyleSheet.create({
   feedbackText: { color: '#FFF', fontSize: 20, fontWeight: '700' },
   progress: { marginVertical: 16, height: 8, borderRadius: 4 },
   choicesContainer: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
-  choiceButton: { width: '48%', backgroundColor: '#E8F0FE', paddingVertical: 14, borderRadius: 25, marginBottom: 12, justifyContent: 'center', alignItems: 'center', elevation: 2 },
+  choiceButton: { width: '100%', backgroundColor: '#E8F0FE', paddingVertical: 14, borderRadius: 25, marginBottom: 12, justifyContent: 'center', alignItems: 'center', elevation: 2 },
   choiceText: { fontSize: 16, fontWeight: '600', color: '#333' },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   restartButton: { backgroundColor: '#FFF', paddingHorizontal: 24, paddingVertical: 12, borderRadius: 25, elevation: 2 },
