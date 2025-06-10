@@ -11,6 +11,7 @@ import {
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import axios from 'axios';
 import { API_BASE_URL } from '../config/api';
+import PillButton from '../components/Buttons';
 
 const GENRES = [
   'eclético','pop','anime','sertanejo','mpb','rap/funk brasileiro','rap/hip hop',
@@ -48,13 +49,18 @@ export default function SearchScreen({ navigation }: any) {
   };
 
   const renderGenreItem = ({ item }: { item: string }) => (
-    <TouchableOpacity
-      key={item}
-      style={[styles.genreButton, genre === item && styles.genreActive]}
-      onPress={() => setGenre(item)}
-    >
-      <Text style={styles.genreText}>{item}</Text>
-    </TouchableOpacity>
+    // <TouchableOpacity
+    //   key={item}
+    //   style={[styles.genreButton, genre === item && styles.genreActive]}
+    //   onPress={() => setGenre(item)}
+    // >
+    //   <Text style={styles.genreText}>{item}</Text>
+    // </TouchableOpacity>
+    <PillButton 
+    title={item}
+    key={item}
+    onPress={() => {setGenre(item)}}
+    />
   );
 
   return (
