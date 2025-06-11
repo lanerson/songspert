@@ -19,11 +19,11 @@ export default function HomeScreen({ navigation }: any) {
       <ScrollView contentContainerStyle={styles.content}>
         <TouchableOpacity
           style={styles.card}
-          onPress={() => navigation.navigate('Game', { setId: '10', setName: 'TOP' })}
+          onPress={() => navigation.navigate('Game', { setId: '11', setName: 'Bullet For My Valentine' })}
         >
           <Ionicons name="star-outline" size={48} />
           <Text style={styles.cardTitle}>Challenge of the Week</Text>
-          <Text style={styles.cardDesc}>Play the Militares challenge</Text>
+          <Text style={styles.cardDesc}>Play the Bullet For My Valentine's Challenge</Text>
         </TouchableOpacity>
 
         <TouchableOpacity

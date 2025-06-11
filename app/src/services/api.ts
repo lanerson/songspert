@@ -23,7 +23,7 @@ export async function postRandomAttempt(data: RandomAttempt): Promise<void> {
 export interface ChallengeAttempt {
   challenge_set: number;
   score: number;
-  is_correct: boolean;
+  is_correct: number;
 }
 
 export async function postChallengeAttempt(data: ChallengeAttempt): Promise<void> {

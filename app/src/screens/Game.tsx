@@ -157,7 +157,7 @@ export default function GameScreen() {
         await postChallengeAttempt({
           challenge_set: Number(setId),
           score: newScore,
-          is_correct: correct,
+          is_correct: Number(correct),
         });
       } else {
         setIndex(i => i + 1);

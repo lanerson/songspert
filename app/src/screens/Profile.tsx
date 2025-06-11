@@ -56,18 +56,9 @@ export default function ProfileScreen({ navigation }: any) {
       setUserName(data.username);
       setUserEmail(data.email);
 
-      // --- avatar selection (prioritize local selection) ---
-      let pic: string | null = null;
-      const stored = await AsyncStorage.getItem('avatar');
-      if (stored && avatarNames.includes(stored as AvatarName)) {
-        pic = stored;
-      } else if (typeof data.avatar === 'string') {
-        pic = data.avatar;
-      } else if (typeof data.avatar_url === 'string') {
-        pic = data.avatar_url;
-      } else if (typeof data.profile_picture === 'string') {
-        pic = data.profile_picture;
-      }
+
+      let pic = data.profile_picture;
+
 
       if (pic && avatarNames.includes(pic as AvatarName)) {
         setAvatar(pic as AvatarName);

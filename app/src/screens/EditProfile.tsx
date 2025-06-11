@@ -19,6 +19,20 @@ import AvatarSelector from '../components/AvatarSelector';
 
 export default function EditProfileScreen() {
   const navigation = useNavigation<any>();
+  const [user, setUser] = useState({
+    id: 0,
+    username: "",
+    first_name: "",
+    last_name: "",
+    email: "",
+    daily_points: 0,
+    weekly_points: 0,
+    monthly_points: 0,
+    profile_picture: "",
+    completed_challenges: [],
+    challenge_points: 0,
+    random_points: 0,
+  });
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -38,6 +52,7 @@ export default function EditProfileScreen() {
         const data = res.data;
 
         // set basic fields
+        setUser(data)
         setName(data.username);
         setEmail(data.email);
 
@@ -66,18 +81,33 @@ export default function EditProfileScreen() {
     try {
       const token = await AsyncStorage.getItem('token');
       const payload: any = {};
-      if (name)     payload.username = name;
-      if (email)    payload.email    = email;
+      if (name) payload.username = name;
+      if (email) payload.email = email;
       if (password) payload.password = password;
       if (selectedAvatar) {
         payload.avatar = selectedAvatar;
         await AsyncStorage.setItem('avatar', selectedAvatar);
       }
-
-      await axios.patch(
-        `${API_BASE_URL}/users/me/`,
-        payload,
-        { headers: { Authorization: `Bearer ${token}` } }
+      let data = {
+        username: name,
+        email: email,
+        password: password,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        daily_points: user.daily_points,
+        weekly_points: user.weekly_points,
+        monthly_points: user.monthly_points,
+        profile_picture: selectedAvatar
+      }
+      await axios.put(
+        `${API_BASE_URL}/users/${user.id}/`,
+        JSON.stringify(data),
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
     } catch (e) {
       console.log('EditProfile save error', e);
@@ -96,6 +126,7 @@ export default function EditProfileScreen() {
             onSelectAvatar={setSelectedAvatar}
             placeholderSize={100}
             iconSize={50}
+
           />
 
           <TextInput

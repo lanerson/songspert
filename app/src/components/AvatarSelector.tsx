@@ -28,7 +28,7 @@ export default function AvatarSelector({
   return (
     <>
       <TouchableOpacity
-        style={[styles.avatarSelector, 
+        style={[styles.avatarSelector,
         { width: placeholderSize, height: placeholderSize, borderRadius: placeholderSize / 2 }]}
         onPress={() => setModalVisible(true)}
       >
@@ -36,6 +36,7 @@ export default function AvatarSelector({
           <Image
             source={avatarImages[selectedAvatar]}
             style={styles.avatarImage}
+            resizeMode='contain'
           />
         ) : (
           <View style={styles.avatarPlaceholder}>
@@ -43,7 +44,7 @@ export default function AvatarSelector({
           </View>
         )}
       </TouchableOpacity>
-      
+
 
       <Modal
         visible={modalVisible}
@@ -70,6 +71,7 @@ export default function AvatarSelector({
                   <Image
                     source={avatarImages[name as AvatarName]}
                     style={styles.avatarImage}
+
                   />
                 </TouchableOpacity>
               ))}
@@ -95,6 +97,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#fff',
     marginBottom: 26,
+
   },
   avatarPlaceholder: {
     justifyContent: 'center',
@@ -105,6 +108,7 @@ const styles = StyleSheet.create({
     height: '100%',
     borderWidth: 2,
     borderColor: '#fff',
+    resizeMode: 'contain'
   },
   modalOverlay: {
     flex: 1,
