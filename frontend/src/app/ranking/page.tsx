@@ -1,7 +1,7 @@
 "use client"
 import { useEffect, useState } from "react"
 import "./ranking.css"
-import { getUsers } from "../../../scripts/data_fetch"
+import { getRankings, getUsers } from "../../../scripts/data_fetch"
 import { userType } from "../../../models/model"
 const frequencyData = ["DAILY", "WEEKLY", "MONTHLY", "CHALLENGE", "RANDOM"]//, "ANNUALY", "ALL TIME"]
 
@@ -9,7 +9,7 @@ const frequencyData = ["DAILY", "WEEKLY", "MONTHLY", "CHALLENGE", "RANDOM"]//, "
 export default function Ranking() {
     const [users, setUsers] = useState<userType[]>([])
     const [frequency, setFrequency] = useState(frequencyData[0])
-
+    const [rank, setRank] = useState([])
     useEffect(() => {
         getData()
 
@@ -17,9 +17,24 @@ export default function Ranking() {
 
     const getData = async () => {
         const newData = await getUsers()
+        const rank_day = await getRankings('day')
+        const rank_week = await getRankings('week')
+        const rank_month = await getRankings('month')
+
+        const getPoints = (array, id) => {
+            const found = array.find(item => item.user_id == id)
+            return found ? found.total_points : 0
+        }
+
+        newData.forEach((user) => {
+            user.daily_points = getPoints(rank_day, user.id)
+            user.weekly_points = getPoints(rank_week, user.id)
+            user.monthly_points = getPoints(rank_month, user.id)
+        })
+        console.log("dados atualizados", newData)
         setUsers(newData)
     }
-    function handleFrequency(e) {
+    async function handleFrequency(e) {
         setFrequency(e.target.id)
     }
 

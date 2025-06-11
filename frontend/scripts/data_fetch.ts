@@ -88,6 +88,16 @@ export async function getUsers() {
     }
 }
 
+export async function getRankings(frequency: string) {
+    try {
+        const res = await fetch(base_url + `ranking/?period=${frequency}`)
+        return await res.json()
+    } catch (err) {
+        console.error("Erro ao buscar usuários:", err)
+        throw err
+    }
+}
+
 export async function getUserById(id: number) {
     try {
         const res = await fetch(base_url + `users/${id}/`)
