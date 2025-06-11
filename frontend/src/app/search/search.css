@@ -13,6 +13,30 @@
     flex-wrap: nowrap;
 }
 
+.genre-container.loading {
+    display: flex;
+}
+
+.loading-spinner {
+    border: 8px solid var(--color-white);
+    border-top: 8px solid var(--color-three);
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    animation: spin 1s linear infinite;
+    margin: 100px auto;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
 .carousel-wrapper {
     overflow: hidden;
     flex: 1;
@@ -41,7 +65,6 @@
     background-color: var(--color-three);
     color: var(--color-white);
     text-align: center;
-    border: solid 4px var(--color-three);
     border-radius: 15px;
     padding: 10px;
     width: 180px;
@@ -51,11 +74,11 @@
     align-items: center;
     justify-content: center;
 
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s ease-out;
 }
 
 .buttons:hover {
-    background-color: var(--color-two);
+    background-color: var(--color-hover);
 }
 
 .change-button {

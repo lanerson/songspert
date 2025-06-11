@@ -10,6 +10,7 @@ export default function Search() {
     const [visible, setVisible] = useState<boolean>(false)
     const [selectedGenre, setSelectedGenre] = useState("")
     const [challenges, setChallenges] = useState([])
+    const [loading, setLoading] = useState(true)
     const genres = getGenres()
     const qtdCards = 12
     const qtdPage = Math.ceil(genres.length / qtdCards)
@@ -22,39 +23,55 @@ export default function Search() {
         }
     }
 
-    const getAllChallenges = async () => await getChallenges()
-        .then(res => { setChallenges(res); console.log(res) })
+    const getAllChallenges = async () => {
+        setLoading(true)
+        await getChallenges()
+            .then(res => {
+                setChallenges(res)
+                console.log(res)
+            })
+            .finally(() => setLoading(false))
+    }
+
     useEffect(() => {
         getAllChallenges()
     }, [])
+
     const getChallengesByGenre = (genre: string) => {
         return challenges.filter(challenge => challenge.genre === genre)
     }
+
     return (
-        <div className="genre-container">
-            <ChallengesByGenre visible={visible} challenges={getChallengesByGenre(selectedGenre)} onClick={() => setVisible(false)} />
-            <div className="change-button left" onClick={() => handlePage(false)}></div>
-            <div className='carousel-wrapper'>
-                <div
-                    className='buttons-carousel'
-                    style={{ transform: `translateX(-${page * 100}%)` }}
-                >
-                    {Array.from({ length: qtdPage }, (_, i) => (
-                        <div className='buttons-container' key={i}>
-                            {genres
-                                .slice(i * qtdCards, i * qtdCards + qtdCards)
-                                .map((genre) => (
-                                    <div className="buttons" key={genre}
-                                        onClick={() => { setSelectedGenre(genre); setVisible(true) }}
-                                    >
-                                        {genre}
-                                    </div>
-                                ))}
+        <div className={`genre-container ${loading ? "loading" : ""}`}>
+            {loading ? (
+                <div className="loading-spinner"></div>
+            ) : (
+                <>
+                    <ChallengesByGenre visible={visible} _challenges={getChallengesByGenre(selectedGenre)} onClick={() => setVisible(false)} />
+                    <div className="change-button left" onClick={() => handlePage(false)}></div>
+                    <div className='carousel-wrapper'>
+                        <div
+                            className='buttons-carousel'
+                            style={{ transform: `translateX(-${page * 100}%)` }}
+                        >
+                            {Array.from({ length: qtdPage }, (_, i) => (
+                                <div className='buttons-container' key={i}>
+                                    {genres
+                                        .slice(i * qtdCards, i * qtdCards + qtdCards)
+                                        .map((genre) => (
+                                            <div className="buttons" key={genre}
+                                                onClick={() => { setSelectedGenre(genre); setVisible(true) }}
+                                            >
+                                                {genre}
+                                            </div>
+                                        ))}
+                                </div>
+                            ))}
                         </div>
-                    ))}
-                </div>
-            </div>
-            <div className="change-button" onClick={() => handlePage(true)}></div>
+                    </div>
+                    <div className="change-button" onClick={() => handlePage(true)}></div>
+                </>
+            )}
         </div>
     )
 }

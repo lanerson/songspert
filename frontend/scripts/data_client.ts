@@ -44,6 +44,5 @@ export function getDailyChallenge() {
 
 export function calcPoints(rank: number) {
     let n_char = rank.toString().length
-    let big_endian = parseInt(rank.toString()[0])
-    return n_char * big_endian
+    return n_char * Math.floor(Math.log(rank))
 }

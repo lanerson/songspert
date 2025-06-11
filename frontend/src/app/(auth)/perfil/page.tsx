@@ -6,7 +6,7 @@ import { getMyInfo } from "../../../../scripts/auth"
 import ImageCard from "../../../../components/imageCard"
 import { deleteCookies } from "../../../../scripts/cookies"
 import { useRouter } from "next/navigation"
-const frequencyData = ["DAILY", "WEEKLY", "MONTHLY"]//, "ANNUALY", "ALL TIME"]
+const frequencyData = ["DAILY", "WEEKLY", "MONTHLY", "RANDOM"]//, "ANNUALY", "ALL TIME"]
 
 export default function Perfil() {
     const [perfil, setPerfil] = useState<userType | null>({
@@ -18,6 +18,7 @@ export default function Perfil() {
         daily_points: 0,
         weekly_points: 0,
         monthly_points: 0,
+        random_points: 0,
         profile_picture: ""
     })
     const [visible, setVisible] = useState(false)
