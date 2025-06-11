@@ -13,11 +13,15 @@
   import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
   import axios from 'axios';
   import { Audio } from 'expo-av';
-  import { API_BASE_URL } from '../config/api';
-  import { useFocusEffect } from '@react-navigation/native';
+import { API_BASE_URL } from '../config/api';
+import { useFocusEffect } from '@react-navigation/native';
+import { postRandomAttempt } from '../services/api';
+import { calcPoints } from '../utils/points';
   import tvImg from '../../assets/images/tv.png';
 
   type Question = {
+     id: number;
+    rank: number;
     preview: string;
     answers: string[];
     correct: string;
@@ -92,13 +96,15 @@
           params: { name: genre, n: 4 },
         });
         const data = res.data.data.map((item: any) => ({
+           id: item.id,
           title: item.title.split(' (')[0],
           preview: item.preview,
+            rank: item.rank,
         }));
         const correct = data[0];
-        const answers = [...data.map((d: { title: string; preview: string }) => d.title)];
+         const answers = [...data.map((d: any) => d.title)];
         answers.sort(() => Math.random() - 0.5);
-        setQuestion({ preview: correct.preview, answers, correct: correct.title });
+        setQuestion({ id: correct.id, preview: correct.preview, rank: correct.rank, answers, correct: correct.title });
       } catch (err) {
         console.error('Failed to fetch random song', err);
       } finally {
@@ -145,11 +151,15 @@
       }
     };
 
-    const selectAnswer = (ans: string) => {
+    const selectAnswer = async (ans: string) => {
       if (!question) return;
       const correct = ans === question.correct;
       setFeedback(correct ? 'CORRECT!' : 'TRY AGAIN');
-      if (correct) setScore(s => s + 1);
+      if (correct) {
+        setScore(s => s + 1);
+        const points = calcPoints(question.rank);
+        await postRandomAttempt({ track: question.id, score: points, tips_used: 0 });
+      }
       setCount(c => c + 1);
       setShow(false);
       if (soundRef.current) {
