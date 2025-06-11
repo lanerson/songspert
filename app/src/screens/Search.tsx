@@ -8,10 +8,10 @@ import {
   ActivityIndicator,
   StyleSheet,
 } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 import axios from 'axios';
 import { API_BASE_URL } from '../config/api';
 import PillButton from '../components/Buttons';
+import ChallengeSetItem from '../components/ChallengeSetItem';
 
 const GENRES = [
   'eclético','pop','anime','sertanejo','mpb','rap/funk brasileiro','rap/hip hop',
@@ -49,23 +49,18 @@ export default function SearchScreen({ navigation }: any) {
   };
 
   const renderGenreItem = ({ item }: { item: string }) => (
-    // <TouchableOpacity
-    //   key={item}
-    //   style={[styles.genreButton, genre === item && styles.genreActive]}
-    //   onPress={() => setGenre(item)}
-    // >
-    //   <Text style={styles.genreText}>{item}</Text>
-    // </TouchableOpacity>
-    <PillButton 
-    title={item}
-    key={item}
-    onPress={() => {setGenre(item)}}
+    <PillButton
+      title={item}
+      key={item}
+      onPress={() => setGenre(item)}
     />
   );
 
   return (
+    
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
+        <Text style={styles.label}>Search by genre</Text>
         <View style={styles.carouselRow}>
           <FlatList
             ref={listRef}
@@ -84,18 +79,15 @@ export default function SearchScreen({ navigation }: any) {
               data={sets}
               keyExtractor={(item) => item.id}
               renderItem={({ item }) => (
-                <TouchableOpacity
-                  style={styles.row}
+                <ChallengeSetItem
+                  item={item}
                   onPress={() =>
                     navigation.navigate('Game', {
                       setId: item.id,
                       setName: item.name,
                     })
                   }
-                >
-                  <Text style={styles.itemName}>{item.name}</Text>
-                  <Ionicons name="chevron-forward-outline" size={24} color="#4B73E5" />
-                </TouchableOpacity>
+                />
               )}
               ItemSeparatorComponent={() => <View style={styles.separator} />}
               ListEmptyComponent={<Text style={styles.empty}>No challenges.</Text>}
@@ -116,45 +108,19 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
 
-  genreButton: {
-    width: '100%',
-    backgroundColor: '#E8F0FE',
-    paddingVertical: 16,
-    borderRadius: 12,
-    marginBottom: 7,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    shadowOffset: { width: 0, height: 3 },
-    elevation: 4,
-  },
-
-  genreActive: { backgroundColor: '#9FB9F9' },
-
-  genreText: { fontSize: 16, fontWeight: '600', color: '#333' },
-
   card: {
-    flex: 3,
+    flex: 2.7,
     backgroundColor: '#fff',
     borderRadius: 12,
     padding: 16,
     shadowColor: '#000',
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 3,
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 4,
   },
 
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 12,
-  },
-
-  itemName: { fontSize: 16, fontWeight: '600', color: '#333' },
   separator: { height: 1, backgroundColor: '#eee' },
   empty: { textAlign: 'center', color: '#999', marginTop: 20 },
+  label: { fontSize: 18, fontWeight: '700', marginBottom: 8, color: '#fff', alignSelf: 'center' },
 });

@@ -1,55 +1,84 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   SafeAreaView,
   View,
   Text,
   TextInput,
+  ScrollView,
   FlatList,
   TouchableOpacity,
-  Alert,
   StyleSheet,
+  Dimensions,
 } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Audio } from 'expo-av';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { API_BASE_URL } from '../config/api';
+import { useFocusEffect } from '@react-navigation/native';
+import PillButton from '../components/Buttons';
 
+const { width } = Dimensions.get('window');
 const GENRES = [
-  'mistureba', 'pop', 'anime', 'sertanejo', 'mpb', 'rap/funk brasileiro',
-  'rap/hip hop', 'reggaeton', 'rock', 'dance', 'alternativo', 'samba/pagode',
-  'electro', 'música religiosa', 'axé/forró', 'folk', 'reggae', 'jazz',
-  'clássica', 'metal', 'soul & funk', 'blues', 'cumbia', 'música africana',
-  'música indiana', 'música asiática', 'r&b',
+  'eclético',
+    'pop',
+    'anime',
+    'sertanejo',
+    'mpb',
+    'rap/funk brasileiro',
+    'rap/hip hop',
+    'reggaeton',
+    'rock',
+    'dance',
+    'alternativo',
+    'samba/pagode',
+    'electro',
+    'música religiosa',
+    'axé/forró',
+    'folk',
+    'reggae',
+    'jazz',
+    'clássica',
+    'metal',
+    'soul & funk',
+    'blues',
+    'cumbia',
+    'música africana',
+    'música indiana',
+    'música asiática',
+    'r&b',
 ];
 
-type Song = {
-  id: string;
-  title: string;
-  artist: string;
-  preview?: string;
-};
+type Song = { id: string; title: string; artist: string; preview?: string };
 
 export default function CreateChallengeScreen({ navigation }: any) {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<Song[]>([]);
   const [selected, setSelected] = useState<Song[]>([]);
   const [name, setName] = useState('');
-  const [genre, setGenre] = useState<string>('mistureba');
+  const [genre, setGenre] = useState<string>(GENRES[0]);
   const [sound, setSound] = useState<Audio.Sound | null>(null);
   const [playingId, setPlayingId] = useState<string | null>(null);
 
   useEffect(() => {
     return () => {
-      if (sound) {
-        sound.unloadAsync();
-      }
+      sound?.unloadAsync();
     };
   }, [sound]);
 
-  const search = async (text: string) => {
+  useFocusEffect(
+    useCallback(() => {
+      return () => {
+        if (sound) {
+          sound.stopAsync(); 
+        }
+      };
+    }, [sound])
+  );
+
+  const searchSongs = async (text: string) => {
     setQuery(text);
-    if (text.trim() === '') { setResults([]); return; }
+    if (!text.trim()) return setResults([]);
     try {
       const res = await axios.get(`${API_BASE_URL}/search/`, { params: { q: text } });
       const data = res.data?.data || [];
@@ -61,52 +90,59 @@ export default function CreateChallengeScreen({ navigation }: any) {
           preview: item.preview,
         }))
       );
-    } catch (e) {
-      console.log(e);
+    } catch {
+      // silent
     }
   };
 
   const addSong = (song: Song) => {
-    if (!selected.find(s => s.id === song.id)) {
-      setSelected([...selected, song]);
+    if (!selected.some(s => s.id === song.id)) {
+      setSelected(curr => [...curr, song]);
     }
     setQuery('');
     setResults([]);
   };
 
   const removeSong = (id: string) => {
-    setSelected(selected.filter(s => s.id !== id));
-    if (playingId === id && sound) {
-      sound.stopAsync();
-      setPlayingId(null);
-    }
+    setSelected(curr => curr.filter(s => s.id !== id));
+    if (playingId === id) sound?.stopAsync().then(() => setPlayingId(null));
   };
 
-  const shuffle = (arr: string[]) => {
-    const copy = [...arr];
-    for (let i = copy.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [copy[i], copy[j]] = [copy[j], copy[i]];
+  const togglePlay = async (song: Song) => {
+    if (playingId === song.id) {
+      await sound?.pauseAsync();
+      return setPlayingId(null);
     }
-    return copy;
+    if (sound) await sound.unloadAsync();
+    const { sound: newSound } = await Audio.Sound.createAsync({ uri: song.preview! });
+    setSound(newSound);
+    setPlayingId(song.id);
+    await newSound.playAsync();
+    newSound.setOnPlaybackStatusUpdate(status => {
+      if (status.isLoaded && status.didJustFinish) {
+        newSound.unloadAsync();
+        setPlayingId(null);
+      }
+    });
   };
 
   const handleCreate = async () => {
     if (selected.length < 4) {
-      Alert.alert('Select at least 4 songs');
-      return;
+      return alert('Please select at least 4 songs');
     }
     const titles = selected.map(s => s.title);
+    const shuffle = (arr: any[]) => arr.sort(() => 0.5 - Math.random());
     const challenges = selected.map(s => {
-      let choices: string[] = [];
-      while (choices.length < 3) {
-        const c = titles[Math.floor(Math.random() * titles.length)];
-        if (c !== s.title && !choices.includes(c)) choices.push(c);
-      }
-      choices.push(s.title);
-      choices = shuffle(choices);
-      return { track: parseInt(s.id), type: 'title', false_options: choices };
+      const falseOpts = shuffle(
+        titles.filter(t => t !== s.title),
+      ).slice(0, 3);
+      return {
+        track: parseInt(s.id),
+        type: 'title',
+        false_options: [...falseOpts, s.title].sort(() => 0.5 - Math.random()),
+      };
     });
+
     try {
       const token = await AsyncStorage.getItem('token');
       await axios.post(
@@ -114,155 +150,143 @@ export default function CreateChallengeScreen({ navigation }: any) {
         { name, genre, category: 'title', challenges },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      Alert.alert('Challenge created!');
+      alert('Challenge created!');
       navigation.goBack();
     } catch (err: any) {
-      Alert.alert('Error', err.response?.data?.detail || err.message);
-    }
-  };
-
-  const playSong = async (song: Song) => {
-    try {
-      if (playingId === song.id && sound) {
-        await sound.pauseAsync();
-        setPlayingId(null);
-        return;
-      }
-      if (sound) {
-        await sound.unloadAsync();
-      }
-      const { sound: newSound } = await Audio.Sound.createAsync({ uri: song.preview! });
-      setSound(newSound);
-      setPlayingId(song.id);
-      await newSound.playAsync();
-      newSound.setOnPlaybackStatusUpdate(status => {
-        if ('isLoaded' in status && status.isLoaded && status.didJustFinish) {
-          setPlayingId(null);
-          newSound.unloadAsync();
-          setSound(null);
-        }
-      });
-    } catch (err) {
-      console.warn('Playback error', err);
+      alert(err.response?.data?.detail || err.message);
     }
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.content}>
-        <Text style={styles.label}>Give a name to your challenge!</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Challenge name"
-          value={name}
-          onChangeText={setName}
-        />
+      <ScrollView contentContainerStyle={styles.content}>
 
-        <Text style={styles.label}>Select it's genre</Text>
-        <FlatList
-          horizontal
-          data={GENRES}
-          keyExtractor={item => item}
-          showsHorizontalScrollIndicator={false}
-          style={{ marginBottom: 8 }}
-          renderItem={({ item }) => (
-            <TouchableOpacity
-              onPress={() => setGenre(item)}
-              style={[styles.genrePill, genre === item && styles.genreActive]}
-            >
-              <Text style={styles.genreText}>{item}</Text>
-            </TouchableOpacity>
-          )}
-        />
+        <View style={styles.section}>
+          <Text style={styles.label}>Challenge Name</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Name your challenge"
+            value={name}
+            onChangeText={setName}
+          />
+        </View>
 
-        <Text style={styles.label}>Select the songs</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Search song"
-          value={query}
-          onChangeText={search}
-        />
-        <FlatList
-          data={results}
-          keyExtractor={item => item.id}
-          renderItem={({ item }) => (
+        <View style={styles.section}>
+          <Text style={styles.label}>Select Genre</Text>
+          <FlatList
+            horizontal
+            data={GENRES}
+            keyExtractor={item => item}
+            showsHorizontalScrollIndicator={false}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                onPress={() => setGenre(item)}
+                style={[styles.genrePill, genre === item && styles.genreActive]}
+              >
+                <Text style={[styles.genreText, genre === item && styles.genreTextActive]}>
+                  {item}
+                </Text>
+              </TouchableOpacity>
+            )}
+          />
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.label}>Search Songs</Text>
+          <View style={styles.searchContainer}>
+            <MaterialIcons name="search" size={20} color="#555" />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Search"
+              value={query}
+              onChangeText={searchSongs}
+            />
+          </View>
+          {results.map(item => (
             <TouchableOpacity
-              style={styles.resultRow}
+              key={item.id}
+              style={styles.resultItem}
               onPress={() => addSong(item)}
             >
-              <Text>{item.title} - {item.artist}</Text>
+              <Text style={styles.resultText} numberOfLines={1}>
+                {item.title} - {item.artist}
+              </Text>
             </TouchableOpacity>
-          )}
-        />
+          ))}
+        </View>
 
-        {selected.length > 0 && <Text style={styles.label}>Selected Songs</Text>}
-        <FlatList
-          data={selected}
-          keyExtractor={item => item.id}
-          renderItem={({ item }) => (
-            <View style={styles.selectedRow}>
-              <Text style={{ flex: 1, color: '#fff' }}>{item.title}</Text>
-              <TouchableOpacity onPress={() => playSong(item)} style={{ paddingHorizontal: 8 }}>
-                <MaterialIcons
-                  name={playingId === item.id ? 'pause' : 'play-arrow'}
-                  size={24}
-                  color="#fff"
-                />
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => removeSong(item.id)} style={{ paddingHorizontal: 8 }}>
-                <MaterialIcons name="delete" size={24} color="#fff" />
-              </TouchableOpacity>
-            </View>
-          )}
-        />
+        {selected.length > 0 && (
+          <View style={styles.section}>
+            <Text style={styles.label}>Selected Songs</Text>
+            {selected.map(item => (
+              <View style={styles.selectedItem} key={item.id}>
+                <Text style={styles.selectedTitle} numberOfLines={1}>
+                  {item.title}
+                </Text>
+                <View style={styles.selectedActions}>
+                  <TouchableOpacity onPress={() => togglePlay(item)}>
+                    <MaterialIcons
+                      name={playingId === item.id ? 'pause' : 'play-arrow'}
+                      size={24}
+                      color="#fff"
+                    />
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={() => removeSong(item.id)}>
+                    <MaterialIcons name="delete" size={24} color="#E55D5D" />
+                  </TouchableOpacity>
+                </View>
+              </View>
+            ))}
+          </View>
+        )}
 
-        <TouchableOpacity style={styles.button} onPress={handleCreate}>
-          <Text style={styles.buttonText}>Create Challenge</Text>
-        </TouchableOpacity>
-      </View>
+        <PillButton
+        title='Create Challenge'
+        onPress={handleCreate}
+        />
+        
+      </ScrollView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#4B73E5' },
-  content: { flex: 1, padding: 16 },
+  content: { padding: 16, paddingBottom: 40 },
+  section: { marginBottom: 24 },
+  label: { fontSize: 16, fontWeight: '600', marginBottom: 8, color: '#fff' },
   input: {
-    backgroundColor: '#fff',
-    borderRadius: 5,
-    padding: 12,
-    marginBottom: 12,
-    fontSize: 16,
+    backgroundColor: '#fff', borderRadius: 20, padding: 12,
+    fontSize: 16, color: '#333'
   },
-  label: { color: '#fff', marginBottom: 8, fontWeight: '600' },
   genrePill: {
-    backgroundColor: '#E8F0FE',
-    borderRadius: 16,
-    paddingHorizontal: 13,
-    paddingVertical: 6,
-    marginRight: 8,
-    height: 40,
-    justifyContent: 'center',
+    backgroundColor: '#E8F0FE', borderRadius: 20, paddingHorizontal: 16,
+    paddingVertical: 8, marginRight: 8,
   },
   genreActive: { backgroundColor: '#9fbaf9' },
-  genreText: { color: '#333', fontSize: 14 },
-  resultRow: {
-    backgroundColor: '#fff',
-    padding: 8,
-    borderRadius: 4,
-    marginBottom: 4,
+  genreText: { fontSize: 14, color: '#333' },
+  genreTextActive: { color: '#fff', fontWeight: '600' },
+  searchContainer: {
+    flexDirection: 'row', alignItems: 'center',
+    backgroundColor: '#fff', borderRadius: 20,
+    paddingHorizontal: 12, height: 48,
   },
-  selectedRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 8,
+  searchInput: { flex: 1, marginLeft: 8, fontSize: 16, color: '#333' },
+  resultItem: {
+    backgroundColor: '#fff', padding: 12,
+    borderRadius: 8, marginTop: 8,
   },
+  resultText: { color: '#333' },
+  selectedItem: {
+    flexDirection: 'row', alignItems: 'center',
+    justifyContent: 'space-between', backgroundColor: '#6C8AED',
+    padding: 12, borderRadius: 2, marginTop: 8
+  },
+  selectedTitle: { flex: 1, marginRight: 12, fontSize: 15, color: '#fff' },
+  selectedActions: { flexDirection: 'row', alignItems: 'center' },
   button: {
-    backgroundColor: '#9fbaf9',
-    borderRadius: 5,
-    padding: 12,
-    alignItems: 'center',
-    marginTop: 100,
+    backgroundColor: '#9fbaf9', borderRadius: 8,
+    paddingVertical: 16, alignItems: 'center'
   },
-  buttonText: { color: '#fff', fontWeight: '600' },
+  buttonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
 });

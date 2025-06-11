@@ -251,11 +251,11 @@ const styles = StyleSheet.create({
 
 // import React, { useState, useCallback } from 'react';
 // import {
-  //   SafeAreaView,
-  //   View,
-  //   Text,
-  //   Image,
-  //   TouchableOpacity,
+//     SafeAreaView,
+//     View,
+//     Text,
+//     Image,
+//     TouchableOpacity,
 //   StyleSheet,
 // } from 'react-native';
 // import AsyncStorage from '@react-native-async-storage/async-storage';
