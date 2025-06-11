@@ -23,15 +23,15 @@ export default function Game({ challengeId }) {
 
     const getChallenge = async () => {
         try {
-            setLoading(true); // Começa a carregar
+            setLoading(true);
             const _challenge = await getChallengeById(challengeId);
             setChallenge(_challenge);
             console.log("desafios", _challenge)
-            setLoading(false); // Fim do carregamento
+            setLoading(false);
         } catch (error) {
             alert("Erro inesperado");
             console.log(error.code, error.message)
-            setLoading(false); // Mesmo em caso de erro, encerrar o loading
+            setLoading(false);
             router.replace("/")
         }
     }
@@ -53,7 +53,7 @@ export default function Game({ challengeId }) {
             audioRef.current = new Audio(path);
         }
     };
-    // Transição Inicial
+
     const startCountdown = () => {
         setToggleStart(true)
         const sequence: (number | string)[] = [3, 2, 1];
@@ -76,18 +76,18 @@ export default function Game({ challengeId }) {
         }, 1000);
     };
 
-    const handleClickOption = (answer) => {
+    const handleClickOption = (answer: string) => {
         let text = 'errou'
         let color = 'red'
-        if (answer == currentSong.correct_answer) {
+        if (answer == currentSong.correct_answer.split(" (")[0]) {
             color = 'green'
             text = 'acertou'
-            setPoints(points + calcPoints(currentSong.rank))
+            setPoints(prev => prev + calcPoints(currentSong.rank));
         }
         setContent(text)
         setBgOverride(color)
 
-        // Remove após 1 segundo
+
         setTimeout(() => {
             setBgOverride(null)
             handleGame()

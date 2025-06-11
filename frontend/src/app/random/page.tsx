@@ -2,14 +2,19 @@
 import { useRef, useState } from "react";
 import "./random.css"
 import SearchBar from "../../../components/searchBar";
-import { getRandomSong } from "../../../scripts/data_client";
+import { calcPoints, getRandomSong } from "../../../scripts/data_client";
+import { tryRandomChallenge } from "../../../scripts/data_fetch";
+import { getCookies } from "../../../scripts/cookies";
+import { attemptRandom } from "../../../models/model";
 
 export default function Countdown() {
     const [toggleStart, setToggleStart] = useState<boolean>(false);
     const audioRef = useRef<HTMLAudioElement | null>(null);
     const [content, setContent] = useState<string>('PRONTO?');
-    const [start, setStart] = useState(false)
-    const [info, setInfo] = useState({ artist: '', title: '', image: '' })
+    const [start, setStart] = useState(false);
+    const [nPlay, setNPlay] = useState({ completed: 0, played: 0, hints: 0 })
+    const [hint, setHint] = useState(false)
+    const [info, setInfo] = useState({ id: 0, artist: '', title: '', image: '', rank: 0 })
     const [bgOverride, setBgOverride] = useState(null)
 
 
@@ -50,21 +55,40 @@ export default function Countdown() {
     };
 
     const handleRandomGame = async () => {
+        setHint(false)
         const [song] = await getRandomSong()
         console.log(song)
         setupAudio(song.song)
-        setInfo({ artist: song.artist, title: song.title, image: song.picture })
+        setInfo({ ...song, artist: song.artist, title: song.title, image: song.picture, rank: song.rank })
         setContent('')
         playSound()
     }
 
-    const handleTry = (item) => {
+    function updateRandomPoints(point) {
+        setNPlay({ ...nPlay, completed: nPlay.completed + point, played: nPlay.played + 1 })
+    }
+
+    const handleTry = async (item) => {
         let text = 'errou'
         let color = 'red'
-        if (item.title == info.title) {
+        let hit = 0
+        if (item.title == info.title) { // acertou
             color = 'green'
             text = 'acertou'
+            hit++
+            let teste = await getCookies()
+            if (teste !== null) {
+
+                let data: attemptRandom = {
+                    "track": info.id,
+                    "score": calcPoints(info.rank),
+                    "tips_used": hint
+                }
+                console.log(data)
+                await tryRandomChallenge(data)
+            }
         }
+        updateRandomPoints(hit)
         setContent(text)
         setBgOverride(color)
 
@@ -79,10 +103,16 @@ export default function Countdown() {
 
     const handleHint = () => {
         setContent(info.artist)
+        setHint(true)
+        setNPlay({ ...nPlay, hints: nPlay.hints + 1 })
     }
 
     return (
         <div className="challenge-container">
+            <div className="pontuation-container">
+                <div className="pontuation-buttom"><div className="pontuation-image"></div><div>{`${nPlay.completed}/${nPlay.played}`}</div></div>
+                <div className="pontuation-buttom"><div className="pontuation-image left"></div><div>{nPlay.hints}</div></div>
+            </div>
             <div className='game-screen'>
                 <div className="screen-buttom next" onClick={handleRandomGame}></div>
                 <div className="screen-buttom hint" onClick={handleHint}></div>

@@ -32,7 +32,8 @@ type userType = {
     daily_points: number,
     weekly_points: number,
     monthly_points: number,
-    profile_picture: string
+    random_points: number,
+    profile_picture: string,
 }
 
 type attemptType = {
@@ -41,5 +42,11 @@ type attemptType = {
     "is_correct": boolean
 }
 
-export type { challengeType, songType, userType, attemptType }
+type attemptRandom = {
+    "track": number,
+    "score": number,
+    "tips_used": boolean
+}
+
+export type { challengeType, songType, userType, attemptType, attemptRandom }
 export { typeChallengeEnum }

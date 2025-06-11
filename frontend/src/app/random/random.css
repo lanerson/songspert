@@ -5,7 +5,7 @@
     background-color: var(--color-three);
     border-radius: 15px;
     display: grid;
-    grid-template-rows: 50% 50%;
+    grid-template-rows: 10% 40% 50%;
     justify-content: center;
     align-items: flex-start;
     gap: 20px;
@@ -63,6 +63,39 @@
         1px -1px 0 var(--color-black),
         -1px 1px 0 var(--color-black),
         1px 1px 0 var(--color-black);
+}
+
+.pontuation-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    gap: 10px;
+}
+
+.pontuation-buttom {
+    background: linear-gradient(to bottom, #FFD54F, #FFA000);
+    height: 30px;
+    width: 100px;
+    padding: 10px;
+    border-radius: 15px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-around;
+    place-self: center;
+}
+
+.pontuation-image {
+    background-image: url("/images/trofeu.png");
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    height: 25px;
+    aspect-ratio: 1/1;
+}
+
+.pontuation-image.left {
+    background-image: url("/images/lamp.png");
 }
 
 .play-button {

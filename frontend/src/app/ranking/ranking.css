@@ -29,7 +29,6 @@
     padding: 12px 20px;
     border-radius: 15px;
     cursor: pointer;
-    border: solid 4px var(--color-one);
     user-select: none;
     transition: background-color 0.3s ease;
 }
@@ -39,11 +38,11 @@
 }
 
 .frequency-button.selected {
-    background-color: var(--color-three);
+    background-color: var(--color-hover);
 }
 
 .frequency-button:hover {
-    background-color: var(--color-three);
+    background-color: var(--color-hover);
 }
 
 .list-container {
