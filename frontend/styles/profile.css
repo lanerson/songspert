@@ -1,31 +1,71 @@
 .profile-container {
-    background-color: var(--color-two);
-    width: 40vw;
+    background-color: var(--color-three);
+    width: 30vw;
     height: 90vh;
     display: flex;
     position: absolute;
-    bottom: 0px;
-    right: 0px;
+    bottom: 0;
+    right: 0;
     z-index: 99;
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
     padding: 50px;
+    box-sizing: border-box;
+    transition: all 0.3s ease-in-out;
 }
 
 .perfil {
     border-radius: 50%;
-    background-color: black;
-    width: 200px;
-    height: 200px;
+    background-color: var(--color-black);
+    background-size: contain;
+    background-position: center;
+    width: 60%;
+    aspect-ratio: 1 / 1;
+    color: transparent;
+    /* ✅ mostrar texto */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    background-image: url("/images/avatar/cat.png");
+    background-size: cover;
+    background-position: center;
+    text-align: center;
+    font-weight: bold;
+    padding: 10px;
+    box-sizing: border-box;
 }
 
-.logout {
-    align-self: flex-end;
+.perfil:hover {
+    opacity: 0.8;
+    color: white;
+}
+
+.info-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.info-item {
+    margin: 10px 0;
+    width: 100%;
+    max-width: 300px;
+    overflow: auto;
+    padding: 10px;
+    border: solid 1px var(--color-black);
+    border-radius: 15px;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.log-button {
     display: flex;
     height: 40px;
     width: 100px;
-    border-radius: 15%;
+    border-radius: 10px;
     justify-content: center;
     align-items: center;
     font-size: large;
@@ -33,4 +73,51 @@
     color: var(--color-white);
     background-color: var(--color-one);
     cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.log-button:hover {
+    background-color: var(--color-three);
+}
+
+.login-container {
+    padding: 20%;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+/* ----------------- RESPONSIVIDADE ----------------- */
+@media (max-width: 768px) {
+
+    .profile-container,
+    .login-container {
+        width: 100vw;
+        height: 100vh;
+        position: fixed;
+        padding: 20px;
+    }
+
+    .perfil {
+        width: 40%;
+    }
+
+    .info-item {
+        font-size: 4vw;
+    }
+
+    .log-button {
+        width: 60%;
+        font-size: 4vw;
+    }
+
+    .login-container div {
+        font-size: 4vw;
+        line-height: 1.4;
+    }
 }

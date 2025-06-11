@@ -5,20 +5,45 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    transition: width 0.2s ease, height 0.2s ease;
 }
 
 .bar {
     background-color: var(--color-five);
     width: 30px;
     height: 5px;
+    transition: width 0.2s ease, height 0.2s ease;
 }
 
 .bar-container:hover {
     width: 40px;
     height: 30px;
+}
+
+.bar-container:hover .bar {
+    width: 36px;
+    height: 6px;
+}
+
+/* Responsividade para telas menores */
+@media (max-width: 600px) {
+    .bar-container {
+        width: 24px;
+        height: 20px;
+    }
 
     .bar {
-        width: 36px;
-        height: 6px;
+        width: 24px;
+        height: 4px;
+    }
+
+    .bar-container:hover {
+        width: 28px;
+        height: 24px;
+    }
+
+    .bar-container:hover .bar {
+        width: 26px;
+        height: 5px;
     }
 }

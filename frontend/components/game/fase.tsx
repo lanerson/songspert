@@ -1,29 +1,31 @@
-import { song } from '../../models/model'
+import { songType } from '../../models/model'
 
 
 type FaseType = {
-    song: song,
-    handleOptions: () => void,
-    isCounting: boolean
+    song: songType
+    handleClickOption: (answer) => void,
 }
 
 
-export default function Fase({ song, handleOptions, isCounting }: FaseType) {
-    const answersContainer = (song: song | null) => {
+export default function Fase({ song, handleClickOption }: FaseType) {
+    const answersContainer = (song: songType | null) => {
         if (song == null) {
             return <div></div>
         }
         else {
 
             return (
-                song.answers.map((answer) => <div className="respostas" onClick={handleOptions}>{answer}</div>)
+                song.false_options.map((answer) => <div className="respostas" key={answer} onClick={() => handleClickOption(answer)}>{capitalizar(answer)}</div>)
 
             )
         }
 
     }
+    const capitalizar = (string: string) => string.toLowerCase().split(" ").map(str => str.charAt(0).toUpperCase() + str.slice(1).toLowerCase()).join(" ")
+
+
     return (
-        <div className="respostas-container" style={{ display: isCounting ? 'grid' : 'none' }}>
+        <div className="respostas-container" style={{ display: 'grid' }}>
             {
                 answersContainer(song)
             }

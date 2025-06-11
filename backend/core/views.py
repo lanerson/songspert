@@ -99,7 +99,9 @@ def get_tracks_by_genre(request):
             {
                 "title": track["title"],
                 "artist": track["artist"]["name"],
-                "preview": track["preview"]
+                "preview": track["preview"],
+                "picture": track["artist"]["picture_medium"],
+                "rank": track["rank"]
             } for track in selected_tracks
         ]
     })
@@ -156,6 +158,13 @@ class ChallengeViewSet(viewsets.ModelViewSet):
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all().order_by("id")
     # permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+
+    def get_permissions(self):
+        if self.action == "me":            
+            permission_classes = [permissions.IsAuthenticated]
+        else:
+            permission_classes = [permissions.AllowAny]
+        return [permission() for permission in permission_classes]
 
     def get_serializer_class(self):
         if self.action in ("list", "retrieve", "me"):

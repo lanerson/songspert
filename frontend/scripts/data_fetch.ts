@@ -1,58 +1,180 @@
+"use server"
+import { attemptType } from "../models/model"
+import { refreshAccessCookie } from "./auth"
 
-const base_url = "http://localhost:8000/"
-
+const base_url = "http://backend:8000/"
 
 export async function getSongById(id) {
-    const data = await fetch(base_url + `track/${id}`)
-        .then(async (res) => await res.json())
-        .then((data) => { return { title: data.title_short, song: data.preview, artist: data.artist.name } })
-    return data
+    try {
+        const res = await fetch(base_url + `track/${id}`)
+        const data = await res.json()
+        return {
+            title: data.title_short,
+            song: data.preview,
+            artist: data.artist.name,
+            rank: data.rank
+        }
+    } catch (err) {
+        console.error("Erro ao buscar música por ID:", err)
+        throw err
+    }
 }
 
-export function getGenres() { // Deixei estático pq o método sempre retorna a mesma coisa
-    return [
-        "todos",
-        "pop",
-        "sertanejo",
-        "mpb",
-        "rap/funk brasileiro",
-        "rap/hip hop",
-        "reggaeton",
-        "rock",
-        "dance",
-        "r&b",
-        "alternativo",
-        "samba/pagode",
-        "electro",
-        "música religiosa",
-        "axé/forró",
-        "folk",
-        "reggae",
-        "jazz",
-        "clássica",
-        "filmes/games",
-        "metal",
-        "soul & funk",
-        "blues",
-        "cumbia",
-        "infantil",
-        "música africana",
-        "música indiana",
-        "música asiática"
-    ]
+export async function getSongsByGenre(genre, qtdSongs = 1) {
+    try {
+        const res = await fetch(base_url + `genre/list?name=${genre}&n=${qtdSongs}`)
+        const data = await res.json()
+        return data.data.map(item => {
+            const title = item.title.split(" (")[0]
+            return {
+                title: title,
+                song: item.preview,
+                artist: item.artist,
+                picture: item.picture,
+                rank: item.rank
+            }
+        })
+    } catch (err) {
+        console.error("Erro ao buscar músicas por gênero:", err)
+        throw err
+    }
 }
 
-export async function getSongsByGenre(genre, qtdSongs) { // dá pra colocar um numero definido na interface, quando o cara for pesquisar
-    const data = await fetch(base_url + `genre/list?name=${genre}&n=${qtdSongs}`)
-        .then(async (res) => res.json())
-        .then((data) => data.data.map((item) => { return { title: item.title, song: item.preview, artist: item.artist } }))
-    return data
+export async function getSongsByName(songName, qtdResults = 5) {
+    try {
+        const res = await fetch(base_url + `search?q=${songName}`)
+        const data = await res.json()
+        return data.data.slice(0, qtdResults).map(item => {
+            const title = item.title_short.split(" (")[0]
+            return {
+                id: item.id,
+                title: title,
+                song: item.preview,
+                artist: item.artist.name,
+                rank: item.rank
+            }
+        })
+    } catch (err) {
+        console.error("Erro ao buscar músicas por nome:", err)
+        throw err
+    }
 }
 
-export async function getSongsByName(songName, qtdResults = 5) { // dá pra colocar um numero definido na interface, quando o cara for pesquisar
-    const data = await fetch(base_url + `search?q=${songName}`)
-        .then(async (res) => res.json())
-        .then((data) => data.data.slice(0, qtdResults).map((item) => { return { title: item.title_short, song: item.preview, artist: item.artist.name } }))
-    return data
+export async function getUsers() {
+    try {
+        const res = await fetch(base_url + "users/")
+        return await res.json()
+    } catch (err) {
+        console.error("Erro ao buscar usuários:", err)
+        throw err
+    }
 }
 
+export async function createChallenge(challenge_set) {
+    try {
+        const access = await refreshAccessCookie()
+        const res = await fetch(base_url + "challenge_sets/", {
+            method: 'POST',
+            headers: {
+                "Authorization": `Bearer ${access}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(challenge_set)
+        })
+        const data = await res.json()
+        console.log(data)
+        return data
+    } catch (error) {
+        console.error("Erro ao criar desafio:", error.message)
+        throw error
+    }
+}
+
+export async function getChallengeById(idChallenge: number) {
+    try {
+        const res = await fetch(base_url + `challenge_sets/${idChallenge}`)
+
+        if (res.status === 404) {
+            throw new Error(`Desafio ${idChallenge} não encontrado`)
+        } else if (!res.ok) {
+            throw new Error(`Erro ao procurar desafio ${idChallenge}`)
+        }
+
+        const data = await res.json()
+
+        const challengesWithSongs = await Promise.all(
+            data.challenges.map(async challenge => {
+                const song = await getSongById(challenge.track)
+                return { ...challenge, track: song.song, rank: song.rank }
+            })
+        )
+
+        return challengesWithSongs
+    } catch (err) {
+        console.error("Erro ao buscar desafio: ", err)
+        throw err
+    }
+}
+
+export async function getChallenges() {
+    try {
+        const res = await fetch(base_url + `challenge_sets/`)
+
+        if (!res.ok) {
+            throw new Error(`Erro ao procurar desafios`)
+        }
+        const data = await res.json()
+        return data
+
+    } catch (err) {
+        console.error("Erro ao buscar desafios", err)
+        throw err
+    }
+}
+
+export async function verifyAttempt(challengeId) {
+    try {
+        const access = await refreshAccessCookie()
+        const res = await fetch(base_url + "attempts/", {
+            method: "GET",
+            headers: {
+                "Authorization": `Bearer ${access}`,
+            },
+
+        })
+        const data = await res.json()
+        return data.filter(teste => teste.challenge_set == challengeId)
+    } catch (err) {
+        console.log("Erro verificar tentativas: ", err)
+        throw err
+    }
+}
+
+export async function tryChallenge(data: attemptType) {
+    try {
+        const result = await verifyAttempt(data.challenge_set)
+        const access = await refreshAccessCookie()
+        if (result) {
+            await fetch(base_url + `attempts/${result.id}/`, {
+                method: "PUT",
+                headers: {
+                    "Authorization": `Bearer ${access}`,
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data)
+            })
+        } else {
+            await fetch(base_url + "attempts/", {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${access}`,
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data)
+            })
+        }
+    } catch (err) {
+        console.log("Erro ao realizar tentativa: ", err)
+        throw err
+    }
+}

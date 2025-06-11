@@ -1,0 +1,117 @@
+.challenge-container {
+    width: 80vw;
+    max-width: 1200px;
+    height: 80vh;
+    background-color: var(--color-three);
+    border-radius: 15px;
+    display: grid;
+    grid-template-rows: 50% 50%;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 20px;
+    padding: 10px;
+}
+
+.game-screen {
+    background-image: url('/images/tv.png');
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    height: 100%;
+    aspect-ratio: 1 / 1;
+    justify-self: center;
+    position: relative;
+}
+
+.screen-buttom {
+    height: 12%;
+    aspect-ratio: 1 / 1;
+    position: absolute;
+    right: 6%;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.screen-buttom:hover {
+    border: solid 5px black;
+}
+
+.screen-buttom.next {
+    top: 33.2%;
+}
+
+.screen-buttom.hint {
+    top: 49%;
+}
+
+.screen-content {
+    background-color: var(--color-white);
+    color: var(--color-white);
+    font-size: large;
+    background-size: cover;
+    background-position: center;
+    position: absolute;
+    top: 34.7%;
+    left: 11.6%;
+    height: 40.5%;
+    aspect-ratio: 2 / 1.25;
+    display: grid;
+    place-content: center;
+    text-align: center;
+    text-shadow:
+        -1px -1px 0 var(--color-black),
+        1px -1px 0 var(--color-black),
+        -1px 1px 0 var(--color-black),
+        1px 1px 0 var(--color-black);
+}
+
+.play-button {
+    background-image: url("/images/play-button.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    height: 130px;
+    aspect-ratio: 1 / 1;
+    justify-self: center;
+    align-self: center;
+}
+
+.play-button:hover {
+    cursor: pointer;
+    height: 150px;
+}
+
+
+input {
+    all: unset;
+    height: 35px;
+    width: 260px;
+}
+
+.search-button {
+    height: 30px;
+    aspect-ratio: 1 / 1;
+    background-image: url("/images/lupa.png");
+    background-size: contain;
+    background-position: right;
+    background-repeat: no-repeat;
+    cursor: pointer;
+}
+
+
+.arrow {
+    text-align: center;
+    width: 100px;
+    aspect-ratio: 1 / 1;
+    background-image: url("/images/arrow-left.png");
+    background-size: contain;
+    position: absolute;
+    left: 92%;
+}
+
+.arrow.next {
+    top: 12%;
+}
+
+.arrow.hint {
+    top: 29%;
+}

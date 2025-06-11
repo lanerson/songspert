@@ -1,45 +1,52 @@
 .game-container {
-    width: 80vw;
+    width: 100vw;
     max-width: 1200px;
     height: 80vh;
     background-color: var(--color-three);
     border-radius: 15px;
     display: grid;
-    grid-template-rows: 35% 60%;
+    grid-template-rows: 50% 40% 10%;
     gap: 30px;
     justify-content: center;
+    margin: 0 10vw;
 }
 
 .game-screen {
-    /* background-color: white; */
-    background-image: url('../public/images/tv.png');
+    background-image: url('/images/tv.png');
     background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
-    height: 300px;
+    height: 250px;
     aspect-ratio: 1 / 1;
     justify-self: center;
     position: relative;
+    transition: height 0.5s ease;
+}
+
+.game-screen.expand {
+    height: 60vh;
+    font-size: 1rem;
 }
 
 .screen-content {
-    background-color: white;
-    color: black;
-    font-size: xx-large;
+    background-color: var(--color-white);
+    transition: background-color 0.5s ease;
+    color: var(--color-black);
+    font-size: x-large;
+    white-space: pre-line;
     position: absolute;
     top: 34.7%;
-    left: 11.6%;
+    left: 11.5%;
     height: 40.5%;
     aspect-ratio: 2 / 1.25;
-
     place-content: center;
     text-align: center;
 }
 
 .play-button {
-    background-image: url("../public/images/play-button.png");
+    background-image: url("/images/play-button.png");
     background-size: contain;
-    height: 130px;
+    height: 80px;
     aspect-ratio: 1 / 1;
     justify-self: center;
     align-self: center;
@@ -54,7 +61,6 @@
 .respostas-container {
     display: grid;
     grid-template-columns: 50% 50%;
-
 }
 
 .respostas {
@@ -64,7 +70,7 @@
     place-self: center;
     place-content: center;
     text-align: center;
-    height: 100px;
+    height: 80px;
     width: 200px;
     border-radius: 15px;
     color: var(--color-white);

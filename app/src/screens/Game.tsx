@@ -13,9 +13,9 @@ import { useRoute } from '@react-navigation/native';
 
 type Challenge = {
   id: number;
-  preview: string;        // Deezer preview URL from your serializer
-  answers: string[];      // array of strings
-  correct_answer: string; // name of correct answer
+  preview: string;        // Deezer preview URL
+  answers: string[];      // shuffled array with correct and false options
+  correct: string;        // correct answer label
 };
 
 export default function GameScreen() {
@@ -39,19 +39,31 @@ export default function GameScreen() {
     };
   }, []);
 
+  const shuffle = (arr: string[]) =>
+    [...arr].sort(() => Math.random() - 0.5);
+
   const fetchChallenges = async () => {
     setLoading(true);
     try {
       const token = await AsyncStorage.getItem('token');
-      const headers = token
-        ? { Authorization: `Bearer ${token}` }
-        : {};
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
-      const res = await axios.get<Challenge[]>(
-        `${API_BASE_URL}/challenge_sets/${setId}/challenges/`,
-        { headers }
+      const res = await axios.get(`${API_BASE_URL}/challenge_sets/${setId}/`, {
+        headers,
+      });
+
+      const fetched = await Promise.all(
+        res.data.challenges.map(async (ch: any) => {
+          const t = await axios.get(`${API_BASE_URL}/track/${ch.track}/`);
+          return {
+            id: ch.id,
+            preview: t.data.preview,
+            answers: shuffle([ch.correct_answer, ...ch.false_options]),
+            correct: ch.correct_answer,
+          } as Challenge;
+        })
       );
-      setChallenges(res.data);
+      setChallenges(fetched);
     } catch (err) {
       console.error('fetchChallenges failed', err);
     } finally {
@@ -78,7 +90,7 @@ export default function GameScreen() {
   };
 
   const selectAnswer = (ans: string) => {
-    const correct = ans === challenges[index].correct_answer;
+    const correct = ans === challenges[index].correct;
     setFeedback(correct ? '✅ Correct!' : '❌ Try Again');
     setShow(false);
 
@@ -128,7 +140,7 @@ export default function GameScreen() {
               style={[
                 styles.option,
                 feedback &&
-                  (ans === song.correct_answer
+                  (ans === song.correct
                     ? styles.correct
                     : feedback.startsWith('❌')
                     ? styles.wrong

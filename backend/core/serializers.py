@@ -10,40 +10,40 @@ import requests
 User = get_user_model()
 
 class UserReadSerializer(serializers.ModelSerializer):
-    complete_challenges = serializers.SerializerMethodField()
+    completed_challenges = serializers.SerializerMethodField()
     challenge_points = serializers.SerializerMethodField()
     random_points = serializers.SerializerMethodField()
     class Meta:
         model = User
-        fields = ("id", "username", "first_name", "last_name", "email", "daily_points", "weekly_points", "monthly_points", "profile_picture", "complete_challenges", "challenge_points", "random_points")
+        fields = ("id", "username", "first_name", "last_name", "email", "daily_points", "weekly_points", "monthly_points", "profile_picture", "completed_challenges", "challenge_points", "random_points")
 
-        def get_completed_challenges(self, user):
-            attempts = user.attempts.filter(is_correct=True).values("challenge_set_id", "score")
-            return [
-                {
-                    "challenge_set_id": a["challenge_set_id"],
-                    "score": a["score"]
-                }
-                for a in attempts
-            ]
-        
-        def get_challenge_points(self, user):
-            return user.attempts.fitler(is_correct=True).aggregate(total=Sum("score"))["total"] or 0
-        
-        def get_random_points(self, user):
-            return user.random_attempts.aggregate(total=Sum("score"))["total"] or 0
-        
-        def _get_points(self, queryset):
-            now_ = now()
-            day_ago = now_ - timedelta(days=1)
-            week_ago = now_ - timedelta(days=7)
-            month_ago = now_ - timedelta(days=30)
-
-            return {
-                "day": queryset.filter(timestamp__gte=day_ago).aggregate(total=Sum("score"))["total"] or 0,
-                "week": queryset.filter(timestamp__gte=week_ago).aggregate(total=Sum("score"))["total"] or 0,
-                "month": queryset.filter(timestamp__gte=month_ago).aggregate(total=Sum("score"))["total"] or 0,
+    def get_completed_challenges(self, user):
+        attempts = user.attempts.filter(is_correct=True).values("challenge_set_id", "score")
+        return [
+            {
+                "challenge_set_id": a["challenge_set_id"],
+                "score": a["score"]
             }
+            for a in attempts
+        ]
+    
+    def get_challenge_points(self, user):
+        return user.attempts.filter(is_correct=True).aggregate(total=Sum("score"))["total"] or 0
+    
+    def get_random_points(self, user):
+        return user.random_attempts.aggregate(total=Sum("score"))["total"] or 0
+    
+    def _get_points(self, queryset):
+        now_ = now()
+        day_ago = now_ - timedelta(days=1)
+        week_ago = now_ - timedelta(days=7)
+        month_ago = now_ - timedelta(days=30)
+
+        return {
+            "day": queryset.filter(timestamp__gte=day_ago).aggregate(total=Sum("score"))["total"] or 0,
+            "week": queryset.filter(timestamp__gte=week_ago).aggregate(total=Sum("score"))["total"] or 0,
+            "month": queryset.filter(timestamp__gte=month_ago).aggregate(total=Sum("score"))["total"] or 0,
+        }
 
 class UserWriteSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(
@@ -76,8 +76,8 @@ class UserWriteSerializer(serializers.ModelSerializer):
 class ChallengeSerializer(serializers.ModelSerializer):
     false_options = serializers.ListField(
         child=serializers.CharField(),
-        min_length=3,
-        max_length=3
+        min_length=4,
+        max_length=4
     )
     correct_answer = serializers.SerializerMethodField(read_only=True)
     type = serializers.CharField()  # Now it's read-only, auto-filled from ChallengeSet
@@ -194,6 +194,3 @@ class RandomAttemptSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         return RandomAttempt.objects.create(**validated_data)
-
-
-
