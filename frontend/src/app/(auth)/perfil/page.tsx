@@ -6,6 +6,7 @@ import { getMyInfo, Update } from "../../../../scripts/auth"
 import ImageCard from "../../../../components/imageCard"
 import { deleteCookies } from "../../../../scripts/cookies"
 import { useRouter } from "next/navigation"
+import { getRankings } from "../../../../scripts/data_fetch"
 
 const frequencyData = ["DAILY", "WEEKLY", "MONTHLY", "CHALLENGE", "RANDOM"]
 
@@ -29,11 +30,24 @@ export default function Perfil() {
 
     const getInfo = async () => {
         const data = await getMyInfo()
+        const rank_day = await getRankings('day')
+        const rank_week = await getRankings('week')
+        const rank_month = await getRankings('month')
+
+        const getPoints = (array, id) => {
+            const found = array.find(item => item.user_id == id)
+            return found ? found.total_points : 0
+        }
+        data.daily_points = getPoints(rank_day, data.id)
+        data.weekly_points = getPoints(rank_week, data.id)
+        data.monthly_points = getPoints(rank_month, data.id)
+        console.log("tem dado em casa", data)
         setPerfil(data)
     }
 
     useEffect(() => {
         getInfo()
+
     }, [])
 
     const handleAvatar = (avatar: string) => {
@@ -113,11 +127,6 @@ export default function Perfil() {
                     <div className="perfil-info">{perfil?.email}</div>
                 </>
             )}
-
-            <div className="perfil-statistic">
-                <div><br />Played</div>
-                <div><br />Created</div>
-            </div>
 
             <div className="perfil-statistic">
                 {frequencyData.map(frequency => (

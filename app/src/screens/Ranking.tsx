@@ -9,34 +9,47 @@ import {
   StyleSheet,
   ActivityIndicator,
 } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 import axios from 'axios';
-import { API_BASE_URL } from '../config/api';
 import { useFocusEffect } from '@react-navigation/native';
+import { API_BASE_URL } from '../config/api';
 
 type Entry = { id: string; name: string; score: number };
-
 const filters = ['Daily', 'Weekly', 'Monthly', 'Random'];
 
-export default function RankingScreen() {
-  const [selected, setSelected] = useState(filters[0]);
+export default function RankingScreen({ route }: any) {
+  const [selected, setSelected] = useState<string>(filters[0]);
   const [ranking, setRanking] = useState<Entry[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(false);
 
+  // Fetch either /ranking?period=day|week|month or /users/ for random
   const fetchRanking = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`${API_BASE_URL}/users/`);
-      const data = res.data as any[];
-      const field = `${selected.toLowerCase()}_points` as keyof typeof data[0];
-      const mapped = data
-        .map(u => ({
-          id: String(u.id),
+      if (selected === 'Random') {
+        const res = await axios.get(`${API_BASE_URL}/users/`);
+        const mapped = (res.data as any[]).map((u, idx) => ({
+          id: u.user_id != null ? String(u.user_id) : idx.toString(),
           name: u.username,
-          score: u[field] || 0,
-        }))
-        .sort((a, b) => b.score - a.score);
-      setRanking(mapped);
+          score: u.random_points || 0,
+        }));
+        setRanking(mapped.sort((a, b) => b.score - a.score));
+      } else {
+        const periodMap: Record<string, 'day' | 'week' | 'month'> = {
+          Daily: 'day',
+          Weekly: 'week',
+          Monthly: 'month',
+        };
+        const period = periodMap[selected];
+        const res = await axios.get(`${API_BASE_URL}/ranking`, {
+          params: { period },
+        });
+        const mapped = (res.data as any[]).map((u, idx) => ({
+          id: u.user_id != null ? String(u.user_id) : idx.toString(),
+          name: u.username,
+          score: u.total_points || 0,
+        }));
+        setRanking(mapped.sort((a, b) => b.score - a.score));
+      }
     } catch (err) {
       console.error('fetch ranking failed', err);
     } finally {
@@ -56,10 +69,10 @@ export default function RankingScreen() {
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.filterRow} 
+          contentContainerStyle={styles.filterRow}
           style={styles.filterContainer}
         >
-          {filters.map((f) => (
+          {filters.map(f => (
             <TouchableOpacity
               key={f}
               style={[
@@ -81,12 +94,12 @@ export default function RankingScreen() {
         </ScrollView>
 
         <View style={styles.card}>
-         {loading ? (
+          {loading ? (
             <ActivityIndicator style={{ marginTop: 20 }} />
           ) : (
             <FlatList
               data={ranking}
-              keyExtractor={(item) => item.id}
+              keyExtractor={item => item.id}
               showsVerticalScrollIndicator={false}
               style={{ flex: 1 }}
               contentContainerStyle={{ paddingBottom: 16 }}
@@ -98,7 +111,7 @@ export default function RankingScreen() {
                   <Text style={styles.playerName}>{item.name}</Text>
                   <Text style={styles.playerScore}>{item.score}</Text>
                 </View>
-                 )}
+              )}
               ItemSeparatorComponent={() => <View style={styles.separator} />}
             />
           )}
@@ -110,13 +123,13 @@ export default function RankingScreen() {
 
 const styles = StyleSheet.create({
   filterContainer: {
-    height: 48,               
+    height: 48,
     maxHeight: 48,
-    marginBottom:16      
+    marginBottom: 16,
   },
-  container: { 
-    flex: 1, 
-    backgroundColor: '#4B73E5' 
+  container: {
+    flex: 1,
+    backgroundColor: '#4B73E5',
   },
   content: {
     flex: 1,
@@ -125,15 +138,14 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   filterRow: {
-    marginBottom: 0,
     flexGrow: 1,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
   },
   filterBtn: {
-    height: 48,              
-    borderRadius: 24,      
+    height: 48,
+    borderRadius: 24,
     backgroundColor: '#E8F0FE',
     paddingHorizontal: 14,
     justifyContent: 'center',
@@ -151,7 +163,6 @@ const styles = StyleSheet.create({
   filterTextActive: {
     color: '#fff',
   },
-
   card: {
     flex: 1,
     backgroundColor: '#fff',
@@ -163,7 +174,6 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     elevation: 3,
   },
-
   rankRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -177,9 +187,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  rankNum: { 
-    color: '#fff', 
-    fontWeight: '600' 
+  rankNum: {
+    color: '#fff',
+    fontWeight: '600',
   },
   playerName: {
     flex: 1,
@@ -192,9 +202,8 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#333',
   },
-
-  separator: { 
-    height: 1, 
-    backgroundColor: '#eee' 
+  separator: {
+    height: 1,
+    backgroundColor: '#eee',
   },
 });

@@ -1,3 +1,5 @@
+// src/screens/GameScreen.tsx
+
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   SafeAreaView,
@@ -14,14 +16,17 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import { LinearGradient } from 'expo-linear-gradient';
 import axios from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRoute, useFocusEffect } from '@react-navigation/native';
 import { API_BASE_URL } from '../config/api';
+import { calcPoints } from '../utils/points';
+import { postChallengeAttempt } from '../services/api';
 import tvImg from '../../assets/images/tv.png';
 
 type Challenge = {
   id: number;
+  track: number;
   preview: string;
+  rank: number;
   answers: string[];
   correct: string;
 };
@@ -35,7 +40,7 @@ export default function GameScreen() {
   const [score, setScore] = useState(0);
   const [loading, setLoading] = useState(true);
   const [audioLoading, setAudioLoading] = useState(false);
-  const [showChoices, setShowChoices] = useState(false);
+  const [showChoices, setShowChoices] = useState(false);     // controls rendering of the buttons
   const [feedback, setFeedback] = useState<string | null>(null);
   const [finished, setFinished] = useState(false);
   const soundRef = useRef<Audio.Sound | null>(null);
@@ -72,9 +77,11 @@ export default function GameScreen() {
           const t = await axios.get(`${API_BASE_URL}/track/${ch.track}/`);
           return {
             id: ch.id,
+            track: ch.track,
             preview: t.data.preview,
+            rank: t.data.rank,
             answers: shuffle([...ch.false_options]),
-            correct: ch.correct_answer,
+            correct: ch.correct_answer.split(' (')[0],
           } as Challenge;
         })
       );
@@ -86,11 +93,11 @@ export default function GameScreen() {
     }
   };
 
-
   const playAudio = async () => {
     setFeedback(null);
     setShowChoices(false);
     if (soundRef.current) await soundRef.current.unloadAsync();
+
     try {
       setAudioLoading(true);
       const { sound } = await Audio.Sound.createAsync(
@@ -98,19 +105,16 @@ export default function GameScreen() {
         { shouldPlay: true }
       );
       soundRef.current = sound;
-       sound.setOnPlaybackStatusUpdate(status => {
+      sound.setOnPlaybackStatusUpdate(status => {
         if (status.isLoaded) {
           setIsPlaying(status.isPlaying);
-          if (status.didJustFinish) {
-            setIsPlaying(false);
-          }
+          if (status.didJustFinish) setIsPlaying(false);
         }
       });
       setIsPlaying(true);
-      setTimeout(() => {
-        setShowChoices(true);
-        setAudioLoading(false);
-      }, 500);
+      setAudioLoading(false);
+      // ← as soon as audio starts, show the choices:
+      setShowChoices(true);
     } catch (err) {
       setAudioLoading(false);
       console.warn('Audio error', err);
@@ -118,32 +122,46 @@ export default function GameScreen() {
   };
 
   const togglePlayback = async () => {
-      if (soundRef.current) {
-        const status = await soundRef.current.getStatusAsync();
-        if ('isLoaded' in status && status.isLoaded) {
-          if (status.isPlaying) {
-            await soundRef.current.pauseAsync();
-            setIsPlaying(false);
-          } else {
-            await soundRef.current.playAsync();
-            setIsPlaying(true);
-          }
+    if (soundRef.current) {
+      const status = await soundRef.current.getStatusAsync();
+      if ('isLoaded' in status && status.isLoaded) {
+        if (status.isPlaying) {
+          await soundRef.current.pauseAsync();
+          setIsPlaying(false);
+        } else {
+          await soundRef.current.playAsync();
+          setIsPlaying(true);
+          // and make sure choices stay visible
+          setShowChoices(true);
         }
       }
-    };
+    }
+  };
 
   const handleAnswer = (ans: string) => {
     const correct = ans === challenges[index].correct;
-    if (correct) setScore(s => s + 1);
+    const gained = correct ? calcPoints(challenges[index].rank) : 0;
+    const newScore = score + gained;
+
+    if (correct) setScore(newScore);
     setFeedback(correct ? 'CORRECT!' : 'TRY AGAIN');
     setShowChoices(false);
-      if (soundRef.current) {
-        soundRef.current.stopAsync();
-        setIsPlaying(false);
+    if (soundRef.current) {
+      soundRef.current.stopAsync();
+      setIsPlaying(false);
+    }
+
+    setTimeout(async () => {
+      if (index === challenges.length - 1) {
+        setFinished(true);
+        await postChallengeAttempt({
+          challenge_set: Number(setId),
+          score: newScore,
+          is_correct: correct,
+        });
+      } else {
+        setIndex(i => i + 1);
       }
-    setTimeout(() => {
-      if (index === challenges.length - 1) setFinished(true);
-      else setIndex(i => i + 1);
       setFeedback(null);
     }, 1200);
   };
@@ -153,7 +171,8 @@ export default function GameScreen() {
     setScore(0);
     setFinished(false);
     setFeedback(null);
-     if (soundRef.current) {
+    setShowChoices(false);
+    if (soundRef.current) {
       soundRef.current.stopAsync();
       setIsPlaying(false);
     }
@@ -180,7 +199,6 @@ export default function GameScreen() {
   const progress = index / challenges.length;
   const question = challenges[index];
 
-
   if (finished) {
     return (
       <SafeAreaView style={styles.container}>
@@ -188,7 +206,7 @@ export default function GameScreen() {
           <Text style={styles.headerText}>{setName}</Text>
           <LinearGradient colors={['#FFD54F', '#FFA000']} style={styles.scoreBadge}>
             <FontAwesome5 name="trophy" size={20} color="#FFF" />
-            <Text style={styles.scoreBadgeText}>{score} / {challenges.length}</Text>
+            <Text style={styles.scoreBadgeText}>{score}</Text>
           </LinearGradient>
         </View>
         <View style={styles.center}>
@@ -206,19 +224,20 @@ export default function GameScreen() {
         <Text style={styles.headerText}>{setName}</Text>
         <LinearGradient colors={['#FFD54F', '#FFA000']} style={styles.scoreBadge}>
           <FontAwesome5 name="trophy" size={20} color="#FFF" />
-          <Text style={styles.scoreBadgeText}>{score} / {challenges.length}</Text>
+          <Text style={styles.scoreBadgeText}>{score}</Text>
         </LinearGradient>
       </View>
-
 
       <View style={styles.content}>
         <View style={styles.tvContainer}>
           <ImageBackground source={tvImg} style={styles.tvBackground} resizeMode="contain">
-            <View style={[
-              styles.screenOverlay,
-              feedback === 'CORRECT!' && styles.feedbackCorrect,
-              feedback === 'TRY AGAIN' && styles.feedbackWrong,
-            ]}>
+            <View
+              style={[
+                styles.screenOverlay,
+                feedback === 'CORRECT!' && styles.feedbackCorrect,
+                feedback === 'TRY AGAIN' && styles.feedbackWrong,
+              ]}
+            >
               {!feedback ? (
                 <TouchableOpacity
                   style={styles.playButton}
@@ -227,11 +246,7 @@ export default function GameScreen() {
                   {audioLoading ? (
                     <ActivityIndicator color="#FFF" />
                   ) : (
-                     <Ionicons
-                      name={isPlaying ? 'stop' : 'play'}
-                      size={32}
-                      color="#FFF"
-                    />
+                    <Ionicons name={isPlaying ? 'stop' : 'play'} size={32} color="#FFF" />
                   )}
                 </TouchableOpacity>
               ) : (
@@ -249,15 +264,22 @@ export default function GameScreen() {
           borderWidth={0}
           style={styles.progress}
         />
+
+        {/* ← Here are your option buttons */}
         {showChoices && !feedback && (
           <View style={styles.choicesContainer}>
             {question.answers.map(c => (
-              <TouchableOpacity key={c} onPress={() => handleAnswer(c)} style={styles.choiceButton}>
+              <TouchableOpacity
+                key={c}
+                onPress={() => handleAnswer(c)}
+                style={styles.choiceButton}
+              >
                 <Text style={styles.choiceText}>{c}</Text>
               </TouchableOpacity>
             ))}
           </View>
         )}
+
       </View>
     </SafeAreaView>
   );
@@ -293,13 +315,40 @@ const styles = StyleSheet.create({
   },
   feedbackCorrect: { backgroundColor: 'rgba(76,175,80,0.85)' },
   feedbackWrong: { backgroundColor: 'rgba(244,67,54,0.85)' },
-  playButton: { backgroundColor: '#4B73E5', width: 60, height: 60, borderRadius: 30, justifyContent: 'center', alignItems: 'center', elevation: 3 },
+  playButton: {
+    backgroundColor: '#4B73E5',
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 3,
+  },
   feedbackText: { color: '#FFF', fontSize: 20, fontWeight: '700' },
   progress: { marginVertical: 16, height: 8, borderRadius: 4 },
-  choicesContainer: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
-  choiceButton: { width: '100%', backgroundColor: '#E8F0FE', paddingVertical: 14, borderRadius: 25, marginBottom: 12, justifyContent: 'center', alignItems: 'center', elevation: 2 },
+  choicesContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  choiceButton: {
+    width: '100%',
+    backgroundColor: '#E8F0FE',
+    paddingVertical: 14,
+    borderRadius: 25,
+    marginBottom: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 2,
+  },
   choiceText: { fontSize: 16, fontWeight: '600', color: '#333' },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#4B73E5' },
-  restartButton: { backgroundColor: '#FFF', paddingHorizontal: 24, paddingVertical: 12, borderRadius: 25, elevation: 2 },
+  restartButton: {
+    backgroundColor: '#FFF',
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 25,
+    elevation: 2,
+  },
   restartText: { color: '#333', fontSize: 16, fontWeight: '600' },
 });

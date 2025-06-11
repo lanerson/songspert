@@ -4,16 +4,17 @@ import {
   View,
   Text,
   TextInput,
-  Image,
   TouchableOpacity,
   StyleSheet,
-  Modal,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
+import { useNavigation } from '@react-navigation/native';
 import { API_BASE_URL } from '../config/api';
-import { avatarNames, avatarImages, AvatarName } from '../../assets/images/avatar';
+import {
+  avatarNames,
+  AvatarName,
+} from '../../assets/images/avatar';
 import AvatarSelector from '../components/AvatarSelector';
 
 export default function EditProfileScreen() {
@@ -22,7 +23,10 @@ export default function EditProfileScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [selectedAvatar, setSelectedAvatar] = useState<AvatarName | null>(null);
-  const [modalVisible, setModalVisible] = useState(false);
+
+  function isAvatarName(x: any): x is AvatarName {
+    return typeof x === 'string' && avatarNames.includes(x as AvatarName);
+  }
 
   useEffect(() => {
     (async () => {
@@ -31,14 +35,29 @@ export default function EditProfileScreen() {
         const res = await axios.get(`${API_BASE_URL}/users/me/`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        setName(res.data.username);
-        setEmail(res.data.email);
-        const pic = res.data.profile_picture || res.data.avatar_url;
-        if (pic && avatarNames.includes(pic)) {
-          setSelectedAvatar(pic as AvatarName);
+        const data = res.data;
+
+        // set basic fields
+        setName(data.username);
+        setEmail(data.email);
+
+        // determine avatar: prefer local storage, else server
+        let pic: string | null = null;
+        const stored = await AsyncStorage.getItem('avatar');
+        if (stored && isAvatarName(stored)) {
+          pic = stored;
+        } else {
+          const apiPic =
+            (data.avatar as string) ??
+            (data.avatar_url as string) ??
+            (data.profile_picture as string) ??
+            null;
+          if (apiPic && isAvatarName(apiPic)) pic = apiPic;
         }
+
+        if (pic) setSelectedAvatar(pic as AvatarName);
       } catch (e) {
-        console.log(e);
+        console.log('EditProfile load error', e);
       }
     })();
   }, []);
@@ -47,15 +66,21 @@ export default function EditProfileScreen() {
     try {
       const token = await AsyncStorage.getItem('token');
       const payload: any = {};
-      if (name) payload.username = name;
-      if (email) payload.email = email;
+      if (name)     payload.username = name;
+      if (email)    payload.email    = email;
       if (password) payload.password = password;
-      if (selectedAvatar) payload.profile_picture = selectedAvatar;
-      await axios.patch(`${API_BASE_URL}/users/me/`, payload, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      if (selectedAvatar) {
+        payload.avatar = selectedAvatar;
+        await AsyncStorage.setItem('avatar', selectedAvatar);
+      }
+
+      await axios.patch(
+        `${API_BASE_URL}/users/me/`,
+        payload,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
     } catch (e) {
-      console.log(e);
+      console.log('EditProfile save error', e);
     }
     navigation.goBack();
   };
@@ -69,8 +94,8 @@ export default function EditProfileScreen() {
           <AvatarSelector
             selectedAvatar={selectedAvatar}
             onSelectAvatar={setSelectedAvatar}
-            placeholderSize={100} 
-            iconSize={50}            
+            placeholderSize={100}
+            iconSize={50}
           />
 
           <TextInput
@@ -100,7 +125,6 @@ export default function EditProfileScreen() {
             onChangeText={setPassword}
           />
 
-
           <TouchableOpacity style={styles.button} onPress={handleSave}>
             <Text style={styles.buttonText}>Save Changes</Text>
           </TouchableOpacity>
@@ -112,7 +136,7 @@ export default function EditProfileScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#4B73E5' },
-  content: { flex: 1, paddingHorizontal: 16, justifyContent: 'center' },
+  content: { flex: 1, justifyContent: 'center', paddingHorizontal: 16 },
   card: {
     backgroundColor: '#83A3F2',
     borderRadius: 8,
@@ -147,5 +171,5 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: '600',
     fontSize: 16,
-  }
+  },
 });

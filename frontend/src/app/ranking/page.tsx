@@ -13,7 +13,7 @@ export default function Ranking() {
     useEffect(() => {
         getData()
 
-    }, [frequency])
+    }, [])
 
     const getData = async () => {
         const newData = await getUsers()
