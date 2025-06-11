@@ -1,147 +1,108 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import {
   SafeAreaView,
+  ScrollView,
   View,
-  Text,
   TouchableOpacity,
-  FlatList,
-  ActivityIndicator,
+  Text,
   StyleSheet,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import axios from 'axios';
-import { API_BASE_URL } from '../config/api';
-import PillButton from '../components/Buttons';
-
-type ChallengeSet = { id: string; name: string; created_at: string; challenges: any[] };
+import { Ionicons } from '@expo/vector-icons';
 
 export default function HomeScreen({ navigation }: any) {
-  const [sets, setSets] = useState<ChallengeSet[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => { fetchSets(); }, []);
-
-  const fetchSets = async () => {
-    try {
-      const res = await axios.get<ChallengeSet[]>(`${API_BASE_URL}/challenge_sets/`);
-      setSets(res.data);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <SafeAreaView style={styles.container}>
-     
-      <LinearGradient
-        colors={['#4B73E5', '#4B73E5']}
-        style={styles.header}
-      >
-        <Text style={styles.headerText}>Songspert</Text>
-      </LinearGradient>
-
-    
-      <View style={styles.content}>
-        <View style={styles.card}>
-       
-          <TouchableOpacity
-            style={styles.pillButton}
-            onPress={() => navigation.navigate('Quiz')}
-          >
-            <Text style={styles.pillText}>First Quiz</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.pillButton}
-            onPress={() => navigation.navigate('CreateChallenge')}
-          >
-            <Text style={styles.pillText}>Create Challenge</Text>
-          </TouchableOpacity>
-          
-          {loading ? (
-            <ActivityIndicator size="large" color="#4B73E5" style={{ flex: 1 }} />
-          ) : (
-            <FlatList
-              data={sets}
-              keyExtractor={(item) => item.id}
-              style={{ flex: 1 }}
-              contentContainerStyle={{ flexGrow: 1, paddingBottom: 16 }}
-              renderItem={({ item }) => (
-                <TouchableOpacity
-                  style={styles.row}
-                  onPress={() =>
-                    navigation.navigate('Game', {
-                      setId: item.id,
-                      setName: item.name,
-                    })
-                  }
-                >
-                  <Text style={styles.itemName}>{item.name}</Text>
-                  <Ionicons
-                    name="chevron-forward-outline"
-                    size={24}
-                    color="#4B73E5"
-                  />
-                </TouchableOpacity>
-              )}
-              ItemSeparatorComponent={() => <View style={styles.separator} />}
-              ListEmptyComponent={
-                <Text style={styles.empty}>No challenge sets.</Text>
-              }
-            />
-          )}
-        </View>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Songspert</Text>
       </View>
+
+      <ScrollView contentContainerStyle={styles.content}>
+        <TouchableOpacity
+          style={styles.card}
+          onPress={() => navigation.navigate('Game', { setId: '10', setName: 'TOP' })}
+        >
+          <Ionicons name="star-outline" size={48} />
+          <Text style={styles.cardTitle}>Challenge of the Week</Text>
+          <Text style={styles.cardDesc}>Play the Militares challenge</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.card}
+          onPress={() => navigation.navigate('CreateChallenge')}
+        >
+          <Ionicons name="create-outline" size={48} />
+          <Text style={styles.cardTitle}>Create Challenge</Text>
+          <Text style={styles.cardDesc}>Design your own music quiz</Text>
+        </TouchableOpacity>
+
+
+        <TouchableOpacity
+          style={styles.card}
+          onPress={() => navigation.navigate('Ranking')}
+        >
+          <Ionicons name="trophy-outline" size={48} />
+          <Text style={styles.cardTitle}>Ranking</Text>
+          <Text style={styles.cardDesc}>View the leaderboard</Text>
+        </TouchableOpacity>
+
+
+        <TouchableOpacity
+          style={styles.card}
+          onPress={() => navigation.navigate('RandomGame')}
+        >
+          <Ionicons name="play-circle-outline" size={48} />
+          <Text style={styles.cardTitle}>Random Game</Text>
+          <Text style={styles.cardDesc}>Jump into a surprise quiz</Text>
+        </TouchableOpacity>
+      </ScrollView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#4B73E5' },
-  header: { padding: 16, alignItems: 'center' },
-  headerText: { color: '#fff', fontSize: 20, fontWeight: 'bold' },
-
-  content: {
+  container: {
     flex: 1,
-    paddingHorizontal: 16,
-    paddingTop: 15,
-    paddingBottom: 20,
+    backgroundColor: '#4B73E5',
   },
-
-  card: {
-    flex: 1,
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
-    shadowColor: '#000',
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 3,
-  },
-
-  pillButton: {
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: '#E8F0FE',
+  header: {
+    width: '100%',
+    paddingVertical: 20,
+    alignItems: 'center',
     justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 16,
-    borderColor: '#4B73E5',
-    borderWidth: 1,
   },
-  pillText: { color: '#4B73E5', fontSize: 16, fontWeight: '600' },
-
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 12,
+  headerTitle: {
+    color: '#FFFFFF',
+    fontSize: 28,
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
-  itemName: { fontSize: 16, fontWeight: '600', color: '#333' },
-  separator: { height: 1, backgroundColor: '#eee' },
-  empty: { textAlign: 'center', color: '#999', marginTop: 20 },
+  content: {
+    paddingVertical: 20,
+    alignItems: 'center',
+  },
+  card: {
+    width: '90%',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 20,
+    alignItems: 'center',
+    marginVertical: 10,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 5 },
+    elevation: 4,
+  },
+  cardTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#333333',
+    marginTop: 10,
+  },
+  cardDesc: {
+    fontSize: 14,
+    color: '#666666',
+    textAlign: 'center',
+    marginTop: 5,
+  },
 });

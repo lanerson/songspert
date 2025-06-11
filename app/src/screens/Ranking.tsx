@@ -16,7 +16,7 @@ import { useFocusEffect } from '@react-navigation/native';
 
 type Entry = { id: string; name: string; score: number };
 
-const filters = ['Daily', 'Weekly', 'Monthly'];
+const filters = ['Daily', 'Weekly', 'Monthly', 'Random'];
 
 export default function RankingScreen() {
   const [selected, setSelected] = useState(filters[0]);
@@ -80,7 +80,6 @@ export default function RankingScreen() {
           ))}
         </ScrollView>
 
-        {/* ——— Ranking Card ——— */}
         <View style={styles.card}>
          {loading ? (
             <ActivityIndicator style={{ marginTop: 20 }} />
@@ -136,7 +135,7 @@ const styles = StyleSheet.create({
     height: 48,              
     borderRadius: 24,      
     backgroundColor: '#E8F0FE',
-    paddingHorizontal: 16,
+    paddingHorizontal: 14,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 8,

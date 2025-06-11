@@ -16,7 +16,6 @@ import RankingScreen     from './src/screens/Ranking';
 import RandomGameScreen  from './src/screens/RandomGame';
 import ProfileScreen     from './src/screens/Profile';
 import EditProfileScreen from './src/screens/EditProfile'
-import QuizScreen        from './src/screens/Quiz';
 import GameScreen        from './src/screens/Game';
 
 const RootStack = createNativeStackNavigator();
@@ -29,7 +28,6 @@ function HomeStackScreen() {
   return (
     <HomeStack.Navigator screenOptions={{ headerShown: false }}>
       <HomeStack.Screen name="HomeMain" component={HomeScreen} />
-      <HomeStack.Screen name="Quiz"     component={QuizScreen}   />
       <HomeStack.Screen name="Game"     component={GameScreen}   />
       <HomeStack.Screen name="CreateChallenge" component={CreateChallengeScreen} />
     </HomeStack.Navigator>

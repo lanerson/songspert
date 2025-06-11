@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   SafeAreaView,
   View,
@@ -15,7 +15,7 @@ import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import { LinearGradient } from 'expo-linear-gradient';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useRoute } from '@react-navigation/native';
+import { useRoute, useFocusEffect } from '@react-navigation/native';
 import { API_BASE_URL } from '../config/api';
 import tvImg from '../../assets/images/tv.png';
 
@@ -39,13 +39,28 @@ export default function GameScreen() {
   const [feedback, setFeedback] = useState<string | null>(null);
   const [finished, setFinished] = useState(false);
   const soundRef = useRef<Audio.Sound | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   useEffect(() => {
     fetchChallenges();
     return () => {
-      if (soundRef.current) soundRef.current.unloadAsync();
+      if (soundRef.current) {
+        soundRef.current.unloadAsync();
+        setIsPlaying(false);
+      }
     };
   }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      return () => {
+        if (soundRef.current) {
+          soundRef.current.stopAsync();
+          setIsPlaying(false);
+        }
+      };
+    }, [])
+  );
 
   const shuffle = (arr: string[]) => [...arr].sort(() => Math.random() - 0.5);
 
@@ -83,6 +98,15 @@ export default function GameScreen() {
         { shouldPlay: true }
       );
       soundRef.current = sound;
+       sound.setOnPlaybackStatusUpdate(status => {
+        if (status.isLoaded) {
+          setIsPlaying(status.isPlaying);
+          if (status.didJustFinish) {
+            setIsPlaying(false);
+          }
+        }
+      });
+      setIsPlaying(true);
       setTimeout(() => {
         setShowChoices(true);
         setAudioLoading(false);
@@ -93,11 +117,30 @@ export default function GameScreen() {
     }
   };
 
+  const togglePlayback = async () => {
+      if (soundRef.current) {
+        const status = await soundRef.current.getStatusAsync();
+        if ('isLoaded' in status && status.isLoaded) {
+          if (status.isPlaying) {
+            await soundRef.current.pauseAsync();
+            setIsPlaying(false);
+          } else {
+            await soundRef.current.playAsync();
+            setIsPlaying(true);
+          }
+        }
+      }
+    };
+
   const handleAnswer = (ans: string) => {
     const correct = ans === challenges[index].correct;
     if (correct) setScore(s => s + 1);
     setFeedback(correct ? 'CORRECT!' : 'TRY AGAIN');
     setShowChoices(false);
+      if (soundRef.current) {
+        soundRef.current.stopAsync();
+        setIsPlaying(false);
+      }
     setTimeout(() => {
       if (index === challenges.length - 1) setFinished(true);
       else setIndex(i => i + 1);
@@ -110,6 +153,10 @@ export default function GameScreen() {
     setScore(0);
     setFinished(false);
     setFeedback(null);
+     if (soundRef.current) {
+      soundRef.current.stopAsync();
+      setIsPlaying(false);
+    }
   };
 
   if (loading) {
@@ -173,11 +220,18 @@ export default function GameScreen() {
               feedback === 'TRY AGAIN' && styles.feedbackWrong,
             ]}>
               {!feedback ? (
-                <TouchableOpacity style={styles.playButton} onPress={playAudio}>
+                <TouchableOpacity
+                  style={styles.playButton}
+                  onPress={isPlaying ? togglePlayback : playAudio}
+                >
                   {audioLoading ? (
                     <ActivityIndicator color="#FFF" />
                   ) : (
-                    <Ionicons name="play" size={32} color="#FFF" />
+                     <Ionicons
+                      name={isPlaying ? 'stop' : 'play'}
+                      size={32}
+                      color="#FFF"
+                    />
                   )}
                 </TouchableOpacity>
               ) : (
@@ -245,7 +299,7 @@ const styles = StyleSheet.create({
   choicesContainer: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
   choiceButton: { width: '100%', backgroundColor: '#E8F0FE', paddingVertical: 14, borderRadius: 25, marginBottom: 12, justifyContent: 'center', alignItems: 'center', elevation: 2 },
   choiceText: { fontSize: 16, fontWeight: '600', color: '#333' },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#4B73E5' },
   restartButton: { backgroundColor: '#FFF', paddingHorizontal: 24, paddingVertical: 12, borderRadius: 25, elevation: 2 },
   restartText: { color: '#333', fontSize: 16, fontWeight: '600' },
 });
