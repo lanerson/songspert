@@ -30,7 +30,7 @@ export default function RegisterScreen({ navigation }: any) {
         avatar: selectedAvatar,
       });
 
-      
+
       if (selectedAvatar) {
         await AsyncStorage.setItem('avatar', selectedAvatar);
       }

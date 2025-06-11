@@ -6,10 +6,21 @@ import {
   TouchableOpacity,
   Text,
   StyleSheet,
+  Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { getToken } from '../services/api';
 
 export default function HomeScreen({ navigation }: any) {
+
+  async function handleCreate() {
+    let verify = await getToken()
+    if (!verify) {
+      navigation.navigate('Login')
+    } else {
+      navigation.navigate('CreateChallenge')
+    }
+  }
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -28,7 +39,7 @@ export default function HomeScreen({ navigation }: any) {
 
         <TouchableOpacity
           style={styles.card}
-          onPress={() => navigation.navigate('CreateChallenge')}
+          onPress={handleCreate}
         >
           <Ionicons name="create-outline" size={48} />
           <Text style={styles.cardTitle}>Create Challenge</Text>

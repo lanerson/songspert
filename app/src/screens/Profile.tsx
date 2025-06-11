@@ -12,6 +12,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { API_BASE_URL } from '../config/api';
 import { avatarNames, avatarImages, AvatarName } from '../../assets/images/avatar';
 import PillButton from '../components/Buttons';
+import { getToken } from '../services/api';
 
 const pointCategories = ['Daily', 'Weekly', 'Monthly', 'Random'] as const;
 
@@ -41,7 +42,8 @@ export default function ProfileScreen({ navigation }: any) {
 
   const loadUser = useCallback(async () => {
     try {
-      const token = await AsyncStorage.getItem('token');
+      const token = await getToken();
+      console.log("token no login ", token)
       if (!token) {
         setIsAuth(false);
         return;
@@ -106,7 +108,7 @@ export default function ProfileScreen({ navigation }: any) {
 
   const handleLogout = async () => {
     await AsyncStorage.removeItem('token');
-    navigation.navigate('Login');
+    navigation.navigate('Home');
   };
 
   return (

@@ -17,36 +17,37 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { API_BASE_URL } from '../config/api';
 import { useFocusEffect } from '@react-navigation/native';
 import PillButton from '../components/Buttons';
+import { getToken } from '../services/api';
 
 const { width } = Dimensions.get('window');
 const GENRES = [
   'eclético',
-    'pop',
-    'anime',
-    'sertanejo',
-    'mpb',
-    'rap/funk brasileiro',
-    'rap/hip hop',
-    'reggaeton',
-    'rock',
-    'dance',
-    'alternativo',
-    'samba/pagode',
-    'electro',
-    'música religiosa',
-    'axé/forró',
-    'folk',
-    'reggae',
-    'jazz',
-    'clássica',
-    'metal',
-    'soul & funk',
-    'blues',
-    'cumbia',
-    'música africana',
-    'música indiana',
-    'música asiática',
-    'r&b',
+  'pop',
+  'anime',
+  'sertanejo',
+  'mpb',
+  'rap/funk brasileiro',
+  'rap/hip hop',
+  'reggaeton',
+  'rock',
+  'dance',
+  'alternativo',
+  'samba/pagode',
+  'electro',
+  'música religiosa',
+  'axé/forró',
+  'folk',
+  'reggae',
+  'jazz',
+  'clássica',
+  'metal',
+  'soul & funk',
+  'blues',
+  'cumbia',
+  'música africana',
+  'música indiana',
+  'música asiática',
+  'r&b',
 ];
 
 type Song = { id: string; title: string; artist: string; preview?: string };
@@ -70,7 +71,7 @@ export default function CreateChallengeScreen({ navigation }: any) {
     useCallback(() => {
       return () => {
         if (sound) {
-          sound.stopAsync(); 
+          sound.stopAsync();
         }
       };
     }, [sound])
@@ -144,7 +145,7 @@ export default function CreateChallengeScreen({ navigation }: any) {
     });
 
     try {
-      const token = await AsyncStorage.getItem('token');
+      const token = await getToken();
       await axios.post(
         `${API_BASE_URL}/challenge_sets/`,
         { name, genre, category: 'title', challenges },
@@ -241,10 +242,10 @@ export default function CreateChallengeScreen({ navigation }: any) {
         )}
 
         <PillButton
-        title='Create Challenge'
-        onPress={handleCreate}
+          title='Create Challenge'
+          onPress={handleCreate}
         />
-        
+
       </ScrollView>
     </SafeAreaView>
   );

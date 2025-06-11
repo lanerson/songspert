@@ -16,6 +16,7 @@ import {
   AvatarName,
 } from '../../assets/images/avatar';
 import AvatarSelector from '../components/AvatarSelector';
+import { getToken } from '../services/api';
 
 export default function EditProfileScreen() {
   const navigation = useNavigation<any>();
@@ -45,7 +46,7 @@ export default function EditProfileScreen() {
   useEffect(() => {
     (async () => {
       try {
-        const token = await AsyncStorage.getItem('token');
+        const token = await getToken();
         const res = await axios.get(`${API_BASE_URL}/users/me/`, {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -57,18 +58,7 @@ export default function EditProfileScreen() {
         setEmail(data.email);
 
         // determine avatar: prefer local storage, else server
-        let pic: string | null = null;
-        const stored = await AsyncStorage.getItem('avatar');
-        if (stored && isAvatarName(stored)) {
-          pic = stored;
-        } else {
-          const apiPic =
-            (data.avatar as string) ??
-            (data.avatar_url as string) ??
-            (data.profile_picture as string) ??
-            null;
-          if (apiPic && isAvatarName(apiPic)) pic = apiPic;
-        }
+        let pic: string | null = data.profile_picture;
 
         if (pic) setSelectedAvatar(pic as AvatarName);
       } catch (e) {
@@ -79,7 +69,7 @@ export default function EditProfileScreen() {
 
   const handleSave = async () => {
     try {
-      const token = await AsyncStorage.getItem('token');
+      const token = await getToken();
       const payload: any = {};
       if (name) payload.username = name;
       if (email) payload.email = email;

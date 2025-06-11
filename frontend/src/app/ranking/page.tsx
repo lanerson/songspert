@@ -23,7 +23,7 @@ export default function Ranking() {
 
         const getPoints = (array, id) => {
             const found = array.find(item => item.user_id == id)
-            return found ? found.total_points : 0
+            return found ? found.challenge_points : 0
         }
 
         newData.forEach((user) => {

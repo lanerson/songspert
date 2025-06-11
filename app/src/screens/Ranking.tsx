@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   SafeAreaView,
   View,
@@ -8,12 +8,14 @@ import {
   ScrollView,
   StyleSheet,
   ActivityIndicator,
+  Image,
 } from 'react-native';
 import axios from 'axios';
 import { useFocusEffect } from '@react-navigation/native';
 import { API_BASE_URL } from '../config/api';
+import { avatarImages, AvatarName } from '../../assets/images/avatar';
 
-type Entry = { id: string; name: string; score: number };
+type Entry = { id: string; name: string; score: number, profile_picture: AvatarName, first_name: string, last_name: string };
 const filters = ['Daily', 'Weekly', 'Monthly', 'Random'];
 
 export default function RankingScreen({ route }: any) {
@@ -21,35 +23,39 @@ export default function RankingScreen({ route }: any) {
   const [ranking, setRanking] = useState<Entry[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
 
-  // Fetch either /ranking?period=day|week|month or /users/ for random
   const fetchRanking = useCallback(async () => {
     setLoading(true);
     try {
-      if (selected === 'Random') {
-        const res = await axios.get(`${API_BASE_URL}/users/`);
-        const mapped = (res.data as any[]).map((u, idx) => ({
-          id: u.user_id != null ? String(u.user_id) : idx.toString(),
-          name: u.username,
-          score: u.random_points || 0,
-        }));
-        setRanking(mapped.sort((a, b) => b.score - a.score));
-      } else {
+      const res = await axios.get(`${API_BASE_URL}/users/`);
+      const mapped = (res.data as any[]).map((u, idx) => ({
+        id: u.id,
+        name: u.username,
+        score: u.random_points || 0,
+        first_name: u.first_name,
+        last_name: u.last_name,
+        profile_picture: u.profile_picture as AvatarName
+      }));
+      if (selected !== 'Random') {
         const periodMap: Record<string, 'day' | 'week' | 'month'> = {
           Daily: 'day',
           Weekly: 'week',
           Monthly: 'month',
         };
         const period = periodMap[selected];
-        const res = await axios.get(`${API_BASE_URL}/ranking`, {
+        const other_points = await axios.get(`${API_BASE_URL}/ranking`, {
           params: { period },
         });
-        const mapped = (res.data as any[]).map((u, idx) => ({
-          id: u.user_id != null ? String(u.user_id) : idx.toString(),
-          name: u.username,
-          score: u.total_points || 0,
-        }));
-        setRanking(mapped.sort((a, b) => b.score - a.score));
+
+        const rankingData = other_points.data as any[];
+
+        const scoreMap = new Map<number, number>(
+          rankingData.map(user => [user.user_id, user.challenge_points || 0])
+        );
+        mapped.forEach(user => (
+          user.score = scoreMap.get(user.id)
+        ));
       }
+      setRanking(mapped.sort((a, b) => b.score - a.score));
     } catch (err) {
       console.error('fetch ranking failed', err);
     } finally {
@@ -105,10 +111,16 @@ export default function RankingScreen({ route }: any) {
               contentContainerStyle={{ paddingBottom: 16 }}
               renderItem={({ item, index }) => (
                 <View style={styles.rankRow}>
-                  <View style={styles.avatar}>
-                    <Text style={styles.rankNum}>{index + 1}</Text>
+                  <Text style={styles.playerRank}>{index + 1}</Text>
+                  <Image
+                    source={avatarImages[item.profile_picture]}
+                    style={styles.avatar}
+                  />
+                  <View style={styles.columnName}>
+                    <Text style={styles.username}>{item.name}</Text>
+                    <Text style={styles.playerName}>{`${item.first_name} ${item.last_name}`}</Text>
                   </View>
-                  <Text style={styles.playerName}>{item.name}</Text>
+
                   <Text style={styles.playerScore}>{item.score}</Text>
                 </View>
               )}
@@ -178,6 +190,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 12,
+    paddingHorizontal: 6,
+    gap: 10, // Se estiver usando React Native 0.71+, senão use marginRight individualmente
   },
   avatar: {
     width: 32,
@@ -191,11 +205,25 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: '600',
   },
-  playerName: {
-    flex: 1,
+  username: {
+    width: 60,
     fontSize: 16,
     color: '#333',
-    marginLeft: 12,
+  },
+  playerName: {
+    flex: 1,
+    fontSize: 14,
+    color: '#333',
+  },
+  columnName: {
+    flex: 1, // Ocupa o espaço restante
+    justifyContent: 'center',
+  },
+  playerRank: {
+    fontSize: 24,
+    fontWeight: '600',
+    color: '#333',
+    marginRight: 6
   },
   playerScore: {
     fontSize: 16,

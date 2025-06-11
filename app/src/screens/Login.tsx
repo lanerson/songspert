@@ -14,7 +14,7 @@ import { API_BASE_URL } from '../config/api';
 import PillButton from '../components/Buttons';
 
 export default function LoginScreen({ navigation }: any) {
-  const [email, setEmail]       = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   const handleLogin = async () => {
@@ -23,8 +23,8 @@ export default function LoginScreen({ navigation }: any) {
         username: email,
         password,
       });
-      await AsyncStorage.setItem('token', res.data.access);
-      navigation.navigate('Home');
+      await AsyncStorage.setItem('token', res.data.refresh);
+      navigation.pop();
     } catch (err: any) {
       Alert.alert(
         'Login failed',
@@ -35,7 +35,7 @@ export default function LoginScreen({ navigation }: any) {
 
   return (
     <SafeAreaView style={styles.container}>
-      
+
       <View style={styles.content}>
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Welcome to Songspert</Text>
@@ -59,9 +59,9 @@ export default function LoginScreen({ navigation }: any) {
             secureTextEntry
           />
 
-          <PillButton 
-          title="Log In" 
-          onPress={handleLogin}
+          <PillButton
+            title="Log In"
+            onPress={handleLogin}
           />
 
           <TouchableOpacity

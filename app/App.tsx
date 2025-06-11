@@ -8,19 +8,19 @@ import { LinearGradient } from 'expo-linear-gradient';
 import CreateChallengeScreen from './src/screens/CreateChallenge.tsx'
 
 
-import LoginScreen       from './src/screens/Login';
-import RegisterScreen    from './src/screens/Register';
-import HomeScreen        from './src/screens/Home';
-import SearchScreen      from './src/screens/Search';
-import RankingScreen     from './src/screens/Ranking';
-import RandomGameScreen  from './src/screens/RandomGame';
-import ProfileScreen     from './src/screens/Profile';
+import LoginScreen from './src/screens/Login';
+import RegisterScreen from './src/screens/Register';
+import HomeScreen from './src/screens/Home';
+import SearchScreen from './src/screens/Search';
+import RankingScreen from './src/screens/Ranking';
+import RandomGameScreen from './src/screens/RandomGame';
+import ProfileScreen from './src/screens/Profile';
 import EditProfileScreen from './src/screens/EditProfile'
-import GameScreen        from './src/screens/Game';
+import GameScreen from './src/screens/Game';
 
 const RootStack = createNativeStackNavigator();
 const HomeStack = createNativeStackNavigator();
-const Tab       = createBottomTabNavigator();
+const Tab = createBottomTabNavigator();
 const SearchStack = createNativeStackNavigator();
 
 
@@ -28,7 +28,7 @@ function HomeStackScreen() {
   return (
     <HomeStack.Navigator screenOptions={{ headerShown: false }}>
       <HomeStack.Screen name="HomeMain" component={HomeScreen} />
-      <HomeStack.Screen name="Game"     component={GameScreen}   />
+      <HomeStack.Screen name="Game" component={GameScreen} />
       <HomeStack.Screen name="CreateChallenge" component={CreateChallengeScreen} />
     </HomeStack.Navigator>
   );
@@ -57,36 +57,36 @@ function MainTabs() {
         headerShown: false,
         tabBarIcon: ({ color, size }) => {
           let iconName: keyof typeof Ionicons.glyphMap = 'ellipse';
-          if (route.name === 'Home')        iconName = 'home';
+          if (route.name === 'Home') iconName = 'home';
           else if (route.name === 'Search') iconName = 'search';
-          else if (route.name === 'Ranking')iconName = 'trophy';
+          else if (route.name === 'Ranking') iconName = 'trophy';
           else if (route.name === 'RandomGame') iconName = 'shuffle';
           else if (route.name === 'Profile') iconName = 'person';
           return <Ionicons name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor:   '#fff',
+        tabBarActiveTintColor: '#fff',
         tabBarInactiveTintColor: '#CFD8FE',
         tabBarShowLabel: false,
         tabBarStyle: {
           backgroundColor: 'transparent',
-          borderTopWidth:  0,
-          elevation:       0,
-          height:          70,
-          paddingBottom:   6,
+          borderTopWidth: 0,
+          elevation: 0,
+          height: 70,
+          paddingBottom: 6,
         },
         tabBarBackground: () => (
           <LinearGradient
-            colors={['#4B73E5','#678bec']}
+            colors={['#4B73E5', '#678bec']}
             style={{ flex: 1 }}
           />
         ),
       })}
     >
-      <Tab.Screen name="Home"       component={HomeStackScreen} />
-      <Tab.Screen name="Search"     component={SearchStackScreen}   />
-      <Tab.Screen name="Ranking"    component={RankingScreen}  />
+      <Tab.Screen name="Home" component={HomeStackScreen} />
+      <Tab.Screen name="Search" component={SearchStackScreen} />
+      <Tab.Screen name="Ranking" component={RankingScreen} />
       <Tab.Screen name="RandomGame" component={RandomGameScreen} />
-      <Tab.Screen name="Profile"    component={ProfileScreen}   />
+      <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>
   );
 }
@@ -94,12 +94,12 @@ function MainTabs() {
 export default function App() {
   useEffect(() => {
     Audio.setAudioModeAsync({
-      allowsRecordingIOS:     false,
-      interruptionModeIOS:    InterruptionModeIOS.DoNotMix,
-      playsInSilentModeIOS:   true,
-      staysActiveInBackground:false,
-      shouldDuckAndroid:      true,
-      interruptionModeAndroid:InterruptionModeAndroid.DoNotMix,
+      allowsRecordingIOS: false,
+      interruptionModeIOS: InterruptionModeIOS.DoNotMix,
+      playsInSilentModeIOS: true,
+      staysActiveInBackground: false,
+      shouldDuckAndroid: true,
+      interruptionModeAndroid: InterruptionModeAndroid.DoNotMix,
     });
   }, []);
 
@@ -107,6 +107,11 @@ export default function App() {
   return (
     <NavigationContainer>
       <RootStack.Navigator initialRouteName="Home">
+        <RootStack.Screen
+          name="Home"
+          component={MainTabs}
+          options={{ headerShown: false }}
+        />
         <RootStack.Screen
           name="Login"
           component={LoginScreen}
@@ -118,19 +123,19 @@ export default function App() {
           options={{ headerShown: false }}
         />
         <RootStack.Screen
-          name="Home"
-          component={MainTabs}
-          options={{ headerShown: false }}
-        />        
-        <RootStack.Screen
           name="EditProfile"
           component={EditProfileScreen}
-          options={{ title: 'Edit Profile', headerShown:false }}
+          options={{ title: 'Edit Profile', headerShown: false }}
+        />
+        <RootStack.Screen
+          name="Profile"
+          component={ProfileScreen}
+          options={{ title: 'Profile', headerShown: false }}
         />
         <RootStack.Screen
           name="CreateChallenge"
           component={CreateChallengeScreen}
-          options={{ title: 'Create Challenge', headerShown:false }}
+          options={{ title: 'Create Challenge', headerShown: false }}
         />
       </RootStack.Navigator>
     </NavigationContainer>
