@@ -100,6 +100,7 @@ def get_tracks_by_genre(request):
     return JsonResponse({
         "data": [
             {
+                "id": track["id"],
                 "title": track["title"],
                 "artist": track["artist"]["name"],
                 "preview": track["preview"],
