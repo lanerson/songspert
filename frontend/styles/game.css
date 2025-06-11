@@ -1,5 +1,5 @@
 .game-container {
-    width: 80vw;
+    width: 100vw;
     max-width: 1200px;
     height: 80vh;
     background-color: var(--color-three);
@@ -8,6 +8,7 @@
     grid-template-rows: 50% 40% 10%;
     gap: 30px;
     justify-content: center;
+    margin: 0 10vw;
 }
 
 .game-screen {
@@ -15,20 +16,27 @@
     background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
-    height: 100%;
-    min-width: 250px;
+    height: 250px;
     aspect-ratio: 1 / 1;
     justify-self: center;
     position: relative;
+    transition: height 0.5s ease;
+}
+
+.game-screen.expand {
+    height: 60vh;
+    font-size: 1rem;
 }
 
 .screen-content {
     background-color: var(--color-white);
+    transition: background-color 0.5s ease;
     color: var(--color-black);
-    font-size: xx-large;
+    font-size: x-large;
+    white-space: pre-line;
     position: absolute;
     top: 34.7%;
-    left: 11.6%;
+    left: 11.5%;
     height: 40.5%;
     aspect-ratio: 2 / 1.25;
     place-content: center;

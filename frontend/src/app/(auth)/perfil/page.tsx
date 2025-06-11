@@ -4,6 +4,8 @@ import "./perfil.css"
 import { userType } from "../../../../models/model"
 import { getMyInfo } from "../../../../scripts/auth"
 import ImageCard from "../../../../components/imageCard"
+import { deleteCookies } from "../../../../scripts/cookies"
+import { useRouter } from "next/navigation"
 const frequencyData = ["DAILY", "WEEKLY", "MONTHLY"]//, "ANNUALY", "ALL TIME"]
 
 export default function Perfil() {
@@ -19,7 +21,7 @@ export default function Perfil() {
         profile_picture: ""
     })
     const [visible, setVisible] = useState(false)
-
+    const router = useRouter()
     const getInfo = async () => await getMyInfo().then(data => setPerfil(data))
     useEffect(() => {
         getInfo()
@@ -30,6 +32,10 @@ export default function Perfil() {
         if (avatar !== "" && avatar !== perfil.profile_picture) {
             setPerfil({ ...perfil, profile_picture: avatar })
         }
+    }
+    const handleLogout = async () => {
+        await deleteCookies()
+        router.replace("/")
     }
     return (
         <div className="perfil-container">
@@ -49,10 +55,10 @@ export default function Perfil() {
                 )}
             </div>
             <div className="button-grid">
-                <a className="perfil-button" href="/perfil/myChallenges">My Challenges</a>
-                <a className="perfil-button">Edit Profile</a>
-                <a className="perfil-button" href="/perfil/create">Create Challenge</a>
-                <div className="perfil-button">Log Out</div>
+                <div className="perfil-button" onClick={() => router.replace("/perfil/myChallenges")}>My Challenges</div>
+                <div className="perfil-button" onClick={() => router.replace("/perfil/editInfo")}>Edit Profile</div>
+                <div className="perfil-button" onClick={() => router.replace("/perfil/create")}>Create Challenge</div>
+                <div className="perfil-button" onClick={handleLogout}>Log Out</div>
             </div>
         </div>
     )

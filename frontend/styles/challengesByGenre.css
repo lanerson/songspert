@@ -1,0 +1,26 @@
+.showgenre-parent {
+    z-index: 99;
+    width: 100vw;
+    height: 80vh;
+    left: 0;
+    cursor: pointer;
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.showgenre-container {
+    height: 70vh;
+    aspect-ratio: 1/1;
+    position: absolute;
+    background-color: var(--color-five);
+    border-radius: 20px;
+    list-style: none;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    padding: 20px;
+    align-items: center;
+    justify-items: center;
+}

@@ -3,11 +3,11 @@ import { songType } from '../../models/model'
 
 type FaseType = {
     song: songType
-    handleGame: () => void,
+    handleClickOption: (answer) => void,
 }
 
 
-export default function Fase({ song, handleGame }: FaseType) {
+export default function Fase({ song, handleClickOption }: FaseType) {
     const answersContainer = (song: songType | null) => {
         if (song == null) {
             return <div></div>
@@ -15,7 +15,7 @@ export default function Fase({ song, handleGame }: FaseType) {
         else {
 
             return (
-                song.false_options.map((answer) => <div className="respostas" key={answer} onClick={handleGame}>{capitalizar(answer)}</div>)
+                song.false_options.map((answer) => <div className="respostas" key={answer} onClick={() => handleClickOption(answer)}>{capitalizar(answer)}</div>)
 
             )
         }
