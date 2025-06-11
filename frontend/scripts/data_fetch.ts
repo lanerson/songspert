@@ -146,7 +146,7 @@ export async function getChallengeById(idChallenge: number) {
 
 export async function getChallenges() {
     try {
-        const res = await fetch(base_url + `challenge_sets/`)
+        const res = await fetch(base_url + `challenge_sets/summary/`)
 
         if (!res.ok) {
             throw new Error(`Erro ao procurar desafios`)
@@ -162,35 +162,36 @@ export async function getChallenges() {
 
 export async function verifyAttempt(challengeId) {
     try {
-        const access = await refreshAccessCookie()
+        const access = await refreshAccessCookie();
         const res = await fetch(base_url + "attempts/", {
             method: "GET",
             headers: {
                 "Authorization": `Bearer ${access}`,
             },
-
-        })
-        const data = await res.json()
-        return data.filter(teste => teste.challenge_set == challengeId)
+        });
+        const data = await res.json();
+        return data.filter(teste => teste.challenge_set == challengeId);
     } catch (err) {
-        console.log("Erro verificar tentativas: ", err)
-        throw err
+        console.log("Erro verificar tentativas: ", err);
+        throw err;
     }
 }
 
 export async function tryChallenge(data: attemptType) {
     try {
-        const result = await verifyAttempt(data.challenge_set)
-        const access = await refreshAccessCookie()
-        if (result) {
-            await fetch(base_url + `attempts/${result.id}/`, {
+        const result = await verifyAttempt(data.challenge_set);
+        const access = await refreshAccessCookie();
+
+        if (result?.length) {
+            const attempt = result[0];
+            await fetch(base_url + `attempts/${attempt.id}/`, {
                 method: "PUT",
                 headers: {
                     "Authorization": `Bearer ${access}`,
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify(data)
-            })
+                body: JSON.stringify(data),
+            });
         } else {
             await fetch(base_url + "attempts/", {
                 method: "POST",
@@ -198,14 +199,15 @@ export async function tryChallenge(data: attemptType) {
                     "Authorization": `Bearer ${access}`,
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify(data)
-            })
+                body: JSON.stringify(data),
+            });
         }
     } catch (err) {
-        console.log("Erro ao realizar tentativa: ", err)
-        throw err
+        console.log("Erro ao realizar tentativa: ", err);
+        throw err;
     }
 }
+
 
 export async function verifyRandomChallenge(trackId) {
     try {
@@ -218,7 +220,7 @@ export async function verifyRandomChallenge(trackId) {
 
         })
         const data = await res.json()
-        return data.filter(teste => teste.challenge_set == trackId)
+        return data.filter(teste => teste.track == trackId)
     } catch (err) {
         console.log("Erro verificar tentativas: ", err)
         throw err
@@ -229,8 +231,9 @@ export async function tryRandomChallenge(data: attemptRandom) {
     try {
         const result = await verifyRandomChallenge(data.track)
         const access = await refreshAccessCookie()
-        if (result) {
-            await fetch(base_url + `random_attempts/${result.id}/`, {
+        if (result?.length) {
+            const attempt = result[0];
+            await fetch(base_url + `random_attempts/${attempt.id}/`, {
                 method: "PUT",
                 headers: {
                     "Authorization": `Bearer ${access}`,

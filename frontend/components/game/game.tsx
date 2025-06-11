@@ -106,6 +106,7 @@ export default function Game({ challengeId }) {
                 "score": points,
                 "is_correct": true
             }
+            console.log("try: ", JSON.stringify(data))
             await tryChallenge(data)
         } else {
             content_finish += '\nLog in to save your progress'

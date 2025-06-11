@@ -78,13 +78,14 @@ export default function Countdown() {
             hit++
             let teste = await getCookies()
             if (teste !== null) {
-
+                let pontuation = calcPoints(info.rank)
+                if (hint) pontuation = Math.floor(pontuation / 2)
                 let data: attemptRandom = {
                     "track": info.id,
-                    "score": calcPoints(info.rank),
-                    "tips_used": hint
+                    "score": pontuation,
+                    "tips_used": Number(hint)
                 }
-                console.log(data)
+                console.log(JSON.stringify(data))
                 await tryRandomChallenge(data)
             }
         }

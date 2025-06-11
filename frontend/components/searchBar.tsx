@@ -38,7 +38,7 @@ export default function SearchBar({ onClick }: searchProps) {
                 <div className="suggestions-container">
                     {searchItems.map((item) =>
                         <div key={item.id} className="suggestion-item" onClick={() => { setSearchValue(""); onClick(item) }}>
-                            <div className="suggestion-content" style={{ fontSize: '.8rem' }}>{item.title}</div>
+                            <div className="suggestion-content" style={{ fontSize: '.8rem' }}>{(item.title.length > 50) ? item.title.slice(0, 47) + "..." : item.title}</div>
                             <div className="suggestion-content" style={{ textAlign: "right", opacity: .6 }}>{item.artist}</div>
                         </div>)}
                 </div>

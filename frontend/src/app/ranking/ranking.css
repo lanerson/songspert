@@ -26,8 +26,10 @@
 .frequency-button {
     font-size: 1.2rem;
     background-color: var(--color-one);
-    padding: 12px 20px;
+    padding: 10px 20px;
     border-radius: 15px;
+    width: 120px;
+    text-align: center;
     cursor: pointer;
     user-select: none;
     transition: background-color 0.3s ease;

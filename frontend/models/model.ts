@@ -45,7 +45,7 @@ type attemptType = {
 type attemptRandom = {
     "track": number,
     "score": number,
-    "tips_used": boolean
+    "tips_used": number
 }
 
 export type { challengeType, songType, userType, attemptType, attemptRandom }

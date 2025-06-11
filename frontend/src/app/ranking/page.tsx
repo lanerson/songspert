@@ -3,7 +3,7 @@ import { useEffect, useState } from "react"
 import "./ranking.css"
 import { getUsers } from "../../../scripts/data_fetch"
 import { userType } from "../../../models/model"
-const frequencyData = ["DAILY", "WEEKLY", "MONTHLY", "RANDOM"]//, "ANNUALY", "ALL TIME"]
+const frequencyData = ["DAILY", "WEEKLY", "MONTHLY", "CHALLENGE", "RANDOM"]//, "ANNUALY", "ALL TIME"]
 
 
 export default function Ranking() {
@@ -29,7 +29,7 @@ export default function Ranking() {
                 {frequencyData.map((item) =>
                     <label key={item} className={`frequency-button ${frequency === item ? 'selected' : ''}`}>
                         <input type="radio" checked={frequency === item} onChange={(e) => handleFrequency(e)} id={item} />
-                        {item}
+                        {(item == "CHALLENGE") ? "TOTAL" : item}
                     </label>
                 )}
             </div>
