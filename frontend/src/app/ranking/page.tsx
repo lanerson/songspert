@@ -3,7 +3,7 @@ import { useEffect, useState } from "react"
 import "./ranking.css"
 import { getUsers } from "../../../scripts/data_fetch"
 import { userType } from "../../../models/model"
-const frequencyData = ["DAILY", "WEEKLY", "MONTHLY"]//, "ANNUALY", "ALL TIME"]
+const frequencyData = ["DAILY", "WEEKLY", "MONTHLY", "CHALLENGE", "RANDOM"]//, "ANNUALY", "ALL TIME"]
 
 
 export default function Ranking() {
@@ -18,7 +18,6 @@ export default function Ranking() {
     const getData = async () => {
         const newData = await getUsers()
         setUsers(newData)
-
     }
     function handleFrequency(e) {
         setFrequency(e.target.id)
@@ -30,22 +29,23 @@ export default function Ranking() {
                 {frequencyData.map((item) =>
                     <label key={item} className={`frequency-button ${frequency === item ? 'selected' : ''}`}>
                         <input type="radio" checked={frequency === item} onChange={(e) => handleFrequency(e)} id={item} />
-                        {item}
+                        {(item == "CHALLENGE") ? "TOTAL" : item}
                     </label>
                 )}
             </div>
             <ul className="list-container">
-                {users.map(user =>
-                    <li className="list-item" key={user.id}>
-                        <div className="user-image"
-                            style={{ backgroundImage: `url("/images/avatar/${user.profile_picture}.png")` }}
-                        ></div>
-                        <div className="user-content">
-                            <div>{user.username}</div>
-                            <div>{`${user.first_name} ${user.last_name}`}</div>
-                            <div>{user[`${frequency.toLowerCase()}_points`]}</div>
-                        </div>
-                    </li>)}
+                {users.sort((a, b) => b[`${frequency.toLowerCase()}_points`] - a[`${frequency.toLowerCase()}_points`])
+                    .map(user =>
+                        <li className="list-item" key={user.id}>
+                            <div className="user-image"
+                                style={{ backgroundImage: `url("/images/avatar/${user.profile_picture}.png")` }}
+                            ></div>
+                            <div className="user-content">
+                                <div>{user.username}</div>
+                                <div>{`${user.first_name} ${user.last_name}`}</div>
+                                <div style={{ textAlign: 'right', marginRight: '20%' }}>{user[`${frequency.toLowerCase()}_points`]}</div>
+                            </div>
+                        </li>)}
             </ul>
         </div>
     )

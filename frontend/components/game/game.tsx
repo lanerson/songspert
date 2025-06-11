@@ -2,40 +2,36 @@
 import { useRef, useState, useEffect } from 'react'
 import '../../styles/game.css'
 import { useRouter } from 'next/navigation'
-import { songType } from '../../models/model'
+import { attemptType, songType } from '../../models/model'
 import Fase from './fase'
-import { getChallengeById } from '../../scripts/data_fetch'
-
+import { getChallengeById, tryChallenge } from '../../scripts/data_fetch'
+import { calcPoints } from '../../scripts/data_client'
+import { getCookies } from '../../scripts/cookies'
 
 export default function Game({ challengeId }) {
+    const audioRef = useRef<HTMLAudioElement | null>(null);
+    const router = useRouter()
     const [toggleStart, setToggleStart] = useState<boolean>(false);
     const [currentSong, setCurrentSong] = useState<songType | null>(null);
     const [songIndex, setSongIndex] = useState<number>(0);
-    const audioRef = useRef<HTMLAudioElement | null>(null);
     const [content, setContent] = useState<string>('PRONTO?');
-    const router = useRouter()
-    const [challenge, setChallenge] = useState<songType[]>([{
-        id: 1,
-        track: "https://cdnt-preview.dzcdn.net/api/1/1/a/9/1/0/a91845f6dd1265c2f85a3f716d9029e5.mp3?hdnea=exp=1749089255~acl=/api/1/1/a/9/1/0/a91845f6dd1265c2f85a3f716d9029e5.mp3*~data=user_id=0,application_id=42~hmac=7d38fe7bc98218a626cc696bf70c23898c69a55382734435601a46e74a8e77c1",
-        genre: "",
-        type: "title",
-        false_options: [
-            "Billie Jean",
-            "Look Away",
-            "Careless Whisper",
-            "Physical"
-        ],
-        correct_answer: "Careless Whisper"
-    }])
+    const [bgOverride, setBgOverride] = useState(null)
+    const [points, setPoints] = useState<number>(0)
+    const [finish, setFinish] = useState(false)
+    const [loading, setLoading] = useState<boolean>(true); // NOVO ESTADO
+    const [challenge, setChallenge] = useState<songType[]>([])
 
     const getChallenge = async () => {
         try {
+            setLoading(true);
             const _challenge = await getChallengeById(challengeId);
             setChallenge(_challenge);
-            console.log("desafios", challenge)
+            console.log("desafios", _challenge)
+            setLoading(false);
         } catch (error) {
             alert("Erro inesperado");
             console.log(error.code, error.message)
+            setLoading(false);
             router.replace("/")
         }
     }
@@ -46,7 +42,7 @@ export default function Game({ challengeId }) {
 
     const playSound = () => {
         if (audioRef.current) {
-            audioRef.current.currentTime = 0; // volta ao início para tocar de novo
+            audioRef.current.currentTime = 0;
             audioRef.current.play();
         }
     }
@@ -57,11 +53,10 @@ export default function Game({ challengeId }) {
             audioRef.current = new Audio(path);
         }
     };
-    // Transição Inicial
+
     const startCountdown = () => {
-        setupAudio("/music/drum_stick.mp3")
         setToggleStart(true)
-        const sequence: (number | string)[] = [4, 3, 2, 1];
+        const sequence: (number | string)[] = [3, 2, 1];
         let i = 0;
         setContent(sequence[i].toString());
         new Audio("/music/drum_stick.mp3").play()
@@ -73,7 +68,7 @@ export default function Game({ challengeId }) {
                 new Audio("/music/drum_stick.mp3").play()
             } else {
                 clearInterval(interval);
-                setTimeout(() => { // Após terminar a transiçao                    
+                setTimeout(() => {
                     handleGame()
 
                 }, 1000);
@@ -81,12 +76,48 @@ export default function Game({ challengeId }) {
         }, 1000);
     };
 
+    const handleClickOption = (answer: string) => {
+        let text = 'errou'
+        let color = 'red'
+        if (answer == currentSong.correct_answer.split(" (")[0]) {
+            color = 'green'
+            text = 'acertou'
+            setPoints(prev => prev + calcPoints(currentSong.rank));
+        }
+        setContent(text)
+        setBgOverride(color)
+
+
+        setTimeout(() => {
+            setBgOverride(null)
+            handleGame()
+        }, 1500)
+    }
+
+    const handleFinish = async () => {
+        setContent("")
+        setFinish(true)
+        let content_finish = "Challenge completed\n" +
+            `+${points} points`
+        let teste = await getCookies()
+        if (teste !== null) {
+            let data: attemptType = {
+                "challenge_set": challengeId,
+                "score": points,
+                "is_correct": true
+            }
+            console.log("try: ", JSON.stringify(data))
+            await tryChallenge(data)
+        } else {
+            content_finish += '\nLog in to save your progress'
+        }
+        setContent(content_finish)
+        audioRef.current.pause()
+    }
 
     const handleGame = () => {
         if (songIndex === challenge.length) {
-            alert("terminou")
-            audioRef.current.pause()
-            router.refresh()
+            handleFinish()
         }
         else {
             setupAudio(challenge[songIndex].track)
@@ -97,16 +128,34 @@ export default function Game({ challengeId }) {
             setContent(`song ${newIndex}`)
         }
     }
+
     return (
         <div className="game-container">
-            <div className='game-screen'>
-                <div className='screen-content'>{content}</div>
-            </div>
+            <div className={`game-screen ${(finish) ? 'expand' : ''}`}>
+                <div className='screen-content' style={{
+                    backgroundColor: bgOverride || 'white',
 
-            <div className="play-button" onClick={startCountdown} style={{ display: toggleStart ? 'none' : 'auto' }}></div>
-            <Fase
-                song={currentSong}
-                handleGame={handleGame} />
+                }}>
+                    {loading ? 'Loading...' : content}
+                </div>
+            </div>
+            <div
+                className="play-button"
+                onClick={startCountdown}
+                style={{
+                    display: (!loading && !toggleStart) ? 'block' : 'none'
+                }}
+            ></div>
+            {
+                (!finish && !loading) &&
+                <Fase
+                    song={currentSong}
+                    handleClickOption={handleClickOption} />
+            }
+            {
+                finish && <div className='respostas' onClick={() => router.replace("/search")}
+                    style={{ margin: '20px auto', placeSelf: 'flex-end', height: '50px' }}>Novo desafio</div>
+            }
         </div>
     )
 }

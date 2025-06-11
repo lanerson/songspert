@@ -26,10 +26,11 @@
 .frequency-button {
     font-size: 1.2rem;
     background-color: var(--color-one);
-    padding: 12px 20px;
+    padding: 10px 20px;
     border-radius: 15px;
+    width: 120px;
+    text-align: center;
     cursor: pointer;
-    border: solid 4px var(--color-one);
     user-select: none;
     transition: background-color 0.3s ease;
 }
@@ -39,11 +40,11 @@
 }
 
 .frequency-button.selected {
-    background-color: var(--color-three);
+    background-color: var(--color-hover);
 }
 
 .frequency-button:hover {
-    background-color: var(--color-three);
+    background-color: var(--color-hover);
 }
 
 .list-container {
@@ -85,7 +86,7 @@
 .user-content {
     width: 100%;
     display: grid;
-    grid-template-columns: 30% 30% 30%;
+    grid-template-columns: 25% 55% 20%;
     gap: 10px;
 }
 

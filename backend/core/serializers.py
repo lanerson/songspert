@@ -158,6 +158,10 @@ class ChallengeSetSerializer(serializers.ModelSerializer):
 
         return instance
 
+class ChallengeSetSummarySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ChallengeSet
+        fields = ("id", "name", "genre", "created_by")
 
 class TrackSerializer(serializers.ModelSerializer):
     class Meta:
@@ -194,6 +198,3 @@ class RandomAttemptSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         return RandomAttempt.objects.create(**validated_data)
-
-
-

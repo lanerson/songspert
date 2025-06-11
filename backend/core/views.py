@@ -12,7 +12,10 @@ from django.utils.timezone import now
 from django.db.models import Sum
 from datetime import timedelta
 from .models import Challenge, ChallengeSet, Attempt, RandomAttempt
-from .serializers import ChallengeSerializer, ChallengeSetSerializer, UserReadSerializer, UserWriteSerializer, serializers, AttemptSerializer, RandomAttemptSerializer
+from .serializers import ChallengeSerializer, ChallengeSetSerializer, UserReadSerializer, UserWriteSerializer, serializers, AttemptSerializer, RandomAttemptSerializer, ChallengeSetSummarySerializer
+from drf_spectacular.utils import extend_schema
+from datetime import datetime, timedelta, timezone
+import pytz
 
 
 User = get_user_model()
@@ -97,10 +100,12 @@ def get_tracks_by_genre(request):
     return JsonResponse({
         "data": [
             {
+                "id": track["id"],
                 "title": track["title"],
                 "artist": track["artist"]["name"],
                 "preview": track["preview"],
-                "picture": track["artist"]["picture_medium"]
+                "picture": track["artist"]["picture_medium"],
+                "rank": track["rank"]
             } for track in selected_tracks
         ]
     })
@@ -125,6 +130,17 @@ class ChallengeSetViewSet(viewsets.ModelViewSet):
         if instance.created_by != self.request.user:
             raise PermissionDenied("Not your set.")
         super().perform_destroy(instance)
+
+    @extend_schema(responses=ChallengeSetSummarySerializer(many=True))
+    @action(detail=False, methods=["get"], url_path="summary", permission_classes=[AllowAny])
+    def summary(self, request):
+        sets = ChallengeSet.objects.all().only("id", "name", "genre", "created_by")
+        serializer = ChallengeSetSummarySerializer(sets, many=True)
+        return Response(serializer.data)
+
+
+
+
     
 class ChallengeViewSet(viewsets.ModelViewSet):
     serializer_class = ChallengeSerializer
@@ -209,14 +225,25 @@ class RandomAttemptViewSet(viewsets.ModelViewSet):
 @permission_classes([AllowAny])
 def ranking_view(request):
     period = request.GET.get("period", "week")
-    now_ = now()
+
+    # Define timezone UTC-3 (America/Sao_Paulo) para o reset
+    tz = pytz.timezone("America/Sao_Paulo")
+    now_ = now().astimezone(tz)
 
     if period == "day":
-        since = now_ - timedelta(days=1)
+        since = now_.replace(hour=0, minute=0, second=0, microsecond=0)
+
+    elif period == "week":
+        # Calcula o último domingo 00:00
+        weekday = now_.weekday()  # segunda=0, ..., domingo=6
+        days_since_sunday = (weekday + 1) % 7
+        since = (now_ - timedelta(days=days_since_sunday)).replace(hour=0, minute=0, second=0, microsecond=0)
+
     elif period == "month":
-        since = now_ - timedelta(days=30)
+        since = now_.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+
     else:
-        since = now_ - timedelta(days=7)
+        return Response({"error": "Invalid period. Use 'day', 'week' or 'month'."}, status=400)
 
     users = User.objects.all()
     ranking_data = []
