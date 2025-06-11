@@ -17,22 +17,45 @@
     border-radius: 50%;
     background-color: var(--color-black);
     background-size: contain;
-    height: 150px;
+    height: 130px;
     aspect-ratio: 1 / 1;
-    cursor: pointer;
     color: transparent;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-.perfil-image:hover {
+.perfil-image.update {
+    cursor: pointer;
+}
+
+.perfil-image.update:hover {
     opacity: .8;
     color: var(--color-white);
 }
 
 .perfil-info {
     width: 80%;
+}
+
+.perfil-input {
+    width: 40%;
+    font-size: 1rem;
+    border: 2px solid var(--color-black);
+    border-radius: 10px;
+    background-color: var(--color-white);
+    color: var(--color-black);
+    margin-bottom: 5px;
+    transition: border-color 0.3s ease;
+}
+
+.perfil-input::placeholder {
+    font-size: .8rem;
+}
+
+.perfil-input:focus {
+    outline: none;
+    border-color: var(--color-one);
 }
 
 .perfil-statistic {
@@ -56,6 +79,27 @@
     width: 200px;
 }
 
+.perfil-button.last {
+    grid-column: 2;
+}
+
 .perfil-button:hover {
+    background-color: var(--color-three);
+}
+
+/* Botão de confirmação */
+.confirm-button {
+    background-color: var(--color-one);
+    border: none;
+    padding: 10px 20px;
+    color: var(--color-white);
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    margin-top: 10px;
+    transition: background-color 0.3s ease;
+}
+
+.confirm-button:hover {
     background-color: var(--color-three);
 }

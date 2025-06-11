@@ -50,6 +50,28 @@ export async function Register(newUser) {
     }
 }
 
+export async function Update(id, newUser) {
+    try {
+        const res = await fetch(base_url + `users/${id}/`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(newUser)
+        })
+
+        if (!res.ok) {
+            const text = await res.text()
+            throw new Error("Erro na atualização: " + text)
+        }
+
+        await LogInWithUsernameAndPassword(newUser.username, newUser.password)
+    } catch (error) {
+        console.error("Update:", error)
+        throw error
+    }
+}
+
 export async function refreshAccessCookie() {
     try {
         const tokens = await getCookies()
