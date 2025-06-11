@@ -7,22 +7,19 @@ import {
   TouchableOpacity,
   Alert,
   StyleSheet,
-  Image,
-  Modal,
 } from 'react-native';
 import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_BASE_URL } from '../config/api';
-import { avatarNames, avatarImages, AvatarName } from '../../assets/images/avatar';
-import { Ionicons } from '@expo/vector-icons';
 import AvatarSelector from '../components/AvatarSelector';
 import PillButton from '../components/Buttons';
+import { AvatarName } from '../../assets/images/avatar';
 
 export default function RegisterScreen({ navigation }: any) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [selectedAvatar, setSelectedAvatar] = useState<AvatarName | null>(null);
-  const [modalVisible, setModalVisible] = useState(false);
 
   const handleRegister = async () => {
     try {
@@ -32,6 +29,12 @@ export default function RegisterScreen({ navigation }: any) {
         password,
         avatar: selectedAvatar,
       });
+
+      
+      if (selectedAvatar) {
+        await AsyncStorage.setItem('avatar', selectedAvatar);
+      }
+
       Alert.alert('Success', 'Account created! Please log in.');
       navigation.navigate('Login');
     } catch (err: any) {
@@ -53,8 +56,8 @@ export default function RegisterScreen({ navigation }: any) {
           <AvatarSelector
             selectedAvatar={selectedAvatar}
             onSelectAvatar={setSelectedAvatar}
-            placeholderSize={100} 
-            iconSize={50}            
+            placeholderSize={100}
+            iconSize={50}
           />
 
           <TextInput
@@ -66,7 +69,7 @@ export default function RegisterScreen({ navigation }: any) {
             autoCapitalize="none"
             keyboardType="email-address"
           />
-          
+
           <TextInput
             style={styles.input}
             placeholder="Username"
@@ -84,10 +87,10 @@ export default function RegisterScreen({ navigation }: any) {
             secureTextEntry
           />
 
-          <PillButton 
+          <PillButton
             title="Sign Up"
             onPress={handleRegister}
-            />
+          />
 
           <TouchableOpacity
             style={styles.linkContainer}
@@ -127,18 +130,6 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     padding: 12,
     marginBottom: 12,
-    fontSize: 16,
-  },
-  button: {
-    backgroundColor: '#9fbaf9',
-    borderRadius: 5,
-    paddingVertical: 12,
-    alignItems: 'center',
-    marginTop: 8,
-  },
-  buttonText: {
-    color: '#fff',
-    fontWeight: '600',
     fontSize: 16,
   },
   linkContainer: {

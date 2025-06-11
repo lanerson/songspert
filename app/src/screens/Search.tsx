@@ -36,7 +36,7 @@ export default function SearchScreen({ navigation }: any) {
   const fetchSets = async (g: string) => {
     setLoading(true);
     try {
-      const res = await axios.get<ChallengeSet[]>(`${API_BASE_URL}/challenge_sets/`);
+      const res = await axios.get<ChallengeSet[]>(`${API_BASE_URL}/challenge_sets/summary`);
       const filtered = res.data.filter(
         (s) => (s.genre || '').toLowerCase() === g.toLowerCase()
       );

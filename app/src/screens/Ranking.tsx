@@ -17,39 +17,36 @@ type Entry = { id: string; name: string; score: number };
 const filters = ['Daily', 'Weekly', 'Monthly', 'Random'];
 
 export default function RankingScreen({ route }: any) {
-  const challengeSetId = route.params?.challengeSetId as string | undefined;
   const [selected, setSelected] = useState<string>(filters[0]);
   const [ranking, setRanking] = useState<Entry[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
 
-  // auto-select “Challenge” when coming from Game screen
-  useEffect(() => {
-    if (challengeSetId) setSelected('Challenge');
-  }, [challengeSetId]);
-
+  // Fetch either /ranking?period=day|week|month or /users/ for random
   const fetchRanking = useCallback(async () => {
     setLoading(true);
     try {
-      if (selected === 'Challenge' && challengeSetId) {
-        const res = await axios.get(`${API_BASE_URL}/ranking`, {
-          params: { challenge_set: challengeSetId },
-        });
+      if (selected === 'Random') {
+        const res = await axios.get(`${API_BASE_URL}/users/`);
         const mapped = (res.data as any[]).map((u, idx) => ({
-          id: u.id != null ? String(u.id) : idx.toString(),
+          id: u.user_id != null ? String(u.user_id) : idx.toString(),
           name: u.username,
-          score: u.challenge_points || 0,
+          score: u.random_points || 0,
         }));
         setRanking(mapped.sort((a, b) => b.score - a.score));
       } else {
-        const res = await axios.get(`${API_BASE_URL}/users/`);
-        const key =
-          selected === 'Random'
-            ? 'random_points'
-            : `${selected.toLowerCase()}_points`;
+        const periodMap: Record<string, 'day' | 'week' | 'month'> = {
+          Daily: 'day',
+          Weekly: 'week',
+          Monthly: 'month',
+        };
+        const period = periodMap[selected];
+        const res = await axios.get(`${API_BASE_URL}/ranking`, {
+          params: { period },
+        });
         const mapped = (res.data as any[]).map((u, idx) => ({
-          id: u.id != null ? String(u.id) : idx.toString(),
+          id: u.user_id != null ? String(u.user_id) : idx.toString(),
           name: u.username,
-          score: u[key] || 0,
+          score: u.total_points || 0,
         }));
         setRanking(mapped.sort((a, b) => b.score - a.score));
       }
@@ -58,7 +55,7 @@ export default function RankingScreen({ route }: any) {
     } finally {
       setLoading(false);
     }
-  }, [selected, challengeSetId]);
+  }, [selected]);
 
   useFocusEffect(
     useCallback(() => {
@@ -102,7 +99,7 @@ export default function RankingScreen({ route }: any) {
           ) : (
             <FlatList
               data={ranking}
-              keyExtractor={(_, idx) => idx.toString()}
+              keyExtractor={item => item.id}
               showsVerticalScrollIndicator={false}
               style={{ flex: 1 }}
               contentContainerStyle={{ paddingBottom: 16 }}

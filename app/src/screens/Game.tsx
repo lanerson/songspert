@@ -81,7 +81,7 @@ export default function GameScreen() {
             preview: t.data.preview,
             rank: t.data.rank,
             answers: shuffle([...ch.false_options]),
-            correct: ch.correct_answer,
+            correct: ch.correct_answer.split(' (')[0],
           } as Challenge;
         })
       );

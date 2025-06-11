@@ -127,6 +127,11 @@ export default function App() {
           component={EditProfileScreen}
           options={{ title: 'Edit Profile', headerShown:false }}
         />
+        <RootStack.Screen
+          name="CreateChallenge"
+          component={CreateChallengeScreen}
+          options={{ title: 'Create Challenge', headerShown:false }}
+        />
       </RootStack.Navigator>
     </NavigationContainer>
   );
