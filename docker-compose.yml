@@ -10,8 +10,6 @@ services:
       - ./backend:/app
     ports:
       - "8000:8000"
-    depends_on:
-      - db
 
   frontend:
     build:
@@ -23,16 +21,6 @@ services:
       - "3000:3000"
     depends_on:
       - backend
-
-  db:
-    image: postgres:13
-    container_name: songspert-db
-    environment:
-      POSTGRES_DB: songspert
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
 
 volumes:
   postgres_data:
