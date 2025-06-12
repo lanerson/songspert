@@ -36,7 +36,7 @@ O projeto é composto por três camadas principais:
 Certifique-se de ter [Docker](https://www.docker.com/) e [Docker Compose](https://docs.docker.com/compose/) instalados.
 
 ```bash
-docker-compose up
+docker-compose up --build
 ```
 
 Isso iniciará:
@@ -82,6 +82,5 @@ Acesse via: http://localhost:3000
 ---
 
 ## 🖼️ Preview
-Homepage do app.
 
-<img src="app/assets/preview_home.jpeg" alt="Preview da aplicação" width="150"/>
+<img src="app/assets/preview_home.jpeg" alt="Preview da aplicação" width="250"/>
