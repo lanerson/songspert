@@ -14,6 +14,7 @@ import axios from 'axios';
 import { useFocusEffect } from '@react-navigation/native';
 import { API_BASE_URL } from '../config/api';
 import { avatarImages, AvatarName } from '../../assets/images/avatar';
+import { getToken } from '../services/api';
 
 type Entry = { id: string; name: string; score: number, profile_picture: AvatarName, first_name: string, last_name: string };
 const filters = ['Daily', 'Weekly', 'Monthly', 'Random'];
@@ -36,6 +37,7 @@ export default function RankingScreen({ route }: any) {
         profile_picture: u.profile_picture as AvatarName
       }));
       if (selected !== 'Random') {
+        const token = await getToken();
         const periodMap: Record<string, 'day' | 'week' | 'month'> = {
           Daily: 'day',
           Weekly: 'week',
@@ -44,6 +46,7 @@ export default function RankingScreen({ route }: any) {
         const period = periodMap[selected];
         const other_points = await axios.get(`${API_BASE_URL}/ranking`, {
           params: { period },
+          headers: { Authorization: `Bearer ${token}` },
         });
 
         const rankingData = other_points.data as any[];

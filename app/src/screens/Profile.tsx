@@ -83,7 +83,7 @@ export default function ProfileScreen({ navigation }: any) {
 
       const findPoints = (arr: any[], uid: number) => {
         const entry = arr.find((u: any) => u.user_id === uid);
-        return entry?.total_points ?? 0;
+        return entry?.challenge_points?? 0;
       };
 
       setStats({
