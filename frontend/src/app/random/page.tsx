@@ -85,7 +85,6 @@ export default function Countdown() {
                     "score": pontuation,
                     "tips_used": Number(hint)
                 }
-                console.log(JSON.stringify(data))
                 await tryRandomChallenge(data)
             }
         }
